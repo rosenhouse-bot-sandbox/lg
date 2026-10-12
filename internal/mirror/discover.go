@@ -165,6 +165,7 @@ type discovery struct {
 // would evict or that disk_cap evicted, and reports a listed run without
 // created_at as malformed.
 func (m *Mirror) discover(ctx context.Context, gh github.Client, repo github.Repo, p *pending, w *watch) (discovery, error) {
+	m.report("listing runs")
 	now := m.Clock.Now()
 	horizons, discarded, err := retention.ReadHorizons(m.Store)
 	if err != nil {

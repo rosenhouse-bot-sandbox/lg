@@ -9,11 +9,14 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 
+	"github.com/rosenhouse/lg/internal/clock"
+	"github.com/rosenhouse/lg/internal/lock"
 	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
 	"github.com/rosenhouse/lg/internal/testsupport/harness"
 	"github.com/rosenhouse/lg/internal/testsupport/matchers"
@@ -112,6 +115,33 @@ var _ = Describe("lg sync against run-37129390741/after-attempt-1", Label("sync"
 		}
 		Expect(fake.Requests()).NotTo(ContainElement(HaveField("Path", HaveSuffix("/jobs/111221290616/logs"))))
 		Expect(fake.Requests()).NotTo(ContainElement(HaveField("Path", HaveSuffix("/jobs/111221313824/logs"))))
+	})
+})
+
+var _ = Describe("lg sync with stderr on a broken pipe", Label("sync"), func() {
+	It("finishes, not by SIGPIPE, after it says it waits for lg.db", func() {
+		env := harness.New(lgPath)
+		env.WriteConfig(fakegithub.Start(fixtureRun, "after-attempt-1").URL())
+		// A fresh status.json keeps lg from warning before it syncs.
+		env.WriteStatus(statusJSON(harness.DefaultNow(), "null"))
+		held, err := lock.Wait(filepath.Join(env.State(), "lg.db.lock"), time.Second, clock.Real{}, func(string) {})
+		Expect(err).NotTo(HaveOccurred())
+		reader, writer, err := os.Pipe()
+		Expect(err).NotTo(HaveOccurred())
+		Expect(reader.Close()).To(Succeed())
+		sync := env.Command("sync")
+		sync.Stderr = writer
+		Expect(sync.Start()).To(Succeed())
+		Expect(writer.Close()).To(Succeed())
+		exited := make(chan error, 1)
+		go func() { exited <- sync.Wait() }()
+
+		Eventually(cycle(env), harness.ExitTimeout).Should(Equal(2.0))
+		// lg says it waits for lg.db.lock after waiting 1s.
+		Consistently(exited, 2*time.Second).ShouldNot(Receive())
+		Expect(held.Release()).To(Succeed())
+
+		Eventually(exited, harness.ExitTimeout).Should(Receive(BeNil()))
 	})
 })
 

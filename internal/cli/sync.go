@@ -30,12 +30,16 @@ type syncCmd struct {
 
 func (syncCmd) Help() string {
 	return "Without a daemon, lg sync runs one cycle and exits with that cycle's exit code. --timeout does not limit the cycle. " +
+		fmt.Sprintf("Every %s of a cycle, it prints what the cycle is doing. ", progressEvery) +
 		"With a daemon running, it asks the daemon for a cycle and exits at once, or, with --wait, when that cycle ends. " +
 		fmt.Sprintf("The first sync fetches the runs created within backfill, %s unless config.yaml sets it. ", config.Defaults().Backfill) +
 		"It exits 1 while units stay pending; lg status lists them."
 }
 
 func (c syncCmd) Run(deps *Deps) error {
+	// Like the daemon's log, lg sync's lines must not decide its outcome, so
+	// a broken pipe gives EPIPE, which lg ignores.
+	signal.Ignore(syscall.SIGPIPE)
 	t, err := loadTarget(deps.Env)
 	if err != nil {
 		return err
@@ -50,9 +54,6 @@ func (c syncCmd) Run(deps *Deps) error {
 		if err != nil {
 			return failure.FromErrno(err)
 		}
-		// Like the daemon's log, this line must not decide the outcome, so a
-		// broken pipe gives EPIPE, which it ignores.
-		signal.Ignore(syscall.SIGPIPE)
 		_, _ = fmt.Fprintf(deps.Stderr, "lg: sent sync request %d to the running daemon\n", n)
 		if !c.Wait {
 			return nil
@@ -67,9 +68,12 @@ func (c syncCmd) Run(deps *Deps) error {
 	// Ending ctx on a signal kills gh's process group, which the signal does not reach.
 	ctx, stop := signalContext()
 	defer stop()
-	_, err = recordCycle(t, deps, func() (mirror.Report, error) { return runCycle(ctx, t, deps) }, func(*status.Cycle) {})
+	p := startProgress(deps.Stderr, deps.Clock)
+	defer p.Stop()
+	_, err = recordCycle(t, deps, func() (mirror.Report, error) { return runCycle(ctx, t, deps, p.Report) }, func(*status.Cycle) {})
 	stop()
 	_ = held.Release()
+	p.Report("indexing")
 	return reconcileAfter(err, t.roots, deps)
 }
 
@@ -124,8 +128,9 @@ func recordCycle(t target, deps *Deps, cycle func() (mirror.Report, error), comp
 	return c, errors.Join(err, writeStatus(deps.StoreFS, t.roots, t.cfg, c))
 }
 
-// runCycle opens the store and runs one cycle. Callers hold state/write.lock.
-func runCycle(ctx context.Context, t target, deps *Deps) (mirror.Report, error) {
+// runCycle opens the store and runs one cycle, which tells progress, if
+// set, what it is doing. Callers hold state/write.lock.
+func runCycle(ctx context.Context, t target, deps *Deps, progress func(doing string)) (mirror.Report, error) {
 	cfg := t.cfg
 	s, err := initAndSweep(deps.StoreFS, t.roots.Store)
 	if err != nil {
@@ -145,6 +150,7 @@ func runCycle(ctx context.Context, t target, deps *Deps) (mirror.Report, error) 
 		Backfill:         time.Duration(cfg.Backfill),
 		Retention:        time.Duration(cfg.Retention),
 		DiskCap:          int64(cfg.DiskCap),
+		Progress:         progress,
 	}
 	return m.Cycle(ctx)
 }

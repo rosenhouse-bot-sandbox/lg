@@ -38,6 +38,8 @@ type Mirror struct {
 	Backfill         time.Duration
 	Retention        time.Duration
 	DiskCap          int64
+	// Progress, when set, hears what the cycle is doing whenever that changes.
+	Progress func(doing string)
 }
 
 // Report is what a cycle learned besides its error.
@@ -85,6 +87,7 @@ func (m *Mirror) Cycle(ctx context.Context) (Report, error) {
 		}
 		return report, err
 	}
+	m.report("applying retention")
 	retained := failure.FromErrno(m.retain(ctx))
 	if retained == nil {
 		return report, err
@@ -102,6 +105,12 @@ func (m *Mirror) classify(err error) error {
 		return blocked
 	}
 	return failure.FromErrno(err)
+}
+
+func (m *Mirror) report(format string, args ...any) {
+	if m.Progress != nil {
+		m.Progress(fmt.Sprintf(format, args...))
+	}
 }
 
 func (m *Mirror) retain(ctx context.Context) error {
@@ -224,6 +233,7 @@ func (l *artifactListing) candidates() []candidate {
 func (m *Mirror) artifactPhase(ctx context.Context, gh github.Client, runs []listedRun, p *pending) ([]UnitError, error) {
 	var failed []UnitError
 	for i := len(runs) - 1; i >= 0; i-- {
+		m.report("fetching artifacts, %d of %d runs done", len(runs)-1-i, len(runs))
 		runFailed, err := m.syncArtifacts(ctx, gh, &runs[i], p)
 		failed = append(failed, runFailed...)
 		if err != nil {
@@ -238,18 +248,25 @@ func (m *Mirror) artifactPhase(ctx context.Context, gh github.Client, runs []lis
 // both. It goes oldest run first. It returns the errors that runScoped
 // accepts, and stops at any other.
 func (m *Mirror) attemptPhase(ctx context.Context, gh github.Client, runs []listedRun) ([]UnitError, error) {
+	var due []*listedRun
+	total := 0
+	for i := range runs {
+		if run := &runs[i]; run.artifacts != nil && run.artifacts.runRead {
+			due = append(due, run)
+			total += len(run.planned)
+		}
+	}
 	l := lookups{}
 	var failed []UnitError
-	for i := range runs {
-		run := &runs[i]
-		if run.artifacts == nil || !run.artifacts.runRead {
-			continue
-		}
+	done := 0
+	for _, run := range due {
+		m.report("fetching logs, %d of %d attempts done", done, total)
 		runFailed, err := m.syncAttempts(ctx, gh, run, l)
 		failed = append(failed, runFailed...)
 		if err != nil {
 			return failed, err
 		}
+		done += len(run.planned)
 	}
 	return failed, nil
 }

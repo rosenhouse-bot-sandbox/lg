@@ -55,6 +55,7 @@ var _ = DescribeTable("--help says", Label("cli"),
 	Entry("where a date --until ends", []string{"paths"}, "A date means its 00:00 UTC, so --until 2026-10-03 stops at the start of that day."),
 	Entry("how lg sync exits without a daemon", []string{"sync"},
 		"Without a daemon, lg sync runs one cycle and exits with that cycle's exit code. --timeout does not limit the cycle."),
+	Entry("how often lg sync prints its progress", []string{"sync"}, "Every 10s of a cycle, it prints what the cycle is doing."),
 	Entry("how lg sync --wait exits", []string{"sync"}, "wait for the cycle this request starts, and exit with that cycle's exit code."),
 	Entry("where lg flakes learns the default branch", []string{"flakes"}, "lg learns the default branch from GitHub at each sync; --branch replaces it."),
 )
