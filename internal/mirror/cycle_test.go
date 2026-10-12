@@ -26,6 +26,7 @@ import (
 	"github.com/rosenhouse/lg/internal/testsupport/harness"
 	"github.com/rosenhouse/lg/internal/testsupport/matchers"
 	"github.com/rosenhouse/lg/internal/testsupport/recordings"
+	"github.com/rosenhouse/lg/internal/testsupport/scenario"
 )
 
 const runID = 37129390741
@@ -111,6 +112,32 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 		Entry("in the attempt phase", "after-attempt-2", "jobs/111221289888/logs", "/runs/37129390741/attempts/2", HaveField("Attempt", 1)),
 		Entry("in an earlier phase", "after-attempt-1", "/artifacts/11276401837/zip", "/runs/37129390741/attempts/1", HaveField("Artifact", int64(11276401837))),
 	)
+
+	It("tells Progress what it is doing", Label("status"), func() {
+		Expect(fake.AddRun(scenario.CloneAt(1, "after-attempt-2", harness.DefaultNow().Add(-scenario.Day)))).To(Succeed())
+		var reported []string
+		m.Progress = func(doing string) { reported = append(reported, doing) }
+
+		Expect(cycleErr(context.Background(), &m)).To(Succeed())
+		Expect(reported).To(Equal([]string{
+			"listing runs",
+			"fetching artifacts, 0 of 2 runs done",
+			"fetching artifacts, 1 of 2 runs done",
+			"fetching logs, 0 of 3 attempts done",
+			"fetching logs, 2 of 3 attempts done",
+			"applying retention",
+		}))
+	})
+
+	It("counts no attempt of a run whose artifacts it could not list", Label("status"), func() {
+		Expect(fake.AddRun(scenario.CloneAt(1, "after-attempt-2", harness.DefaultNow().Add(-scenario.Day)))).To(Succeed())
+		fake.Fail("api", "/runs/1/artifacts", fakegithub.Fault{Status: http.StatusBadGateway})
+		var reported []string
+		m.Progress = func(doing string) { reported = append(reported, doing) }
+
+		Expect(cycleErr(context.Background(), &m)).To(MatchError(ContainSubstring("502")))
+		Expect(reported).To(ContainElement("fetching logs, 0 of 1 attempts done"))
+	})
 
 	It("reports a cycle that a listing stopped as not completed", Label("status"), func() {
 		fake.Fail("api", "/actions/runs", fakegithub.Fault{Status: http.StatusBadGateway})

@@ -112,7 +112,7 @@ func (d *daemonCycle) run(ctx context.Context, serving func() int64) daemon.Outc
 	if errors.Is(err, lock.ErrTimeout) || ctx.Err() != nil {
 		return daemon.Outcome{Started: d.deps.Clock.Now(), Interval: time.Duration(d.target.cfg.SyncInterval), Err: err, Skipped: true}
 	}
-	cycle := func() (mirror.Report, error) { return runCycle(ctx, d.target, d.deps) }
+	cycle := func() (mirror.Report, error) { return runCycle(ctx, d.target, d.deps, nil) }
 	var configErr error
 	if err != nil {
 		lockErr := failure.FromErrno(err)
