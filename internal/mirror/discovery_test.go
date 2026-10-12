@@ -37,6 +37,12 @@ func createdRange(from, to time.Time) string {
 	return from.UTC().Format(time.RFC3339) + ".." + to.UTC().Format(time.RFC3339)
 }
 
+// handMadeRunOn makes an empty run dir in the date dir of at.
+func handMadeRunOn(env *harness.InProcessEnv, at time.Time) {
+	GinkgoHelper()
+	Expect(os.MkdirAll(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs", at.UTC().Format(time.DateOnly), "9999_ci_main"), 0o755)).To(Succeed())
+}
+
 // readWatch reads state/watch.json as the run ids watched per host, which
 // is empty while the file is missing.
 func readWatch(env *harness.InProcessEnv) map[string][]string {
@@ -261,6 +267,7 @@ var _ = Describe("mirror.Cycle's hourly rescan", Label("discovery"), func() {
 		env := harness.InProcess()
 		now := harness.DefaultNow()
 		from, to := now.Add(-30*scenario.Day), now.Add(-7*scenario.Day)
+		handMadeRunOn(env, from)
 		for i := range int64(1001) {
 			env.Fake.AddListed(scenario.ListedRun(i+1, from.Add(time.Duration(i)*30*time.Minute)))
 		}
@@ -284,6 +291,7 @@ var _ = Describe("mirror.Cycle's hourly rescan", Label("discovery"), func() {
 	It("fetches nothing for runs that are not on disk", func(ctx SpecContext) {
 		env := harness.InProcess()
 		created := harness.DefaultNow().Add(-20 * scenario.Day)
+		handMadeRunOn(env, created.Add(-10*scenario.Day))
 		Expect(env.Fake.AddRun(scenario.CloneAt(1, "after-attempt-1", created))).To(Succeed())
 		Expect(env.Fake.AddRun(scenario.CloneAt(2, "after-attempt-2", created.Add(time.Hour)))).To(Succeed())
 
@@ -292,6 +300,54 @@ var _ = Describe("mirror.Cycle's hourly rescan", Label("discovery"), func() {
 		Expect(env.Fake.Requests()).NotTo(ContainElement(HaveField("Path", MatchRegexp(`/runs/[12](/|$)`))))
 		Expect(env.AttemptDirs(1)).To(BeEmpty())
 		Expect(env.AttemptDirs(2)).To(BeEmpty())
+	}, cycleTimeout)
+
+	It("lists nothing, as on a first sync, when no run in its window is on disk", func(ctx SpecContext) {
+		env := harness.InProcess()
+		now := harness.DefaultNow()
+		handMadeRunOn(env, now.Add(-40*scenario.Day))
+		handMadeRunOn(env, now.Add(-3*scenario.Day))
+
+		Expect(env.Sync(ctx)).To(Succeed())
+		Expect(createdRanges(env.Fake.Requests())).To(ConsistOf(createdRange(now.Add(-7*scenario.Day), now)))
+		Expect(readJSONFile(filepath.Join(env.State(), "rescan.json"))).To(HaveKeyWithValue("rescanned_at", now.Format(time.RFC3339)))
+	}, cycleTimeout)
+
+	DescribeTable("lists from the start of the oldest date dir in its window",
+		func(ctx SpecContext, now time.Time, oldestAt func(from, to time.Time) time.Time) {
+			env := harness.InProcess()
+			env.Clock.Set(now)
+			from, to := now.Add(-30*scenario.Day), now.Add(-7*scenario.Day)
+			oldest := oldestAt(from, to)
+			handMadeRunOn(env, now.Add(-40*scenario.Day))
+			handMadeRunOn(env, oldest)
+			handMadeRunOn(env, to)
+			start := oldest.UTC().Truncate(scenario.Day)
+			if start.Before(from) {
+				start = from
+			}
+
+			Expect(env.Sync(ctx)).To(Succeed())
+			Expect(createdRanges(env.Fake.Requests())).To(ConsistOf(createdRange(now.Add(-7*scenario.Day), now), createdRange(start, to)))
+		},
+		Entry("at the window's start", harness.DefaultNow(), func(from, _ time.Time) time.Time { return from }, cycleTimeout),
+		Entry("inside the window", harness.DefaultNow(), func(from, _ time.Time) time.Time { return from.Add(10 * scenario.Day) }, cycleTimeout),
+		Entry("on the window's last date", harness.DefaultNow(), func(_, to time.Time) time.Time { return to }, cycleTimeout),
+		Entry("at the window's start, on a clock east of UTC",
+			harness.DefaultNow().In(time.FixedZone("UTC+14", 14*60*60)), func(from, _ time.Time) time.Time { return from }, cycleTimeout),
+		Entry("on the window's last date, on a clock west of UTC",
+			harness.DefaultNow().Add(-12*time.Hour).In(time.FixedZone("UTC-12", -12*60*60)), func(_, to time.Time) time.Time { return to }, cycleTimeout),
+	)
+
+	It("reports a corrupt state/rescan.json, and rescans", func(ctx SpecContext) {
+		env := harness.InProcess()
+		now := harness.DefaultNow()
+		handMadeRunOn(env, now.Add(-30*scenario.Day))
+		Expect(os.MkdirAll(env.State(), 0o755)).To(Succeed())
+		Expect(os.WriteFile(filepath.Join(env.State(), "rescan.json"), []byte("<"), 0o644)).To(Succeed())
+
+		Expect(env.Sync(ctx)).To(MatchError(ContainSubstring("rescan.json.corrupt")))
+		Expect(createdRanges(env.Fake.Requests())).To(ContainElement(createdRange(now.Add(-30*scenario.Day), now.Add(-7*scenario.Day))))
 	}, cycleTimeout)
 })
 
@@ -415,6 +471,7 @@ var _ = Describe("mirror.Cycle", Label("discovery"), func() {
 		now := harness.DefaultNow()
 		rescanRange := createdRange(now.Add(-30*scenario.Day), now.Add(-7*scenario.Day))
 		rescanJSON := filepath.Join(env.State(), "rescan.json")
+		handMadeRunOn(env, now.Add(-30*scenario.Day))
 
 		Expect(env.Sync(ctx)).To(Succeed())
 		Expect(createdRanges(env.Fake.Requests())).To(ContainElement(rescanRange))
@@ -438,6 +495,7 @@ var _ = Describe("mirror.Cycle", Label("discovery"), func() {
 		rescanJSON := filepath.Join(env.State(), "rescan.json")
 		Expect(os.MkdirAll(env.State(), 0o755)).To(Succeed())
 		Expect(os.WriteFile(rescanJSON, fmt.Appendf(nil, `{"rescanned_at":%q}`, now.Add(time.Minute).Format(time.RFC3339)), 0o644)).To(Succeed())
+		handMadeRunOn(env, now.Add(-30*scenario.Day))
 
 		Expect(env.Sync(ctx)).To(Succeed())
 		Expect(createdRanges(env.Fake.Requests())).To(ContainElement(createdRange(now.Add(-30*scenario.Day), now.Add(-7*scenario.Day))))

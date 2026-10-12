@@ -264,7 +264,7 @@ func (s *Store) Has(target string) (bool, error) {
 	return err == nil, err
 }
 
-// Names lists the names in dir, and none when dir is missing.
+// Names lists the names in dir, sorted, and none when dir is missing.
 func (s *Store) Names(dir string) ([]string, error) {
 	entries, err := s.fs.ReadDir(dir)
 	if errors.Is(err, fs.ErrNotExist) {
