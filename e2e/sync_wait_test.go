@@ -314,10 +314,15 @@ func snapshotData(env *harness.Env) (appendOnly func()) {
 	}
 }
 
-// breakIndex makes state/lg.db a directory that sqlite cannot open.
+// breakIndex makes state/lg.db a directory that sqlite cannot open. It holds
+// lg.db.lock, since an lg that opened lg.db meanwhile would recreate it.
 func breakIndex(env *harness.Env) {
 	GinkgoHelper()
 	db := filepath.Join(env.State(), "lg.db")
+	Expect(os.MkdirAll(env.State(), 0o755)).To(Succeed())
+	held, err := lock.Wait(db+".lock", cycleWait, clock.Real{}, func(string) {})
+	Expect(err).NotTo(HaveOccurred())
+	defer func() { Expect(held.Release()).To(Succeed()) }()
 	Expect(os.RemoveAll(db)).To(Succeed())
 	Expect(os.MkdirAll(filepath.Join(db, "not-a-db"), 0o755)).To(Succeed())
 }
