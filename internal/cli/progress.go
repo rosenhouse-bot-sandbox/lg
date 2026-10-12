@@ -30,7 +30,7 @@ func startProgress(w io.Writer, clk clock.Clock) *progress {
 			case <-p.stopped:
 				return
 			case <-tick:
-				// Waiting from before the line keeps the lines progressEvery apart.
+				// A fake clock that sees the line can then fire the next tick.
 				tick = clk.After(progressEvery)
 				_, _ = fmt.Fprintf(w, "lg: %s, %s elapsed\n", p.current(), clk.Now().Sub(start).Round(time.Second))
 			}

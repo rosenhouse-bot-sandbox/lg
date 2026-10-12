@@ -38,7 +38,7 @@ type Mirror struct {
 	Backfill         time.Duration
 	Retention        time.Duration
 	DiskCap          int64
-	// Progress, when set, hears what the cycle is doing whenever that changes.
+	// Progress, if set, hears what the cycle starts doing.
 	Progress func(doing string)
 }
 
@@ -87,7 +87,7 @@ func (m *Mirror) Cycle(ctx context.Context) (Report, error) {
 		}
 		return report, err
 	}
-	m.report("applying retention")
+	m.say("applying retention")
 	retained := failure.FromErrno(m.retain(ctx))
 	if retained == nil {
 		return report, err
@@ -107,7 +107,7 @@ func (m *Mirror) classify(err error) error {
 	return failure.FromErrno(err)
 }
 
-func (m *Mirror) report(format string, args ...any) {
+func (m *Mirror) say(format string, args ...any) {
 	if m.Progress != nil {
 		m.Progress(fmt.Sprintf(format, args...))
 	}
@@ -233,7 +233,7 @@ func (l *artifactListing) candidates() []candidate {
 func (m *Mirror) artifactPhase(ctx context.Context, gh github.Client, runs []listedRun, p *pending) ([]UnitError, error) {
 	var failed []UnitError
 	for i := len(runs) - 1; i >= 0; i-- {
-		m.report("fetching artifacts, %d of %d runs done", len(runs)-1-i, len(runs))
+		m.say("fetching artifacts, %d of %d runs done", len(runs)-1-i, len(runs))
 		runFailed, err := m.syncArtifacts(ctx, gh, &runs[i], p)
 		failed = append(failed, runFailed...)
 		if err != nil {
@@ -260,7 +260,7 @@ func (m *Mirror) attemptPhase(ctx context.Context, gh github.Client, runs []list
 	var failed []UnitError
 	done := 0
 	for _, run := range due {
-		m.report("fetching logs, %d of %d attempts done", done, total)
+		m.say("fetching logs, %d of %d attempts done", done, total)
 		runFailed, err := m.syncAttempts(ctx, gh, run, l)
 		failed = append(failed, runFailed...)
 		if err != nil {

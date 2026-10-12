@@ -129,6 +129,16 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 		}))
 	})
 
+	It("counts no attempt of a run whose artifacts it could not list", Label("status"), func() {
+		Expect(fake.AddRun(scenario.CloneAt(1, "after-attempt-2", harness.DefaultNow().Add(-scenario.Day)))).To(Succeed())
+		fake.Fail("api", "/runs/1/artifacts", fakegithub.Fault{Status: http.StatusBadGateway})
+		var reported []string
+		m.Progress = func(doing string) { reported = append(reported, doing) }
+
+		Expect(cycleErr(context.Background(), &m)).To(MatchError(ContainSubstring("502")))
+		Expect(reported).To(ContainElement("fetching logs, 0 of 1 attempts done"))
+	})
+
 	It("reports a cycle that a listing stopped as not completed", Label("status"), func() {
 		fake.Fail("api", "/actions/runs", fakegithub.Fault{Status: http.StatusBadGateway})
 

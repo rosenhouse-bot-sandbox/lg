@@ -53,45 +53,45 @@ var _ = Describe("lg sync", Label("store"), func() {
 	})
 })
 
-var _ = Describe("lg sync without a daemon", Label("sync"), func() {
-	var (
-		s   *harness.CLI
-		clk *clock.Fake
-	)
-
-	BeforeEach(func() {
-		s = harness.NewCLI()
-		clk = clock.NewFake(harness.DefaultNow())
-	})
-
-	It("prints what the cycle is doing every 10s", func() {
-		heldLog := "jobs/111221289888/logs"
-		release := s.Fake.Hold(heldLog)
+var _ = DescribeTable("lg sync without a daemon, while a request is held,", Label("sync"),
+	func(heldPath, doing string) {
+		s := harness.NewCLI()
+		clk := clock.NewFake(harness.DefaultNow())
+		release := s.Fake.Hold(heldPath)
 		DeferCleanup(release)
 		stderr, code := startSync(s, clk)
-		Eventually(s.Fake.Requests).Should(ContainElement(HaveField("Path", HaveSuffix(heldLog))))
+		Eventually(s.Fake.Requests, 5*time.Second).Should(ContainElement(HaveField("Path", HaveSuffix(heldPath))))
 
 		clk.Set(harness.DefaultNow().Add(10 * time.Second))
-		Eventually(stderr).Should(gbytes.Say("^lg: warning: never synced\nlg: fetching logs, 0 of 1 attempts done, 10s elapsed\n"))
+		Eventually(stderr, 5*time.Second).Should(gbytes.Say("^lg: warning: never synced\nlg: " + doing + ", 10s elapsed\n"))
 		clk.Set(harness.DefaultNow().Add(20 * time.Second))
-		Eventually(stderr).Should(gbytes.Say("^lg: fetching logs, 0 of 1 attempts done, 20s elapsed\n"))
+		Eventually(stderr, 5*time.Second).Should(gbytes.Say("^lg: " + doing + ", 20s elapsed\n"))
 		release()
 
-		Eventually(code).Should(Receive(Equal(0)))
+		Eventually(code, 5*time.Second).Should(Receive(Equal(0)))
 		clk.Set(harness.DefaultNow().Add(30 * time.Second))
 		Consistently(stderr).ShouldNot(gbytes.Say("."))
-	})
+	},
+	Entry("says every 10s that it is starting", "/repos/rosenhouse/lg", "starting"),
+	Entry("says every 10s that it is listing runs", "/actions/runs", "listing runs"),
+	Entry("says every 10s how many runs' artifacts it fetched", "/artifacts/11276272069/zip", "fetching artifacts, 0 of 1 runs done"),
+	Entry("says every 10s how many attempts' logs it fetched", "jobs/111221289888/logs", "fetching logs, 0 of 1 attempts done"),
+)
 
-	It("says it is indexing while it waits for lg.db", func() {
+var _ = Describe("lg sync without a daemon, while lg.db is busy,", Label("sync"), func() {
+	It("says every 10s that it is indexing", func() {
+		s := harness.NewCLI()
+		clk := clock.NewFake(harness.DefaultNow())
 		state := filepath.Join(s.Home, "state")
 		Expect(os.Mkdir(state, 0o755)).To(Succeed())
 		held, err := lock.Wait(filepath.Join(state, "lg.db.lock"), time.Second, clock.Real{}, func(string) {})
 		Expect(err).NotTo(HaveOccurred())
+		DeferCleanup(func() { _ = held.Release() })
 		stderr, code := startSync(s, clk)
 		Eventually(stderr, 5*time.Second).Should(gbytes.Say(`lg: waiting for \S+/lg.db.lock \(held by [^)]*\)\n`))
 
 		clk.Set(harness.DefaultNow().Add(10 * time.Second))
-		Eventually(stderr).Should(gbytes.Say("^lg: indexing, 10s elapsed\n"))
+		Eventually(stderr, 5*time.Second).Should(gbytes.Say("^lg: indexing, 10s elapsed\n"))
 		Expect(held.Release()).To(Succeed())
 
 		Eventually(code, 5*time.Second).Should(Receive(Equal(0)))
@@ -99,7 +99,8 @@ var _ = Describe("lg sync without a daemon", Label("sync"), func() {
 })
 
 // startSync runs lg sync in the background against s's fake, on clk, with a
-// stderr that the spec can read while lg writes it.
+// stderr that the spec can read while lg writes it. It uses the default
+// transport, since ShortTimeouts would end a held request.
 func startSync(s *harness.CLI, clk clock.Clock) (*gbytes.Buffer, chan int) {
 	stderr, code := gbytes.NewBuffer(), make(chan int, 1)
 	go func() {
@@ -112,7 +113,7 @@ func startSync(s *harness.CLI, clk clock.Clock) (*gbytes.Buffer, chan int) {
 			NewGitHub: func(api *url.URL, repo, token string, cache *github.Cache, clk clock.Clock) github.Client {
 				return github.NewHTTP(http.DefaultTransport, api, repo, token, clk).WithCache(cache)
 			},
-			StoreFS: store.OSFS{},
+			StoreFS: s.FS,
 		})
 	}()
 	return stderr, code

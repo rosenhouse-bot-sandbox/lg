@@ -29,16 +29,15 @@ type syncCmd struct {
 }
 
 func (syncCmd) Help() string {
-	return "Without a daemon, lg sync runs one cycle and exits with that cycle's exit code. --timeout does not limit the cycle. " +
-		fmt.Sprintf("Every %s of a cycle, it prints what the cycle is doing. ", progressEvery) +
+	return fmt.Sprintf("Without a daemon, lg sync runs one cycle, says what it is doing every %s, and exits with that cycle's exit code. ", progressEvery) +
+		"--timeout does not limit the cycle. " +
 		"With a daemon running, it asks the daemon for a cycle and exits at once, or, with --wait, when that cycle ends. " +
 		fmt.Sprintf("The first sync fetches the runs created within backfill, %s unless config.yaml sets it. ", config.Defaults().Backfill) +
 		"It exits 1 while units stay pending; lg status lists them."
 }
 
 func (c syncCmd) Run(deps *Deps) error {
-	// Like the daemon's log, lg sync's lines must not decide its outcome, so
-	// a broken pipe gives EPIPE, which lg ignores.
+	// A closed stderr must not kill lg sync mid-cycle.
 	signal.Ignore(syscall.SIGPIPE)
 	t, err := loadTarget(deps.Env)
 	if err != nil {
@@ -128,8 +127,7 @@ func recordCycle(t target, deps *Deps, cycle func() (mirror.Report, error), comp
 	return c, errors.Join(err, writeStatus(deps.StoreFS, t.roots, t.cfg, c))
 }
 
-// runCycle opens the store and runs one cycle, which tells progress, if
-// set, what it is doing. Callers hold state/write.lock.
+// runCycle opens the store and runs one cycle. Callers hold state/write.lock.
 func runCycle(ctx context.Context, t target, deps *Deps, progress func(doing string)) (mirror.Report, error) {
 	cfg := t.cfg
 	s, err := initAndSweep(deps.StoreFS, t.roots.Store)
