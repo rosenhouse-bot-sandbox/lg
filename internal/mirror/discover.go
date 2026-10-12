@@ -301,16 +301,19 @@ func (m *Mirror) rescan(ctx context.Context, gh github.Client, repo github.Repo,
 	return onDisk, now, reported, nil
 }
 
-// oldestRunDate gives the start of the repo's oldest date dir in [from, to].
-func (m *Mirror) oldestRunDate(repo github.Repo, from, to time.Time) (date time.Time, found bool, err error) {
-	dates, err := m.Store.Names(filepath.Join(layout.RepoDir(m.Store.Data(), m.Host, repo.FullName), "runs"))
+// oldestRunDate gives the start of the oldest of the repo's date dirs from
+// from's UTC date through to's.
+func (m *Mirror) oldestRunDate(repo github.Repo, from, to time.Time) (time.Time, bool, error) {
+	names, err := m.Store.Names(filepath.Join(layout.RepoDir(m.Store.Data(), m.Host, repo.FullName), "runs"))
 	if err != nil {
 		return time.Time{}, false, err
 	}
-	slices.Sort(dates)
-	for _, name := range dates {
-		date, err := time.Parse(time.DateOnly, name)
-		if err == nil && name >= from.UTC().Format(time.DateOnly) && name <= to.UTC().Format(time.DateOnly) {
+	first, last := from.UTC().Format(time.DateOnly), to.UTC().Format(time.DateOnly)
+	for _, name := range names {
+		if name < first || name > last {
+			continue
+		}
+		if date, err := time.Parse(time.DateOnly, name); err == nil {
 			return date, true, nil
 		}
 	}

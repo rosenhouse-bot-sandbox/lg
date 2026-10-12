@@ -40,7 +40,7 @@ func createdRange(from, to time.Time) string {
 // handMadeRunOn makes an empty run dir in the date dir of at.
 func handMadeRunOn(env *harness.InProcessEnv, at time.Time) {
 	GinkgoHelper()
-	Expect(os.MkdirAll(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs", at.UTC().Format(time.DateOnly), "999_ci_main"), 0o755)).To(Succeed())
+	Expect(os.MkdirAll(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs", at.UTC().Format(time.DateOnly), "9999_ci_main"), 0o755)).To(Succeed())
 }
 
 // readWatch reads state/watch.json as the run ids watched per host, which
@@ -313,16 +313,41 @@ var _ = Describe("mirror.Cycle's hourly rescan", Label("discovery"), func() {
 		Expect(readJSONFile(filepath.Join(env.State(), "rescan.json"))).To(HaveKeyWithValue("rescanned_at", now.Format(time.RFC3339)))
 	}, cycleTimeout)
 
-	It("lists from the start of the oldest date in its window that holds a run on disk", func(ctx SpecContext) {
+	DescribeTable("lists from the start of the oldest date dir in its window",
+		func(ctx SpecContext, now time.Time, oldestAt func(from, to time.Time) time.Time) {
+			env := harness.InProcess()
+			env.Clock.Set(now)
+			from, to := now.Add(-30*scenario.Day), now.Add(-7*scenario.Day)
+			oldest := oldestAt(from, to)
+			handMadeRunOn(env, now.Add(-40*scenario.Day))
+			handMadeRunOn(env, oldest)
+			handMadeRunOn(env, to)
+			start := oldest.UTC().Truncate(scenario.Day)
+			if start.Before(from) {
+				start = from
+			}
+
+			Expect(env.Sync(ctx)).To(Succeed())
+			Expect(createdRanges(env.Fake.Requests())).To(ConsistOf(createdRange(now.Add(-7*scenario.Day), now), createdRange(start, to)))
+		},
+		Entry("at the window's start", harness.DefaultNow(), func(from, _ time.Time) time.Time { return from }, cycleTimeout),
+		Entry("inside the window", harness.DefaultNow(), func(from, _ time.Time) time.Time { return from.Add(10 * scenario.Day) }, cycleTimeout),
+		Entry("on the window's last date", harness.DefaultNow(), func(_, to time.Time) time.Time { return to }, cycleTimeout),
+		Entry("at the window's start, on a clock east of UTC",
+			harness.DefaultNow().In(time.FixedZone("UTC+14", 14*60*60)), func(from, _ time.Time) time.Time { return from }, cycleTimeout),
+		Entry("on the window's last date, on a clock west of UTC",
+			harness.DefaultNow().Add(-12*time.Hour).In(time.FixedZone("UTC-12", -12*60*60)), func(_, to time.Time) time.Time { return to }, cycleTimeout),
+	)
+
+	It("reports a corrupt state/rescan.json, and rescans", func(ctx SpecContext) {
 		env := harness.InProcess()
 		now := harness.DefaultNow()
-		oldest := now.Add(-10 * scenario.Day)
-		handMadeRunOn(env, oldest)
-		handMadeRunOn(env, now.Add(-9*scenario.Day))
-		handMadeRunOn(env, now.Add(-40*scenario.Day))
+		handMadeRunOn(env, now.Add(-30*scenario.Day))
+		Expect(os.MkdirAll(env.State(), 0o755)).To(Succeed())
+		Expect(os.WriteFile(filepath.Join(env.State(), "rescan.json"), []byte("<"), 0o644)).To(Succeed())
 
-		Expect(env.Sync(ctx)).To(Succeed())
-		Expect(createdRanges(env.Fake.Requests())).To(ContainElement(createdRange(oldest.Truncate(scenario.Day), now.Add(-7*scenario.Day))))
+		Expect(env.Sync(ctx)).To(MatchError(ContainSubstring("rescan.json.corrupt")))
+		Expect(createdRanges(env.Fake.Requests())).To(ContainElement(createdRange(now.Add(-30*scenario.Day), now.Add(-7*scenario.Day))))
 	}, cycleTimeout)
 })
 
