@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"path/filepath"
 	"slices"
 	"strings"
 	"time"
@@ -255,7 +256,9 @@ func ofRepo(run github.Run, repo github.Repo) bool {
 // after state/rescan.json says it last did, so that a rerun of an older run
 // that started and finished between two cycles gets its new attempts. A
 // record from the future, after a clock step, does not delay it. Runs not
-// on disk are left alone. The cycle records the rescan once it finishes.
+// on disk are left alone, so it lists from the oldest date dir in the
+// window, and lists nothing when there is none. The cycle records the rescan
+// once it finishes.
 func (m *Mirror) rescan(ctx context.Context, gh github.Client, repo github.Repo, now time.Time) (onDisk []github.Run, rescannedAt time.Time, reported, err error) {
 	from, to, ok := rescanWindow(now, m.Backfill, m.Retention)
 	if !ok {
@@ -266,6 +269,16 @@ func (m *Mirror) rescan(ctx context.Context, gh github.Client, repo github.Repo,
 	since := now.Sub(last.RescannedAt)
 	if err != nil || (since >= 0 && since < rescanEvery) {
 		return nil, time.Time{}, discarded, err
+	}
+	oldest, found, err := m.oldestRunDate(repo, from, to)
+	if err != nil {
+		return nil, time.Time{}, discarded, err
+	}
+	if !found {
+		return nil, now, discarded, nil
+	}
+	if oldest.After(from) {
+		from = oldest
 	}
 	runs, capped, err := Discover(ctx, gh, from, to)
 	if err != nil {
@@ -286,6 +299,22 @@ func (m *Mirror) rescan(ctx context.Context, gh github.Client, repo github.Repo,
 		}
 	}
 	return onDisk, now, reported, nil
+}
+
+// oldestRunDate gives the start of the repo's oldest date dir in [from, to].
+func (m *Mirror) oldestRunDate(repo github.Repo, from, to time.Time) (date time.Time, found bool, err error) {
+	dates, err := m.Store.Names(filepath.Join(layout.RepoDir(m.Store.Data(), m.Host, repo.FullName), "runs"))
+	if err != nil {
+		return time.Time{}, false, err
+	}
+	slices.Sort(dates)
+	for _, name := range dates {
+		date, err := time.Parse(time.DateOnly, name)
+		if err == nil && name >= from.UTC().Format(time.DateOnly) && name <= to.UTC().Format(time.DateOnly) {
+			return date, true, nil
+		}
+	}
+	return time.Time{}, false, nil
 }
 
 // recordRescan writes state/rescan.json when the cycle rescanned.
