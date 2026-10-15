@@ -21,7 +21,7 @@ var _ = Describe("Load", Label("discovery"), func() {
 
 	DescribeTable("reads durations such as 10m, 36h and 7d",
 		func(value string, d time.Duration) {
-			Expect(config.Load(write("repo: rosenhouse/lg\nsync_interval: " + value + "\n"))).To(HaveField("SyncInterval", config.Duration(d)))
+			Expect(config.Load(write("repo: rosenhouse-bot-sandbox/lg\nsync_interval: " + value + "\n"))).To(HaveField("SyncInterval", config.Duration(d)))
 		},
 		Entry("minutes", "10m", 10*time.Minute),
 		Entry("hours", "36h", 36*time.Hour),
@@ -29,14 +29,14 @@ var _ = Describe("Load", Label("discovery"), func() {
 	)
 
 	It("accepts the most days a duration holds and rejects one more", func() {
-		Expect(config.Load(write("repo: rosenhouse/lg\nretention: 106751d\n"))).To(HaveField("Retention", config.Duration(106751*scenario.Day)))
-		_, err := config.Load(write("repo: rosenhouse/lg\nretention: 106752d\n"))
+		Expect(config.Load(write("repo: rosenhouse-bot-sandbox/lg\nretention: 106751d\n"))).To(HaveField("Retention", config.Duration(106751*scenario.Day)))
+		_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nretention: 106752d\n"))
 		Expect(err).To(MatchError(HaveSuffix(`config.yaml: line 2: want a duration such as 7d or 36h, not "106752d"`)))
 	})
 
 	DescribeTable("rejects a duration in days that is not a whole number",
 		func(value string) {
-			_, err := config.Load(write("repo: rosenhouse/lg\nretention: " + value + "\n"))
+			_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nretention: " + value + "\n"))
 			Expect(err).To(MatchError(HaveSuffix(`config.yaml: line 2: want a duration such as 7d or 36h, not "` + value + `"`)))
 		},
 		Entry("a fraction", "1.5d"),
@@ -44,13 +44,13 @@ var _ = Describe("Load", Label("discovery"), func() {
 	)
 
 	It("rejects a sync_interval under 1m, naming the key", func() {
-		_, err := config.Load(write("repo: rosenhouse/lg\nsync_interval: 59s\n"))
+		_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nsync_interval: 59s\n"))
 		Expect(err).To(invalid("sync_interval must be at least 1m: 59s"))
 	})
 
 	DescribeTable("rejects a backfill or retention that is not positive, naming the key",
 		func(line, message string) {
-			_, err := config.Load(write("repo: rosenhouse/lg\n" + line + "\n"))
+			_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\n" + line + "\n"))
 			Expect(err).To(invalid(message))
 		},
 		Entry("a negative backfill", "backfill: -24h", "backfill must be positive: -1d"),
@@ -66,13 +66,13 @@ var _ = Describe("Load", Label("discovery"), func() {
 	})
 
 	It("rejects a second YAML document, naming the file", func() {
-		path := write("repo: rosenhouse/lg\n---\nrepo: other/repo\n")
+		path := write("repo: rosenhouse-bot-sandbox/lg\n---\nrepo: other/repo\n")
 		_, err := config.Load(path)
 		Expect(err).To(MatchError(config.Error(path + ": more than one YAML document")))
 	})
 
 	It("rejects a backfill longer than retention, naming both", func() {
-		_, err := config.Load(write("repo: rosenhouse/lg\nbackfill: 10d\nretention: 36h\n"))
+		_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nbackfill: 10d\nretention: 36h\n"))
 		Expect(err).To(invalid("backfill must not exceed retention: 10d > 36h"))
 	})
 })

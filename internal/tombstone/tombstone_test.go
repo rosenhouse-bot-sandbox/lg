@@ -142,7 +142,7 @@ func recordedZipError(runID int64, stage string, id int64) *github.StatusError {
 	Expect(json.Unmarshal(raw, &body)).To(Succeed())
 	status, err := strconv.Atoi(body.Status)
 	Expect(err).NotTo(HaveOccurred())
-	return &github.StatusError{URL: fmt.Sprintf("https://api.github.com/repos/rosenhouse/Lg/actions/artifacts/%d/zip", id), Status: status, Message: body.Message}
+	return &github.StatusError{URL: fmt.Sprintf("https://api.github.com/repos/rosenhouse-bot-sandbox/lg/actions/artifacts/%d/zip", id), Status: status, Message: body.Message}
 }
 
 var _ = Describe("FromZipError over the after-expiry recording of run 37129390741", Label("artifacts"), func() {

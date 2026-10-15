@@ -30,7 +30,7 @@ var _ = Describe("lg daemon install and uninstall", Label("install"), func() {
 		Expect(os.WriteFile(gh, []byte("#!/bin/sh\n"), 0o755)).To(Succeed())
 		config := filepath.Join(home, ".config", "lg", "config.yaml")
 		Expect(os.MkdirAll(filepath.Dir(config), 0o755)).To(Succeed())
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		env = map[string]string{"HOME": home, "LG_GH": gh}
 		runner = &fakeservice.Runner{UnitPath: filepath.Join(home, ".config", "systemd", "user"), Fail: map[string]string{}}
 		stdout, stderr = &bytes.Buffer{}, &bytes.Buffer{}
@@ -117,7 +117,7 @@ var _ = Describe("lg daemon install and uninstall", Label("install"), func() {
 		env["PATH"] = filepath.Dir(gh)
 		Expect(run("linux", "daemon", "install")).To(Equal(0), stderr.String())
 		config := filepath.Join(home, ".config", "lg", "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\napi_url: http://127.0.0.1:1\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\napi_url: http://127.0.0.1:1\n"), 0o644)).To(Succeed())
 
 		env = fakeservice.UnitEnv(filepath.Join(home, ".config", "systemd", "user", "lg.service"))
 		env["HOME"] = home

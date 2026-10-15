@@ -32,7 +32,7 @@ var _ = Describe("lg where", Label("where"), func() {
 
 	JustBeforeEach(func() {
 		Expect(c.Main("sync")).To(Equal(0))
-		attempt = filepath.Join(c.Home, "data", "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture", "attempt-1")
+		attempt = filepath.Join(c.Home, "data", "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture", "attempt-1")
 		job = filepath.Join(attempt, "jobs", "111221289888_flaky")
 	})
 
@@ -238,7 +238,7 @@ var _ = Describe("lg where", Label("where"), func() {
 	})
 
 	It("finds a path under runs/ in the repo dir that has it, from any working directory", func() {
-		rel, err := filepath.Rel(filepath.Join(c.Home, "data", "github.com", "rosenhouse", "Lg"), filepath.Join(job, "log.txt"))
+		rel, err := filepath.Rel(filepath.Join(c.Home, "data", "github.com", "rosenhouse-bot-sandbox", "lg"), filepath.Join(job, "log.txt"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(rel).NotTo(BeAnExistingFile())
 
@@ -428,7 +428,7 @@ var _ = Describe("lg where", Label("where"), func() {
 		var tombstone string
 
 		BeforeEach(func() {
-			c.WriteConfig("repo: rosenhouse/lg\napi_url: " + c.Fake.URL() + "\nartifact_max_bytes: 700\n")
+			c.WriteConfig("repo: rosenhouse-bot-sandbox/lg\napi_url: " + c.Fake.URL() + "\nartifact_max_bytes: 700\n")
 		})
 
 		JustBeforeEach(func() {

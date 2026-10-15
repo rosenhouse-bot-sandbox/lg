@@ -72,7 +72,7 @@ var _ = Describe("live", Label("live"), Ordered, ContinueOnFailure, func() {
 		fixtureDir = filepath.Join(env.Data(), fixtureRunDir)
 	})
 
-	It("syncs rosenhouse/Lg and lg status reports no blocked state", func() {
+	It("syncs rosenhouse-bot-sandbox/lg and lg status reports no blocked state", func() {
 		session := env.Lg("status").Wait(harness.ExitTimeout)
 		Expect(session).To(gexec.Exit(0))
 		Expect(session.Out).To(gbytes.Say(`(?m)^blocked: no$`))
@@ -81,11 +81,11 @@ var _ = Describe("live", Label("live"), Ordered, ContinueOnFailure, func() {
 			HaveKeyWithValue("blocked", BeNil()),
 			HaveKeyWithValue("last_sync_ok_at", Not(BeNil())),
 			HaveKeyWithValue("last_sync_errors", BeEmpty()),
-			HaveKeyWithValue("repos", HaveKey("github.com/rosenhouse/lg")),
+			HaveKeyWithValue("repos", HaveKey("github.com/rosenhouse-bot-sandbox/lg")),
 		))
 	})
 
-	Describe("lg sync against github.com/rosenhouse/Lg", func() {
+	Describe("lg sync against github.com/rosenhouse-bot-sandbox/lg", func() {
 		It("mirrors run 37129390741 with attempts 1–3, the recorded job ids and the recorded job kinds", func() {
 			for attempt := 1; attempt <= fixtureLastAttempt; attempt++ {
 				dir := layout.AttemptDir(fixtureDir, attempt)
@@ -236,7 +236,7 @@ var _ = Describe("live", Label("live"), Ordered, ContinueOnFailure, func() {
 			HaveKeyWithValue("job_conclusion", "failure"),
 			HaveKeyWithValue("sha", HavePrefix("1a51097")),
 			HaveKeyWithValue("text", HaveSuffix("LG_MARKER flaky failure attempt=1")),
-			HaveKeyWithValue("html_url", "https://github.com/rosenhouse/Lg/actions/runs/37129390741/job/111221289888"),
+			HaveKeyWithValue("html_url", "https://github.com/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/job/111221289888"),
 		)))
 	})
 
@@ -302,7 +302,7 @@ var _ = Describe("the GitHub API", Label("live"), func() {
 	It("returns compact JSON to lg's User-Agent, as the fake does", func() {
 		fake := fakegithub.Start(fixtureRun, fixtureStage)
 		for _, base := range []string{"https://api.github.com", fake.URL()} {
-			body := get(base + "/repos/rosenhouse/Lg/actions/runs/37129390741")
+			body := get(base + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741")
 			var compact bytes.Buffer
 			Expect(json.Compact(&compact, body)).To(Succeed())
 			Expect(string(body)).To(Equal(compact.String()), base)
@@ -315,7 +315,7 @@ var _ = Describe("the GitHub API", Label("live"), func() {
 		token, err := exec.Command("gh", "auth", "token").Output()
 		Expect(err).NotTo(HaveOccurred())
 		for _, base := range []string{"https://api.github.com", fake.URL()} {
-			listing := base + "/repos/rosenhouse/Lg/actions/runs?status=completed&per_page=1"
+			listing := base + "/repos/rosenhouse-bot-sandbox/lg/actions/runs?status=completed&per_page=1"
 			status, header := getIfNoneMatch(listing, strings.TrimSpace(string(token)), "")
 			Expect(status).To(Equal(http.StatusOK), base)
 			Expect(header.Get("Link")).NotTo(BeEmpty(), base)
@@ -373,7 +373,7 @@ func liveSyncTimeout() time.Duration {
 	var listing struct {
 		TotalCount int `json:"total_count"`
 	}
-	Expect(json.Unmarshal(get("https://api.github.com/repos/rosenhouse/Lg/actions/runs?per_page=1&created=%3E%3D"+since), &listing)).To(Succeed())
+	Expect(json.Unmarshal(get("https://api.github.com/repos/rosenhouse-bot-sandbox/lg/actions/runs?per_page=1&created=%3E%3D"+since), &listing)).To(Succeed())
 	return max(15*time.Minute, time.Duration(listing.TotalCount)*6*time.Second)
 }
 
@@ -454,7 +454,7 @@ func get(url string) []byte {
 // runDir finds runs/<date>/<id>_* whatever the date and slugs.
 func runDir(env *harness.Env, runID int64) string {
 	GinkgoHelper()
-	matches, err := filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/*", fmt.Sprintf("%d_*", runID)))
+	matches, err := filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/*", fmt.Sprintf("%d_*", runID)))
 	Expect(err).NotTo(HaveOccurred())
 	Expect(matches).To(HaveLen(1), "run dir for %d", runID)
 	return matches[0]

@@ -18,7 +18,7 @@ var _ = Describe("HTTP with a Cache", Label("etags"), func() {
 	const (
 		runID      = 37129390741
 		otherRunID = 37129738159
-		repoURL    = "/repos/rosenhouse/lg"
+		repoURL    = "/repos/rosenhouse-bot-sandbox/lg"
 	)
 
 	var (
@@ -32,7 +32,7 @@ var _ = Describe("HTTP with a Cache", Label("etags"), func() {
 		Expect(fake.Load(otherRunID, "logs-deleted")).To(Succeed())
 		fake.SetPageCap(1)
 		cache = github.NewCache(nil)
-		client = github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse/lg", "lg-test-token", clock.Real{}).WithCache(cache)
+		client = github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse-bot-sandbox/lg", "lg-test-token", clock.Real{}).WithCache(cache)
 	})
 
 	since := func(n int) []fakegithub.Request { return fake.Requests()[n:] }
@@ -137,9 +137,9 @@ var _ = Describe("HTTP with a Cache", Label("etags"), func() {
 	})
 
 	It("keeps no answer that has no ETag", func() {
-		fake.Fail("api", repoURL, fakegithub.Fault{Status: http.StatusOK, Body: `{"full_name":"rosenhouse/Lg"}`, Times: 1})
+		fake.Fail("api", repoURL, fakegithub.Fault{Status: http.StatusOK, Body: `{"full_name":"rosenhouse-bot-sandbox/lg"}`, Times: 1})
 
-		Expect(client.GetRepo(context.Background())).To(HaveField("FullName", "rosenhouse/Lg"))
+		Expect(client.GetRepo(context.Background())).To(HaveField("FullName", "rosenhouse-bot-sandbox/lg"))
 		Expect(cache.Asked()).To(BeEmpty())
 	})
 
@@ -160,10 +160,10 @@ var _ = Describe("HTTP with a Cache", Label("etags"), func() {
 		Expect(client.GetRepo(context.Background())).Error().NotTo(HaveOccurred())
 		answers := cache.Asked()
 		Expect(answers).To(HaveLen(1))
-		answers[fake.URL()+"/repos/rosenhouse/lg/actions/runs/1"] = github.Answer{ETag: `"stale"`, Body: []byte(`{}`)}
+		answers[fake.URL()+"/repos/rosenhouse-bot-sandbox/lg/actions/runs/1"] = github.Answer{ETag: `"stale"`, Body: []byte(`{}`)}
 
 		next := github.NewCache(answers)
-		repo, err := github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse/lg", "lg-test-token", clock.Real{}).WithCache(next).GetRepo(context.Background())
+		repo, err := github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse-bot-sandbox/lg", "lg-test-token", clock.Real{}).WithCache(next).GetRepo(context.Background())
 		Expect(err).NotTo(HaveOccurred())
 		Expect(repo.DefaultBranch).To(Equal("main"))
 		Expect(fake.Requests()[1]).To(HaveField("Status", http.StatusNotModified))

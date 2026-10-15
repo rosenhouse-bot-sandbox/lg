@@ -23,7 +23,7 @@ var _ = Describe("lg gc", Label("retention"), func() {
 
 	BeforeEach(func() {
 		config = filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 	})
 
 	It("exits 4 after waiting 5m for a busy state/write.lock", func() {
@@ -54,8 +54,8 @@ var _ = Describe("lg gc", Label("retention"), func() {
 	It("--dry-run prints a run at or before the stored horizon", func() {
 		home := GinkgoT().TempDir()
 		Expect(store.Init(home)).To(Succeed())
-		Expect(os.WriteFile(filepath.Join(home, "state", "horizon.json"), []byte(`{"github.com/rosenhouse/lg":"2026-10-01T12:00:00Z"}`), 0o644)).To(Succeed())
-		run := filepath.Join(home, "data", "github.com", "rosenhouse", "lg", "runs", "2026-10-01", "9_ci_main")
+		Expect(os.WriteFile(filepath.Join(home, "state", "horizon.json"), []byte(`{"github.com/rosenhouse-bot-sandbox/lg":"2026-10-01T12:00:00Z"}`), 0o644)).To(Succeed())
+		run := filepath.Join(home, "data", "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-01", "9_ci_main")
 		Expect(os.MkdirAll(filepath.Join(run, "attempt-1"), 0o755)).To(Succeed())
 		Expect(os.WriteFile(filepath.Join(run, "attempt-1", "fetch.json"), []byte(`{"run_created_at":"2026-10-01T12:00:00Z"}`), 0o644)).To(Succeed())
 		var stdout bytes.Buffer
@@ -76,7 +76,7 @@ var _ = Describe("lg gc", Label("retention"), func() {
 		Expect(store.Init(home)).To(Succeed())
 		var runs []string
 		for _, rel := range []string{"2026-06-01/1_ci_main", "2026-06-02/2_ci_main", "2026-06-03/3_ci_main"} {
-			run := filepath.Join(home, "data", "github.com", "rosenhouse", "lg", "runs", rel)
+			run := filepath.Join(home, "data", "github.com", "rosenhouse-bot-sandbox", "lg", "runs", rel)
 			Expect(os.MkdirAll(run, 0o755)).To(Succeed())
 			runs = append(runs, run)
 		}

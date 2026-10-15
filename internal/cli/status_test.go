@@ -105,7 +105,7 @@ var _ = DescribeTable("cli.Main exit codes", Label("status"),
 	Entry("2 on usage or config errors", 2,
 		func(*harness.CLI) []string { return []string{"sync", "--no-such-flag"} },
 		func(s *harness.CLI) []string {
-			s.WriteConfig("repo: rosenhouse/lg\nsync_interval: 1s\n")
+			s.WriteConfig("repo: rosenhouse-bot-sandbox/lg\nsync_interval: 1s\n")
 			return []string{"sync"}
 		}),
 	Entry("3 when blocked", 3, func(s *harness.CLI) []string {
@@ -138,7 +138,7 @@ last ok sync: 2026-10-03T17:59:30Z
 next sync: none (daemon not running)
 blocked: no
 daemon: not running
-github.com/rosenhouse/lg:
+github.com/rosenhouse-bot-sandbox/lg:
   default branch: main
   newest completed run created: none, lag: none
   runs: 0, attempts: 0, bytes: 0
@@ -188,7 +188,7 @@ const goodStatus = `{
   "daemon_pid": null,
   "daemon_version": null,
   "repos": {
-    "github.com/rosenhouse/lg": {
+    "github.com/rosenhouse-bot-sandbox/lg": {
       "default_branch": "main",
       "newest_completed_run_created_at": null,
       "lag_seconds": null,
@@ -255,7 +255,7 @@ var _ = Describe("lg sync with a pending unit", Label("status"), func() {
 
 		st := s.Status()
 		Expect(st).To(HaveKeyWithValue("last_sync_ok_at", near(harness.DefaultNow())))
-		repo := st["repos"].(map[string]any)["github.com/rosenhouse/lg"]
+		repo := st["repos"].(map[string]any)["github.com/rosenhouse-bot-sandbox/lg"]
 		Expect(repo).To(HaveKeyWithValue("pending_units", 1.0))
 		Expect(repo).To(HaveKeyWithValue("pending", ConsistOf(And(
 			HaveKeyWithValue("run", 37129390741.0),
@@ -273,7 +273,7 @@ var _ = DescribeTable("lg sync that discards a corrupt hint file", Label("status
 		Expect(s.Main("sync")).To(Equal(1))
 		Expect(s.Stderr.String()).To(ContainSubstring(name + ".corrupt"))
 
-		repo := s.Status()["repos"].(map[string]any)["github.com/rosenhouse/lg"]
+		repo := s.Status()["repos"].(map[string]any)["github.com/rosenhouse-bot-sandbox/lg"]
 		Expect(repo).To(HaveKeyWithValue("pending_units", 0.0))
 		Expect(repo).To(HaveKeyWithValue("pending", BeEmpty()))
 	},
@@ -292,7 +292,7 @@ var _ = Describe("lg sync with a watched run GitHub fails to serve", Label("stat
 
 		Expect(s.Main("sync")).To(Equal(1))
 
-		repo := s.Status()["repos"].(map[string]any)["github.com/rosenhouse/lg"]
+		repo := s.Status()["repos"].(map[string]any)["github.com/rosenhouse-bot-sandbox/lg"]
 		Expect(repo).To(HaveKeyWithValue("pending", ConsistOf(And(
 			HaveKeyWithValue("run", 42.0),
 			Not(HaveKey("attempt")),
@@ -331,11 +331,11 @@ var _ = DescribeTable("lg sync that GitHub stops before the cycle ends", Label("
 
 		st := s.Status()
 		Expect(st).To(HaveKeyWithValue("last_sync_ok_at", BeNil()))
-		Expect(st["repos"]).To(HaveKeyWithValue("github.com/rosenhouse/lg", HaveKeyWithValue("pending", BeEmpty())))
+		Expect(st["repos"]).To(HaveKeyWithValue("github.com/rosenhouse-bot-sandbox/lg", HaveKeyWithValue("pending", BeEmpty())))
 		Expect(s.Main("paths")).To(Equal(0))
 		Expect(s.Stderr.String()).To(Equal("lg: warning: no sync has succeeded yet\n"))
 	},
-	Entry("on GET /repos", "/repos/rosenhouse/lg"),
+	Entry("on GET /repos", "/repos/rosenhouse-bot-sandbox/lg"),
 	Entry("on the runs listing", "/actions/runs"),
 )
 
@@ -419,22 +419,22 @@ var _ = Describe("lg status with a status.json it cannot parse", Label("status")
 var _ = Describe("lg gc", Label("status"), func() {
 	It("updates status.json's horizon and counts", func() {
 		s := harness.NewCLI()
-		s.WriteConfig("repo: rosenhouse/lg\napi_url: " + s.Fake.URL() + "\ndisk_cap: 120KB\n")
+		s.WriteConfig("repo: rosenhouse-bot-sandbox/lg\napi_url: " + s.Fake.URL() + "\ndisk_cap: 120KB\n")
 		Expect(s.Main("sync")).To(Equal(0))
 		before := s.Status()
-		Expect(before["repos"]).To(HaveKeyWithValue("github.com/rosenhouse/lg", HaveKeyWithValue("runs", 1.0)))
+		Expect(before["repos"]).To(HaveKeyWithValue("github.com/rosenhouse-bot-sandbox/lg", HaveKeyWithValue("runs", 1.0)))
 
-		s.WriteConfig("repo: rosenhouse/lg\napi_url: " + s.Fake.URL() + "\ndisk_cap: 50KB\n")
+		s.WriteConfig("repo: rosenhouse-bot-sandbox/lg\napi_url: " + s.Fake.URL() + "\ndisk_cap: 50KB\n")
 		Expect(s.Main("gc")).To(Equal(0), s.Stderr.String())
 
 		after := s.Status()
-		repo := after["repos"].(map[string]any)["github.com/rosenhouse/lg"]
+		repo := after["repos"].(map[string]any)["github.com/rosenhouse-bot-sandbox/lg"]
 		Expect(repo).To(HaveKeyWithValue("runs", 0.0))
 		Expect(repo).To(HaveKeyWithValue("attempts", 0.0))
 		Expect(repo).To(HaveKeyWithValue("bytes_data", 0.0))
 		Expect(repo).To(HaveKeyWithValue("newest_completed_run_created_at", BeNil()))
 		Expect(repo).To(HaveKeyWithValue("lag_seconds", BeNil()))
-		Expect(repo).To(HaveKeyWithValue("horizon", Not(Equal(before["repos"].(map[string]any)["github.com/rosenhouse/lg"].(map[string]any)["horizon"]))))
+		Expect(repo).To(HaveKeyWithValue("horizon", Not(Equal(before["repos"].(map[string]any)["github.com/rosenhouse-bot-sandbox/lg"].(map[string]any)["horizon"]))))
 		Expect(repo).To(HaveKeyWithValue("disk_cap_bytes", 50000.0))
 		Expect(repo).To(HaveKeyWithValue("default_branch", "main"))
 		delete(before, "repos")

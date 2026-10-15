@@ -56,14 +56,14 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 		Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
 		url := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents()))
 
-		_, body := get(url + "/repos/rosenhouse/lg/actions/runs?per_page=100")
+		_, body := get(url + "/repos/rosenhouse-bot-sandbox/lg/actions/runs?per_page=100")
 		var runs struct {
 			WorkflowRuns []struct{ ID int64 } `json:"workflow_runs"`
 		}
 		Expect(json.Unmarshal(body, &runs)).To(Succeed())
 		Expect(runs.WorkflowRuns).To(HaveExactElements(HaveField("ID", int64(37129738159)), HaveField("ID", int64(37129390741))))
 
-		header, body := get(url + "/repos/rosenhouse/lg/actions/runs/37129390741/attempts/1/jobs?per_page=100")
+		header, body := get(url + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/attempts/1/jobs?per_page=100")
 		var jobs struct{ Jobs []any }
 		Expect(json.Unmarshal(body, &jobs)).To(Succeed())
 		Expect(jobs.Jobs).To(HaveLen(5))
@@ -78,7 +78,7 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 			"-fail", "api,jobs/111221289909/logs,stall",
 			"-fail", "api,jobs/111221289911/logs,truncate+stall")
 		Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
-		logs := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents())) + "/repos/rosenhouse/lg/actions/jobs/"
+		logs := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents())) + "/repos/rosenhouse-bot-sandbox/lg/actions/jobs/"
 
 		// try GETs url without following a redirect, giving up after a second.
 		try := func(url string) (status int, headerErr, bodyErr error) {
@@ -116,7 +116,7 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 			Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
 			url := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents()))
 
-			_, body := get(url + "/repos/rosenhouse/lg/actions/artifacts/11276401837/zip")
+			_, body := get(url + "/repos/rosenhouse-bot-sandbox/lg/actions/artifacts/11276401837/zip")
 			Expect(string(body)).To(Equal(contents))
 		},
 		Entry("some bytes", "not a zip"),
@@ -131,7 +131,7 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 
 		expired := map[int64]bool{}
 		for _, runID := range []string{"37129390741", "37129738159"} {
-			_, body := get(url + "/repos/rosenhouse/lg/actions/runs/" + runID + "/artifacts?per_page=100")
+			_, body := get(url + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/" + runID + "/artifacts?per_page=100")
 			var listing struct {
 				Artifacts []struct {
 					ID      int64
@@ -155,14 +155,14 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 		Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
 		url := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents()))
 
-		header, _ := get(url + "/repos/rosenhouse/lg")
+		header, _ := get(url + "/repos/rosenhouse-bot-sandbox/lg")
 		Expect(header).To(SatisfyAll(
 			HaveKeyWithValue("X-Ratelimit-Limit", []string{"100"}),
 			HaveKeyWithValue("X-Ratelimit-Remaining", []string{"11"}),
 		))
 		Expect(clockOf(header)).To(BeTemporally("~", now, 5*time.Second))
 		Eventually(func() time.Time {
-			header, _ := get(url + "/repos/rosenhouse/lg")
+			header, _ := get(url + "/repos/rosenhouse-bot-sandbox/lg")
 			return clockOf(header)
 		}, "5s").Should(BeTemporally(">", clockOf(header)))
 	})
@@ -172,17 +172,17 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 		Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
 		url := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents()))
 
-		header, _ := get(url + "/repos/rosenhouse/lg")
+		header, _ := get(url + "/repos/rosenhouse-bot-sandbox/lg")
 		Expect(clockOf(header)).To(BeTemporally("~", clock.Real{}.Now(), 5*time.Second))
 	})
 
 	It("injects each rate-limit -fail kind", Label("blocked"), func() {
 		session := start("-run", "37129390741=after-attempt-1", "-addr", "127.0.0.1:0",
-			"-fail", "api,/repos/rosenhouse/lg,ratelimit,1",
-			"-fail", "api,/repos/rosenhouse/lg,secondary,1",
-			"-fail", "api,/repos/rosenhouse/lg,retry-after=30,1")
+			"-fail", "api,/repos/rosenhouse-bot-sandbox/lg,ratelimit,1",
+			"-fail", "api,/repos/rosenhouse-bot-sandbox/lg,secondary,1",
+			"-fail", "api,/repos/rosenhouse-bot-sandbox/lg,retry-after=30,1")
 		Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
-		repo := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents())) + "/repos/rosenhouse/lg"
+		repo := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents())) + "/repos/rosenhouse-bot-sandbox/lg"
 
 		status, header, _ := fetch(repo)
 		Expect(status).To(Equal(http.StatusForbidden))
@@ -246,7 +246,7 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 		Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
 		url := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents()))
 
-		_, body := get(url + "/repos/rosenhouse/lg/actions/runs?per_page=100")
+		_, body := get(url + "/repos/rosenhouse-bot-sandbox/lg/actions/runs?per_page=100")
 		var runs struct {
 			WorkflowRuns []struct{ ID int64 } `json:"workflow_runs"`
 		}
@@ -261,7 +261,7 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 		Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
 		url := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents()))
 
-		_, body := get(url + "/repos/rosenhouse/lg/actions/runs?per_page=100")
+		_, body := get(url + "/repos/rosenhouse-bot-sandbox/lg/actions/runs?per_page=100")
 		var runs struct {
 			WorkflowRuns []struct{ ID int64 } `json:"workflow_runs"`
 		}
@@ -277,7 +277,7 @@ var _ = Describe("the fakegithub dev server", Label("transport"), func() {
 			session := start(append([]string{"-scenario", "intermittent", "-addr", "127.0.0.1:0"}, args...)...)
 			Eventually(session.Out, "5s").Should(gbytes.Say(`serving http://127\.0\.0\.1:\d+\n`))
 			url := regexp.MustCompile(`http://\S+`).FindString(string(session.Out.Contents()))
-			_, body := get(url + "/repos/rosenhouse/lg/actions/runs?per_page=1")
+			_, body := get(url + "/repos/rosenhouse-bot-sandbox/lg/actions/runs?per_page=1")
 			var runs struct {
 				WorkflowRuns []struct {
 					CreatedAt time.Time `json:"created_at"`

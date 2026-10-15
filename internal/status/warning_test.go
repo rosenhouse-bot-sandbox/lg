@@ -54,8 +54,8 @@ func withConfigError(st *status.Status) *status.Status {
 const stuckLine = "4 units pending since 2026-10-03T17:30:00Z"
 
 var stuck = map[string][]time.Time{
-	"github.com/rosenhouse/lg": {ago(21 * time.Minute), ago(30 * time.Minute), ago(5 * time.Minute), ago(25 * time.Minute)},
-	"ghe.example.com/o/r":      {ago(22 * time.Minute), unknownSince},
+	"github.com/rosenhouse-bot-sandbox/lg": {ago(21 * time.Minute), ago(30 * time.Minute), ago(5 * time.Minute), ago(25 * time.Minute)},
+	"ghe.example.com/o/r":                  {ago(22 * time.Minute), unknownSince},
 }
 
 var _ = DescribeTable("Warning", Label("status"),

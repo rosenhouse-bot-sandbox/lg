@@ -42,7 +42,7 @@ type InProcessEnv struct {
 }
 
 // InProcess gives the calling spec an empty fakegithub, a store, a clock at
-// DefaultNow that both lg and the fake use, and a Mirror of rosenhouse/lg
+// DefaultNow that both lg and the fake use, and a Mirror of rosenhouse-bot-sandbox/lg
 // that uses them.
 func InProcess() *InProcessEnv {
 	ginkgo.GinkgoHelper()
@@ -65,11 +65,11 @@ func InProcess() *InProcessEnv {
 		Mirror: &mirror.Mirror{
 			Tokens: staticToken(fakegh.Token),
 			NewGitHub: func(token string, cache *github.Cache) github.Client {
-				return github.NewHTTP(transport, api, "rosenhouse/lg", token, clk).WithCache(cache)
+				return github.NewHTTP(transport, api, "rosenhouse-bot-sandbox/lg", token, clk).WithCache(cache)
 			},
 			Store:            s,
 			Host:             "github.com",
-			Repo:             "rosenhouse/lg",
+			Repo:             "rosenhouse-bot-sandbox/lg",
 			Clock:            clk,
 			LogGrace:         time.Duration(config.Defaults().LogGrace),
 			ArtifactMaxBytes: int64(config.Defaults().ArtifactMaxBytes),

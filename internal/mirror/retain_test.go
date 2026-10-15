@@ -24,7 +24,7 @@ var _ = Describe("mirror.Cycle", Label("retention"), func() {
 
 	BeforeEach(func() {
 		env = harness.InProcess()
-		old = filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main")
+		old = filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main")
 		Expect(os.MkdirAll(old, 0o755)).To(Succeed())
 		env.FS.FailOnUnder("rename", old, syscall.EACCES)
 	})
@@ -42,7 +42,7 @@ var _ = Describe("mirror.Cycle", Label("retention"), func() {
 	}, cycleTimeout)
 
 	It("returns retention's error beside the cycle's", func(ctx SpecContext) {
-		env.Fake.Fail("api", "/repos/rosenhouse/lg", fakegithub.Fault{Status: http.StatusInternalServerError})
+		env.Fake.Fail("api", "/repos/rosenhouse-bot-sandbox/lg", fakegithub.Fault{Status: http.StatusInternalServerError})
 
 		err := env.Sync(ctx)
 		Expect(err).To(BeTransient())
@@ -53,7 +53,7 @@ var _ = Describe("mirror.Cycle", Label("retention"), func() {
 var _ = Describe("mirror.Cycle after its context is cancelled", Label("retention"), func() {
 	It("does not evict", func(ctx SpecContext) {
 		env := harness.InProcess()
-		old := filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main")
+		old := filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main")
 		Expect(os.MkdirAll(old, 0o755)).To(Succeed())
 		cancelled, cancel := context.WithCancel(ctx)
 		cancel()
@@ -64,7 +64,7 @@ var _ = Describe("mirror.Cycle after its context is cancelled", Label("retention
 
 	It("leaves an empty date dir", func(ctx SpecContext) {
 		env := harness.InProcess()
-		empty := filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/2026-06-01")
+		empty := filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01")
 		Expect(os.MkdirAll(empty, 0o755)).To(Succeed())
 		cancelled, cancel := context.WithCancel(ctx)
 		cancel()

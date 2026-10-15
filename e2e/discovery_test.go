@@ -32,21 +32,21 @@ func closedRange(q url.Values) (from, to time.Time) {
 	return from, to
 }
 
-var _ = Describe("lg init --repo rosenhouse/lg", Label("discovery"), func() {
+var _ = Describe("lg init --repo rosenhouse-bot-sandbox/lg", Label("discovery"), func() {
 	It("writes config.yaml holding only host and repo, and initializes the store", func() {
 		env := harness.New(lgPath)
 
-		session := env.Lg("init", "--repo", "rosenhouse/lg")
+		session := env.Lg("init", "--repo", "rosenhouse-bot-sandbox/lg")
 		Eventually(session, harness.ExitTimeout).Should(gexec.Exit(0))
-		Expect(os.ReadFile(env.ConfigFile())).To(BeEquivalentTo("host: github.com\nrepo: rosenhouse/lg\n"))
+		Expect(os.ReadFile(env.ConfigFile())).To(BeEquivalentTo("host: github.com\nrepo: rosenhouse-bot-sandbox/lg\n"))
 		Expect(os.ReadFile(filepath.Join(env.Store(), "FORMAT"))).To(BeEquivalentTo("lg-store 1\n"))
 	})
 
 	It("lowercases --host, as config.Load does", func() {
 		env := harness.New(lgPath)
 
-		Eventually(env.Lg("init", "--repo", "rosenhouse/lg", "--host", "GitHub.com"), harness.ExitTimeout).Should(gexec.Exit(0))
-		Expect(os.ReadFile(env.ConfigFile())).To(BeEquivalentTo("host: github.com\nrepo: rosenhouse/lg\n"))
+		Eventually(env.Lg("init", "--repo", "rosenhouse-bot-sandbox/lg", "--host", "GitHub.com"), harness.ExitTimeout).Should(gexec.Exit(0))
+		Expect(os.ReadFile(env.ConfigFile())).To(BeEquivalentTo("host: github.com\nrepo: rosenhouse-bot-sandbox/lg\n"))
 	})
 })
 
@@ -185,8 +185,8 @@ var _ = Describe("lg sync", Label("discovery"), func() {
 		Expect(env.Sync()).To(gexec.Exit(0))
 		Expect(fake.Requests()[before:]).NotTo(BeEmpty())
 		Expect(fake.Requests()[before:]).To(HaveEach(HaveField("Path", BeElementOf(
-			"/repos/rosenhouse/lg",
-			"/repos/rosenhouse/lg/actions/runs",
+			"/repos/rosenhouse-bot-sandbox/lg",
+			"/repos/rosenhouse-bot-sandbox/lg/actions/runs",
 		))))
 	})
 })

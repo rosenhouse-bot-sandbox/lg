@@ -40,7 +40,7 @@ var _ = Describe("an attempt's fetch.json", Label("artifacts"), func() {
 		Expect(env.Sync(ctx)).To(Succeed())
 		Expect(readJSONFile(filepath.Join(attemptDir(env, runID, 1), "fetch.json"))).To(HaveKeyWithValue("sources",
 			HaveKeyWithValue("artifacts.json", SatisfyAll(
-				HaveKeyWithValue("url", env.Fake.URL()+"/repos/rosenhouse/lg/actions/runs/37129390741/artifacts?per_page=100"),
+				HaveKeyWithValue("url", env.Fake.URL()+"/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/artifacts?per_page=100"),
 				HaveKeyWithValue("pages", BeEquivalentTo(1)),
 			)),
 		))
@@ -93,7 +93,7 @@ func ids(retry []mirror.Retry) []int64 {
 var _ = Describe("the retry set", Label("artifacts"), func() {
 	It("is the ids in every attempt-*/artifacts.json, in state/pending-artifacts.json and in the current listing, minus the artifact dirs on disk", func() {
 		env := harness.InProcess()
-		runDir := filepath.Join(env.Data(), "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "1_w_b")
+		runDir := filepath.Join(env.Data(), "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "1_w_b")
 		writeSnapshot(layout.AttemptDir(runDir, 1), listedArtifact(1), listedArtifact(7))
 		writeSnapshot(layout.AttemptDir(runDir, 2), listedArtifact(2), listedArtifact(3))
 		for _, id := range []int64{1, 6} {
@@ -110,7 +110,7 @@ var _ = Describe("the retry set", Label("artifacts"), func() {
 
 	It("takes an artifact that several snapshots name from the oldest attempt's, attempt-2 before attempt-10", func() {
 		env := harness.InProcess()
-		runDir := filepath.Join(env.Data(), "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "1_w_b")
+		runDir := filepath.Join(env.Data(), "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "1_w_b")
 		writeSnapshot(layout.AttemptDir(runDir, 10), listedArtifact(1))
 		writeSnapshot(layout.AttemptDir(runDir, 2), listedArtifact(1))
 
@@ -121,7 +121,7 @@ var _ = Describe("the retry set", Label("artifacts"), func() {
 
 	It("takes nothing from an attempt dir with no artifacts.json", func() {
 		env := harness.InProcess()
-		runDir := filepath.Join(env.Data(), "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "1_w_b")
+		runDir := filepath.Join(env.Data(), "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "1_w_b")
 		Expect(os.MkdirAll(layout.AttemptDir(runDir, 1), 0o755)).To(Succeed())
 
 		retry, err := env.Mirror.RetrySet(runDir, []github.Artifact{listedArtifact(5)}, nil)
@@ -186,7 +186,7 @@ var _ = Describe("state/pending-artifacts.json", Label("artifacts"), func() {
 		Expect(env.Sync(ctx)).To(BeTransient())
 		pending := readJSONFile(filepath.Join(env.State(), "pending-artifacts.json"))
 		Expect(pending).To(HaveKeyWithValue("github.com", HaveKeyWithValue("37129390741", HaveKeyWithValue("run", SatisfyAll(
-			HaveKeyWithValue("repository", Equal(map[string]any{"full_name": "rosenhouse/Lg"})),
+			HaveKeyWithValue("repository", Equal(map[string]any{"full_name": "rosenhouse-bot-sandbox/lg"})),
 			Not(HaveKey("head_repository")),
 		)))))
 	}, cycleTimeout)
@@ -386,7 +386,7 @@ var _ = Describe("an artifact pending for a run of another host", Label("artifac
 	It("stays pending and untouched while lg syncs this host, though the run ids are equal", func(ctx SpecContext) {
 		env := harness.InProcess()
 		Expect(env.Fake.Load(runID, "after-attempt-1")).To(Succeed())
-		other := `{"ghes.example.com":{"37129390741":{"run":{"id":37129390741,"repository":{"full_name":"rosenhouse/Lg"}},"artifacts":[{"artifact":{"id":9,"name":"a"}}]}}}`
+		other := `{"ghes.example.com":{"37129390741":{"run":{"id":37129390741,"repository":{"full_name":"rosenhouse-bot-sandbox/lg"}},"artifacts":[{"artifact":{"id":9,"name":"a"}}]}}}`
 		Expect(os.WriteFile(filepath.Join(env.State(), "pending-artifacts.json"), []byte(other), 0o644)).To(Succeed())
 
 		Expect(env.Sync(ctx)).To(Succeed())

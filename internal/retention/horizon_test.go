@@ -53,7 +53,7 @@ var _ = Describe("retention.Horizons", Label("retention"), func() {
 	})
 
 	It("key a repo dir by its lowercased host and its full name as GitHub spells it", func() {
-		Expect(retention.RepoKey("GitHub.com", "rosenhouse/Lg")).To(Equal("github.com/rosenhouse/Lg"))
+		Expect(retention.RepoKey("GitHub.com", "rosenhouse-bot-sandbox/lg")).To(Equal("github.com/rosenhouse-bot-sandbox/lg"))
 	})
 
 	DescribeTable("moves state/horizon.json aside when it does not parse, and skips nothing",

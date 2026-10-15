@@ -17,7 +17,7 @@ var later = harness.DefaultNow().AddDate(1, 0, 0)
 
 func dateFrom(fake *fakegithub.Server) string {
 	GinkgoHelper()
-	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, fake.URL()+"/repos/rosenhouse/lg", http.NoBody)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, fake.URL()+"/repos/rosenhouse-bot-sandbox/lg", http.NoBody)
 	Expect(err).NotTo(HaveOccurred())
 	resp, err := http.DefaultClient.Do(req)
 	Expect(err).NotTo(HaveOccurred())

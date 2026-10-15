@@ -19,7 +19,7 @@ var _ = DescribeTable("lg sync blocks as local_io when opening the store fails",
 	func(fault func(home string, fsys *faultfs.FS), detail string) {
 		home := GinkgoT().TempDir()
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		fsys := faultfs.New()
 		fault(home, fsys)
 		var stderr bytes.Buffer

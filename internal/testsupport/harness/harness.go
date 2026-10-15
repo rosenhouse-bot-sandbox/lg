@@ -88,9 +88,9 @@ func (e *Env) BashUnchecked(script string) *gexec.Session {
 	return e.start(cmd)
 }
 
-// WriteConfig writes config.yaml for rosenhouse/lg served at apiURL, plus any further lines.
+// WriteConfig writes config.yaml for rosenhouse-bot-sandbox/lg served at apiURL, plus any further lines.
 func (e *Env) WriteConfig(apiURL string, lines ...string) {
-	e.writeConfig(append([]string{"repo: rosenhouse/lg", "api_url: " + apiURL}, lines...))
+	e.writeConfig(append([]string{"repo: rosenhouse-bot-sandbox/lg", "api_url: " + apiURL}, lines...))
 }
 
 func (e *Env) writeConfig(lines []string) {
@@ -190,9 +190,9 @@ func NewLive(lgPath string) *Env {
 	return &Env{lgPath: lgPath, vars: vars}
 }
 
-// WriteLiveConfig writes config.yaml for rosenhouse/lg on github.com, plus any further lines.
+// WriteLiveConfig writes config.yaml for rosenhouse-bot-sandbox/lg on github.com, plus any further lines.
 func (e *Env) WriteLiveConfig(lines ...string) {
-	e.writeConfig(append([]string{"repo: rosenhouse/lg"}, lines...))
+	e.writeConfig(append([]string{"repo: rosenhouse-bot-sandbox/lg"}, lines...))
 }
 
 // Start starts lg with args, and kills it when the spec ends.

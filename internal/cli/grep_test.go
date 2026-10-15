@@ -30,7 +30,7 @@ var _ = Describe("lg grep", Label("grep"), func() {
 	BeforeEach(func() {
 		c = harness.NewCLI()
 		Expect(c.Main("sync")).To(Equal(0))
-		run := filepath.Join(c.Home, "data", "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture")
+		run := filepath.Join(c.Home, "data", "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture")
 		flaky = filepath.Join(run, "attempt-1", "jobs", "111221289888_flaky", "log.txt")
 		Expect(flaky).To(BeARegularFile())
 	})
@@ -195,7 +195,7 @@ var _ = Describe("lg grep --json", Label("scale"), func() {
 	It("prints 50,000 hits in one file in under 1s", func() {
 		c := harness.NewCLI()
 		Expect(c.Main("sync")).To(Equal(0))
-		log := filepath.Join(c.Home, "data", "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture", "attempt-1", "jobs", "111221289888_flaky", "log.txt")
+		log := filepath.Join(c.Home, "data", "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture", "attempt-1", "jobs", "111221289888_flaky", "log.txt")
 		Expect(os.WriteFile(log, []byte(strings.Repeat("needle\n", 50_000)), 0o644)).To(Succeed())
 
 		start := clock.Real{}.Now()

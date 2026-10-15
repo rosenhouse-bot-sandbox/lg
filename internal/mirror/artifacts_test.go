@@ -49,7 +49,7 @@ func readZipTombstone(env *harness.InProcessEnv, runID int64, artifactID string)
 }
 
 func zipURL(env *harness.InProcessEnv, artifactID string) string {
-	return env.Fake.URL() + "/repos/rosenhouse/lg/actions/artifacts/" + artifactID + "/zip"
+	return env.Fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/artifacts/" + artifactID + "/zip"
 }
 
 func requestedZip(env *harness.InProcessEnv, artifactID string) bool {

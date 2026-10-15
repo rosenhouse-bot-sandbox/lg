@@ -12,7 +12,7 @@ import (
 
 var _ = Describe("RepoDir", Label("sync"), func() {
 	It("is data/<host lowercased>/<full_name as GitHub spells it>", func() {
-		Expect(layout.RepoDir("/d", "GitHub.com", "rosenhouse/Lg")).To(Equal("/d/github.com/rosenhouse/Lg"))
+		Expect(layout.RepoDir("/d", "GitHub.com", "rosenhouse-bot-sandbox/lg")).To(Equal("/d/github.com/rosenhouse-bot-sandbox/lg"))
 	})
 })
 

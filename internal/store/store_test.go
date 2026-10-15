@@ -409,7 +409,7 @@ var _ = Describe("FindRunDir", Label("attempts"), func() {
 		var err error
 		s, err = store.Open(root)
 		Expect(err).NotTo(HaveOccurred())
-		date = filepath.Join(s.Data(), "github.com/rosenhouse/Lg/runs/2026-10-03")
+		date = filepath.Join(s.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03")
 	})
 
 	It("finds the dir of the run's id in the date dir whatever its slugs", func() {

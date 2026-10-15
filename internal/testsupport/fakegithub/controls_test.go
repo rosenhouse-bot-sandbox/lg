@@ -16,7 +16,7 @@ import (
 
 const (
 	runID   = 37129390741
-	logPath = "/repos/rosenhouse/lg/actions/jobs/111221289888/logs"
+	logPath = "/repos/rosenhouse-bot-sandbox/lg/actions/jobs/111221289888/logs"
 )
 
 var _ = Describe("Server controls", func() {
@@ -57,18 +57,18 @@ var _ = Describe("Server controls", func() {
 		var listing struct {
 			TotalCount int `json:"total_count"`
 		}
-		Expect(json.Unmarshal(served(fake.URL()+"/repos/rosenhouse/lg/actions/runs"), &listing)).To(Succeed())
+		Expect(json.Unmarshal(served(fake.URL()+"/repos/rosenhouse-bot-sandbox/lg/actions/runs"), &listing)).To(Succeed())
 		Expect(listing.TotalCount).To(BeZero())
-		Expect(get("/repos/rosenhouse/lg/actions/runs/37129390741")).To(Equal(http.StatusNotFound))
-		Expect(get("/repos/rosenhouse/lg/actions/runs/37129390741/artifacts")).To(Equal(http.StatusNotFound))
-		Expect(get("/repos/rosenhouse/lg/actions/artifacts/11276401837/zip")).To(Equal(http.StatusNotFound))
+		Expect(get("/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741")).To(Equal(http.StatusNotFound))
+		Expect(get("/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/artifacts")).To(Equal(http.StatusNotFound))
+		Expect(get("/repos/rosenhouse-bot-sandbox/lg/actions/artifacts/11276401837/zip")).To(Equal(http.StatusNotFound))
 	})
 
 	It("Fail answers requests whose path ends in match with the fault's status, Times times", Label("store"), func() {
 		fake.Fail("api", "jobs/111221289888/logs", fakegithub.Fault{Status: http.StatusInternalServerError, Times: 2})
 
 		Expect(get(logPath)).To(Equal(http.StatusInternalServerError))
-		Expect(get("/repos/rosenhouse/lg/actions/jobs/111221289875/logs")).To(Equal(http.StatusOK))
+		Expect(get("/repos/rosenhouse-bot-sandbox/lg/actions/jobs/111221289875/logs")).To(Equal(http.StatusOK))
 		Expect(get(logPath)).To(Equal(http.StatusInternalServerError))
 		Expect(get(logPath)).To(Equal(http.StatusOK))
 	})
@@ -93,7 +93,7 @@ var _ = Describe("Server controls", func() {
 
 		Eventually(fake.Requests, time.Second).Should(ContainElement(HaveField("Path", logPath)))
 		Consistently(done, 200*time.Millisecond).ShouldNot(Receive())
-		Expect(get("/repos/rosenhouse/lg/actions/runs")).To(Equal(http.StatusOK))
+		Expect(get("/repos/rosenhouse-bot-sandbox/lg/actions/runs")).To(Equal(http.StatusOK))
 
 		release()
 		Eventually(done, time.Second).Should(Receive(Equal(http.StatusOK)))
@@ -162,23 +162,23 @@ var _ = Describe("Server controls", func() {
 		Expect(fake.AddRun(scenario.InProgress(run, 2))).To(Succeed())
 		Expect(fake.AddRun(run)).To(Succeed())
 
-		Expect(served(fake.URL() + "/repos/rosenhouse/lg/actions/runs/7/attempts/2")).To(MatchJSON(run.Files["attempt-2/attempt.json"].Data))
-		Expect(served(fake.URL() + "/repos/rosenhouse/lg/actions/runs/7/attempts/2/jobs")).To(MatchJSON(run.Files["attempt-2/jobs.json"].Data))
-		Expect(served(fake.URL() + "/repos/rosenhouse/lg/actions/jobs/7111221661475/logs")).To(Equal(run.Files["attempt-2/logs/7111221661475.txt"].Data))
+		Expect(served(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/7/attempts/2")).To(MatchJSON(run.Files["attempt-2/attempt.json"].Data))
+		Expect(served(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/7/attempts/2/jobs")).To(MatchJSON(run.Files["attempt-2/jobs.json"].Data))
+		Expect(served(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/jobs/7111221661475/logs")).To(Equal(run.Files["attempt-2/logs/7111221661475.txt"].Data))
 		var listing struct {
 			WorkflowRuns []json.RawMessage `json:"workflow_runs"`
 		}
-		Expect(json.Unmarshal(served(fake.URL()+"/repos/rosenhouse/lg/actions/runs"), &listing)).To(Succeed())
+		Expect(json.Unmarshal(served(fake.URL()+"/repos/rosenhouse-bot-sandbox/lg/actions/runs"), &listing)).To(Succeed())
 		Expect(listing.WorkflowRuns).To(ContainElement(MatchJSON(run.Files["run.json"].Data)))
 	})
 
 	It("Advance refuses a run that is not loaded", Label("transport"), func() {
 		Expect(fake.Advance(1, "after-attempt-3")).To(MatchError("run 1 is not loaded"))
-		Expect(fetch(fake.URL() + "/repos/rosenhouse/lg/actions/runs/1").status).To(Equal(http.StatusNotFound))
+		Expect(fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/1").status).To(Equal(http.StatusNotFound))
 	})
 
 	It("Requests reports each request's status and whether it carried Authorization", Label("transport"), func() {
-		fetch(fake.URL() + "/repos/rosenhouse/lg")
+		fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg")
 		fetch(fake.URL()+logPath, "Authorization", "Bearer lg-test-token")
 
 		Expect(fake.Requests()).To(HaveExactElements(
@@ -213,7 +213,7 @@ var _ = Describe("Server controls", func() {
 		It("Drop fails a request on a reused connection, which Go would otherwise retry", func(ctx SpecContext) {
 			client := &http.Client{Transport: &http.Transport{}}
 			get := func() error {
-				req, err := http.NewRequestWithContext(ctx, http.MethodGet, fake.URL()+"/repos/rosenhouse/lg", http.NoBody)
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, fake.URL()+"/repos/rosenhouse-bot-sandbox/lg", http.NoBody)
 				Expect(err).NotTo(HaveOccurred())
 				resp, err := client.Do(req)
 				if err != nil {
@@ -223,7 +223,7 @@ var _ = Describe("Server controls", func() {
 				return resp.Body.Close()
 			}
 			Expect(get()).To(Succeed())
-			fake.Fail("api", "/repos/rosenhouse/lg", fakegithub.Fault{Drop: true, Times: 1})
+			fake.Fail("api", "/repos/rosenhouse-bot-sandbox/lg", fakegithub.Fault{Drop: true, Times: 1})
 
 			Expect(get()).NotTo(Succeed())
 		}, SpecTimeout(5*time.Second))
@@ -278,7 +278,7 @@ var _ = Describe("Server controls", func() {
 	It("Fail with a Body answers with the fault's status and that body", Label("failures"), func() {
 		fake.Fail("api", "runs/37129390741/attempts/1", fakegithub.Fault{Status: http.StatusOK, Body: "<html>unicorn</html>"})
 
-		attempt := fetch(fake.URL() + "/repos/rosenhouse/lg/actions/runs/37129390741/attempts/1")
+		attempt := fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/attempts/1")
 		Expect(attempt.status).To(Equal(http.StatusOK))
 		Expect(string(attempt.body)).To(Equal("<html>unicorn</html>"))
 	})

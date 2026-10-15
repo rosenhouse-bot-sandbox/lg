@@ -61,7 +61,7 @@ var _ = Describe("a sync whose commit lookup returns 422", Label("prs"), func() 
 		Expect(fetchOf(env, prRunID, 1)).To(SatisfyAll(
 			HaveKeyWithValue("commit_pr_numbers", BeEmpty()),
 			HaveKeyWithValue("sources", HaveKeyWithValue("commit_pr_numbers", Equal(map[string]any{
-				"url":    env.Fake.URL() + "/repos/rosenhouse/lg/commits/" + sha + "/pulls?per_page=100",
+				"url":    env.Fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/commits/" + sha + "/pulls?per_page=100",
 				"status": 422.0,
 				"pages":  1.0,
 			}))),
@@ -104,7 +104,7 @@ var _ = Describe("the commit lookup", Label("prs"), func() {
 	lookups := func() int {
 		count := 0
 		for _, r := range env.Fake.Requests() {
-			if r.Path == "/repos/rosenhouse/lg/commits/"+sha+"/pulls" {
+			if r.Path == "/repos/rosenhouse-bot-sandbox/lg/commits/"+sha+"/pulls" {
 				count++
 			}
 		}
@@ -143,7 +143,7 @@ var _ = Describe("the commit lookup", Label("prs"), func() {
 		Expect(env.Sync(ctx)).To(Succeed())
 
 		Expect(fetchOf(env, 23, 1)).To(HaveKeyWithValue("sources", HaveKeyWithValue("commit_pr_numbers", Equal(map[string]any{
-			"url":    env.Fake.URL() + "/repos/rosenhouse/lg/commits/" + sha + "/pulls?per_page=100",
+			"url":    env.Fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/commits/" + sha + "/pulls?per_page=100",
 			"status": 200.0,
 			"pages":  2.0,
 		}))))

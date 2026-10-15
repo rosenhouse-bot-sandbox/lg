@@ -54,16 +54,16 @@ var _ = DescribeTable("lg sync signalled while gh hangs leaves no gh running", L
 	Entry("SIGHUP", syscall.SIGHUP),
 )
 
-var _ = Describe("lg sync when GET /repos/rosenhouse/lg returns 404", Label("blocked"), func() {
+var _ = Describe("lg sync when GET /repos/rosenhouse-bot-sandbox/lg returns 404", Label("blocked"), func() {
 	It("exits 3 saying the repo was not found or the token lacks access", func() {
 		env := harness.New(lgPath)
 		fake := fakegithub.Start(fixtureRun, "after-attempt-1")
 		env.WriteConfig(fake.URL())
-		fake.Fail("api", "/repos/rosenhouse/lg", fakegithub.Fault{Status: http.StatusNotFound})
+		fake.Fail("api", "/repos/rosenhouse-bot-sandbox/lg", fakegithub.Fault{Status: http.StatusNotFound})
 
 		session := env.Sync()
 		Expect(session).To(gexec.Exit(3))
-		Expect(session.Err).To(gbytes.Say("rosenhouse/lg was not found, or the token lacks access to it"))
+		Expect(session.Err).To(gbytes.Say("rosenhouse-bot-sandbox/lg was not found, or the token lacks access to it"))
 	})
 })
 
@@ -122,13 +122,13 @@ var _ = Describe("lg sync", Label("blocked"), func() {
 		Expect(files).To(BeNumerically(">", 20))
 	})
 
-	It("names the repo dir rosenhouse/Lg from GET /repos when the config says rosenhouse/lg", func() {
+	It("names the repo dir rosenhouse-bot-sandbox/lg from GET /repos when the config says rosenhouse-bot-sandbox/lg", func() {
 		env := harness.New(lgPath)
 		fake := fakegithub.Start(fixtureRun, "after-attempt-1")
 		env.WriteConfig(fake.URL())
 
 		Expect(env.Sync()).To(gexec.Exit(0))
-		Expect(fake.Requests()).To(ContainElement(HaveField("Path", "/repos/rosenhouse/lg")))
-		Expect(os.ReadDir(filepath.Join(env.Data(), "github.com", "rosenhouse"))).To(ConsistOf(HaveField("Name()", "Lg")))
+		Expect(fake.Requests()).To(ContainElement(HaveField("Path", "/repos/rosenhouse-bot-sandbox/lg")))
+		Expect(os.ReadDir(filepath.Join(env.Data(), "github.com", "rosenhouse-bot-sandbox"))).To(ConsistOf(HaveField("Name()", "lg")))
 	})
 })

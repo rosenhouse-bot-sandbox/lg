@@ -56,9 +56,9 @@ var _ = Describe("lg sync at after-attempt-1", Label("artifacts"), func() {
 				HaveKeyWithValue("pr_numbers", BeEmpty()),
 				HaveKeyWithValue("display_title", "Add lg-fixture workflow for recording Actions API shapes"),
 				HaveKeyWithValue("sources", SatisfyAll(
-					HaveKeyWithValue("artifact.json", HaveKeyWithValue("url", fake.URL()+"/repos/rosenhouse/lg/actions/runs/37129390741/artifacts?per_page=100")),
+					HaveKeyWithValue("artifact.json", HaveKeyWithValue("url", fake.URL()+"/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/artifacts?per_page=100")),
 					HaveKeyWithValue("artifact.zip", SatisfyAll(
-						HaveKeyWithValue("url", fmt.Sprintf("%s/repos/rosenhouse/lg/actions/artifacts/%d/zip", fake.URL(), artifact.ID)),
+						HaveKeyWithValue("url", fmt.Sprintf("%s/repos/rosenhouse-bot-sandbox/lg/actions/artifacts/%d/zip", fake.URL(), artifact.ID)),
 						HaveKeyWithValue("status", BeEquivalentTo(http.StatusOK)),
 						HaveKeyWithValue("bytes", BeEquivalentTo(len(recorded))),
 						HaveKeyWithValue("sha256", fmt.Sprintf("%x", sha256.Sum256(recorded))),
@@ -123,7 +123,7 @@ var _ = Describe("lg sync at after-attempt-3 and logs-deleted, then at after-exp
 		Expect(fake.Load(logsDeletedRun, "logs-deleted")).To(Succeed())
 		env.WriteConfig(fake.URL())
 		Expect(env.Sync()).To(gexec.Exit(0))
-		zips, err := filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/*/*/artifacts/*/artifact.zip"))
+		zips, err := filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/*/*/artifacts/*/artifact.zip"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(zips).To(SatisfyAll(
 			HaveLen(9),
@@ -146,6 +146,6 @@ var _ = Describe("lg sync at after-attempt-3 and logs-deleted, then at after-exp
 		for zip, bytes := range before {
 			Expect(os.ReadFile(zip)).To(Equal(bytes), zip)
 		}
-		Expect(filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/*/*/artifacts/*/*.tombstone"))).To(BeEmpty())
+		Expect(filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/*/*/artifacts/*/*.tombstone"))).To(BeEmpty())
 	})
 })

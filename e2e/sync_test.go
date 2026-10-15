@@ -45,10 +45,10 @@ var _ = Describe("lg sync against run-37129390741/after-attempt-1", Label("sync"
 		env.WriteConfig(fake.URL())
 
 		Expect(env.Sync()).To(gexec.Exit(0))
-		attempt1 = filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/2026-10-03/37129390741_lg-fixture_lg-fixture/attempt-1")
+		attempt1 = filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03/37129390741_lg-fixture_lg-fixture/attempt-1")
 	})
 
-	It("publishes attempt-1 under data/github.com/rosenhouse/Lg/runs/2026-10-03/37129390741_lg-fixture_lg-fixture", func() {
+	It("publishes attempt-1 under data/github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03/37129390741_lg-fixture_lg-fixture", func() {
 		Expect(attempt1).To(BeADirectory())
 	})
 

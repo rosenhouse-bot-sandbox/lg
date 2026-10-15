@@ -157,7 +157,7 @@ var _ = Describe("SKILL.md", Ordered, ContinueOnFailure, Label("skill"), func() 
 				"flaky\tFail on first attempt only\t1 2 3\tfailure success success\n"+
 				"timeout\t\t1 2 3\tcancelled success success\n"+
 				"timeout\tTime out on first attempt only\t1 2 3\tcancelled success success\n"),
-			ContainSubstring(`{"host":"github.com","repo":"rosenhouse/Lg",`),
+			ContainSubstring(`{"host":"github.com","repo":"rosenhouse-bot-sandbox/lg",`),
 			ContainSubstring("pass-artifact\tinner.tar.gz.d/tgz/nested.log\n"),
 			ContainSubstring("37129390741\t1\tflaky\n"),
 			ContainSubstring("37129390741\t1\ttimeout\n"),

@@ -195,12 +195,12 @@ var _ = Describe("GetRepo", Label("blocked"), func() {
 		var path string
 		server := serve(func(w http.ResponseWriter, r *http.Request) {
 			path = r.URL.Path
-			_, _ = w.Write([]byte(`{"id":1402714635,"full_name":"rosenhouse/Lg"}`))
+			_, _ = w.Write([]byte(`{"id":1402714635,"full_name":"rosenhouse-bot-sandbox/lg"}`))
 		})
-		client := github.NewHTTP(http.DefaultTransport, mustParse(server.URL), "rosenhouse/lg", "lg-test-token", clock.Real{})
+		client := github.NewHTTP(http.DefaultTransport, mustParse(server.URL), "rosenhouse-bot-sandbox/lg", "lg-test-token", clock.Real{})
 
-		Expect(client.GetRepo(ctx)).To(HaveField("FullName", "rosenhouse/Lg"))
-		Expect(path).To(Equal("/repos/rosenhouse/lg"))
+		Expect(client.GetRepo(ctx)).To(HaveField("FullName", "rosenhouse-bot-sandbox/lg"))
+		Expect(path).To(Equal("/repos/rosenhouse-bot-sandbox/lg"))
 	}, hopTimeout)
 
 	It("returns ErrNotFound on a 404", func(ctx SpecContext) {

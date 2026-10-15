@@ -24,7 +24,7 @@ var _ = Describe("CommitPulls", Label("prs"), func() {
 		prs := []scenario.CommitPull{{Number: 58, HeadRef: "s22-skill", HeadRepoID: scenario.RepoID}, {Number: 7, HeadRef: "main"}}
 		Expect(fake.AddRun(scenario.WithCommitPulls(scenario.Recorded(37129390741, "after-attempt-1"), prs...))).To(Succeed())
 		fake.SetPageCap(1)
-		client := github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse/lg", "lg-test-token", clock.Real{})
+		client := github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse-bot-sandbox/lg", "lg-test-token", clock.Real{})
 
 		pulls, source, err := client.CommitPulls(context.Background(), sha)
 
@@ -33,7 +33,7 @@ var _ = Describe("CommitPulls", Label("prs"), func() {
 			github.CommitPull{Number: 58, HeadRef: "s22-skill", HeadRepoID: scenario.RepoID},
 			github.CommitPull{Number: 7, HeadRef: "main"},
 		))
-		Expect(source).To(Equal(github.Source{URL: fake.URL() + "/repos/rosenhouse/lg/commits/" + sha + "/pulls?per_page=100", Pages: 2}))
+		Expect(source).To(Equal(github.Source{URL: fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/commits/" + sha + "/pulls?per_page=100", Pages: 2}))
 	})
 
 	Describe("a 422", func() {
@@ -48,16 +48,16 @@ var _ = Describe("CommitPulls", Label("prs"), func() {
 			prs := []scenario.CommitPull{{Number: 1, HeadRef: "b", HeadRepoID: scenario.RepoID}, {Number: 2, HeadRef: "b", HeadRepoID: scenario.RepoID}}
 			Expect(fake.AddRun(scenario.WithCommitPulls(scenario.Recorded(37129390741, "after-attempt-1"), prs...))).To(Succeed())
 			fake.SetPageCap(1)
-			client = github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse/lg", "lg-test-token", clock.Real{})
+			client = github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse-bot-sandbox/lg", "lg-test-token", clock.Real{})
 		})
 
 		It("on the first page gives ErrUnknownCommit with the listing's URL", func() {
-			fake.Fail("api", "/repos/rosenhouse/lg/commits/"+sha+"/pulls", fakegithub.Fault{Status: http.StatusUnprocessableEntity})
+			fake.Fail("api", "/repos/rosenhouse-bot-sandbox/lg/commits/"+sha+"/pulls", fakegithub.Fault{Status: http.StatusUnprocessableEntity})
 
 			_, source, err := client.CommitPulls(context.Background(), sha)
 
 			Expect(err).To(MatchError(github.ErrUnknownCommit))
-			Expect(source).To(Equal(github.Source{URL: fake.URL() + "/repos/rosenhouse/lg/commits/" + sha + "/pulls?per_page=100", Pages: 1}))
+			Expect(source).To(Equal(github.Source{URL: fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/commits/" + sha + "/pulls?per_page=100", Pages: 1}))
 		})
 
 		It("on a later page is a plain status error", func() {

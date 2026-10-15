@@ -21,7 +21,7 @@ var _ = DescribeTable("a daemon cycle that cannot take state/write.lock", Label(
 	func(block func(writeLock string), skipped bool) {
 		home := GinkgoT().TempDir()
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		Expect(os.Mkdir(filepath.Join(home, "state"), 0o755)).To(Succeed())
 		block(filepath.Join(home, "state", "write.lock"))
 
@@ -51,7 +51,7 @@ var _ = Describe("a daemon cycle", Label("sync"), func() {
 	It("asks which request it serves once it holds state/write.lock, before it syncs", func() {
 		home := GinkgoT().TempDir()
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		writeLock := filepath.Join(home, "state", "write.lock")
 		runner := &countingRunner{}
 		var lockedThen bool
@@ -79,7 +79,7 @@ var _ = Describe("a daemon cycle", Label("sync"), func() {
 	It("records a write.lock it cannot open in status.json, serving the request", func() {
 		home := GinkgoT().TempDir()
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		writeLock := filepath.Join(home, "state", "write.lock")
 		Expect(os.MkdirAll(writeLock, 0o755)).To(Succeed())
 

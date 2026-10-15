@@ -94,7 +94,7 @@ var _ = Describe("lg flakes", Label("flakes"), func() {
 
 	It("prints nothing before a sync puts anything in data/, though status.json records no default branch", func() {
 		c := harness.NewCLI()
-		c.WriteStatus(`{"repos": {"rosenhouse/lg": {"default_branch": ""}}}`)
+		c.WriteStatus(`{"repos": {"rosenhouse-bot-sandbox/lg": {"default_branch": ""}}}`)
 
 		Expect(c.Main("flakes")).To(Equal(0), c.Stderr.String())
 		Expect(c.Stdout.String()).To(BeEmpty())
@@ -106,7 +106,7 @@ var _ = Describe("lg flakes", Label("flakes"), func() {
 			Expect(c.Fake.AddRun(r)).To(Succeed())
 		}
 		Expect(c.Main("sync")).To(Equal(0), c.Stderr.String())
-		Expect(os.WriteFile(c.StatusFile(), []byte(`{"repos": {"rosenhouse/lg": {"default_branch": ""}}}`), 0o644)).To(Succeed())
+		Expect(os.WriteFile(c.StatusFile(), []byte(`{"repos": {"rosenhouse-bot-sandbox/lg": {"default_branch": ""}}}`), 0o644)).To(Succeed())
 
 		Expect(c.Main("flakes", "--kind", "intermittent")).To(Equal(1))
 		Expect(c.Stderr.String()).To(ContainSubstring("pass --branch"))
@@ -118,7 +118,7 @@ var _ = Describe("lg flakes", Label("flakes"), func() {
 			Expect(c.Fake.AddRun(r)).To(Succeed())
 		}
 		Expect(c.Main("sync")).To(Equal(0), c.Stderr.String())
-		c.WriteStatus(`{"repos": {"github.com/o/unknown": {}, "github.com/RosenHouse/LG": {"default_branch": "main"}, "github.com/o/released": {"default_branch": "release-3"}}}`)
+		c.WriteStatus(`{"repos": {"github.com/o/unknown": {}, "github.com/RosenHouse-Bot-Sandbox/LG": {"default_branch": "main"}, "github.com/o/released": {"default_branch": "release-3"}}}`)
 
 		for range 20 {
 			Expect(c.Main("flakes", "--kind", "intermittent")).To(Equal(0), c.Stderr.String())

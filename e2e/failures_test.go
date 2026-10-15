@@ -23,7 +23,7 @@ var _ = Describe("lg sync of run-37129738159/logs-deleted past log_grace", Label
 		env.WriteConfig(fake.URL())
 
 		Expect(env.Sync()).To(gexec.Exit(0))
-		attempts, err := filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/2026-10-03/37129738159_*/attempt-1"))
+		attempts, err := filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03/37129738159_*/attempt-1"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(attempts).To(HaveLen(1))
 		notApplicable := []string{"111222300561", "111222327556"}
@@ -32,7 +32,7 @@ var _ = Describe("lg sync of run-37129738159/logs-deleted past log_grace", Label
 		ran := 0
 		for _, job := range listing.Jobs {
 			id := job.ID.String()
-			logURL := fake.URL() + "/repos/rosenhouse/lg/actions/jobs/" + id + "/logs"
+			logURL := fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/jobs/" + id + "/logs"
 			raw, err := os.ReadFile(filepath.Join(jobDir(attempts[0], id), "log.txt.tombstone"))
 			Expect(err).NotTo(HaveOccurred())
 			Expect(filepath.Join(jobDir(attempts[0], id), "log.txt")).NotTo(BeAnExistingFile())
@@ -71,7 +71,7 @@ var _ = Describe("lg sync with LG_TEST_NOW", Label("failures"), func() {
 
 		env.SetNow(time.Date(2026, 10, 3, 15, 31, 0, 0, time.UTC), fake)
 		Expect(env.Sync()).To(gexec.Exit(0))
-		fetchJSON, err := filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs/2026-10-03/37129738159_*/attempt-1/fetch.json"))
+		fetchJSON, err := filepath.Glob(filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03/37129738159_*/attempt-1/fetch.json"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(fetchJSON).To(HaveLen(1))
 		raw, err := os.ReadFile(fetchJSON[0])

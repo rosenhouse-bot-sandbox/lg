@@ -36,7 +36,7 @@ var _ = Describe("IndexRun", Label("index"), func() {
 		Expect(got).To(Equal(want))
 		Expect(want.Run).To(MatchFields(IgnoreExtras, Fields{
 			"Host":    Equal("github.com"),
-			"Repo":    Equal("rosenhouse/Lg"),
+			"Repo":    Equal("rosenhouse-bot-sandbox/lg"),
 			"RunID":   BeEquivalentTo(runID),
 			"DateDir": Equal("2026-10-03"),
 		}))

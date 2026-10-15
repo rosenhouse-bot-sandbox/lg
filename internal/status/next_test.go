@@ -14,7 +14,7 @@ import (
 	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
-const repo = "github.com/rosenhouse/lg"
+const repo = "github.com/rosenhouse-bot-sandbox/lg"
 
 var newest = time.Date(2026, 10, 3, 14, 22, 54, 0, time.UTC)
 
@@ -219,7 +219,7 @@ var _ = Describe("Next", Label("status"), func() {
 	It("keeps a unit's since when config.yaml names the repo in another case", func() {
 		earlier := started.UTC().Add(-time.Hour)
 		prev := status.Next(nil, good(started.Add(-time.Hour)))
-		prev.Repos = map[string]status.Repo{"github.com/Rosenhouse/LG": {Pending: []status.Pending{{Unit: status.Unit{Run: 1, Attempt: 2}, Error: "503", Since: earlier}}}}
+		prev.Repos = map[string]status.Repo{"github.com/Rosenhouse-Bot-Sandbox/LG": {Pending: []status.Pending{{Unit: status.Unit{Run: 1, Attempt: 2}, Error: "503", Since: earlier}}}}
 		c := good(started)
 		c.Pending = []status.Pending{{Unit: status.Unit{Run: 1, Attempt: 2}, Error: "503"}}
 
@@ -305,7 +305,7 @@ var _ = Describe("Next", Label("status"), func() {
 	It("clears blocked after a cycle that failed without blocking, since its cause no longer applies", func() {
 		prev := status.Next(nil, blockedCycle(started, failure.Blocked{Kind: failure.Unreachable, Detail: "dial"}))
 		c := good(started.Add(time.Hour))
-		c.Completed, c.Err = false, errors.New("GET /repos/rosenhouse/lg/actions/runs: 500 Internal Server Error")
+		c.Completed, c.Err = false, errors.New("GET /repos/rosenhouse-bot-sandbox/lg/actions/runs: 500 Internal Server Error")
 
 		Expect(status.Next(&prev, c).Blocked).To(BeNil())
 	})
@@ -321,7 +321,7 @@ var _ = Describe("Next", Label("status"), func() {
 	It("records a cycle that stopped without blocking as neither good nor blocked", func() {
 		prev := status.Next(nil, good(started.Add(-time.Hour)))
 		c := good(started)
-		c.Completed, c.Err = false, errors.New("GET /repos/rosenhouse/lg: full_name is missing")
+		c.Completed, c.Err = false, errors.New("GET /repos/rosenhouse-bot-sandbox/lg: full_name is missing")
 
 		st := status.Next(&prev, c)
 		Expect(st.Blocked).To(BeNil())
