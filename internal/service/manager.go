@@ -16,8 +16,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/execx"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/execx"
 )
 
 // Manager installs a Unit as a systemd user unit on linux, or as a launchd

@@ -8,7 +8,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
 )
 
 // Intermittent is a series with the runs that failed alone in it.

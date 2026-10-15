@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
 )
 
 // PollInterval is how often Wait retries a busy lock.

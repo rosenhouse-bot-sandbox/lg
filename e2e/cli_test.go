@@ -10,7 +10,7 @@ import (
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
 )
 
 var _ = Describe("lg root", Label("cli"), func() {
@@ -59,7 +59,7 @@ var _ = Describe("lg version", Label("cli"), func() {
 
 	It("prints the module version that go build stamps without -ldflags", func() {
 		path := filepath.Join(GinkgoT().TempDir(), "lg")
-		out, err := exec.Command("go", "build", "-o", path, "github.com/rosenhouse/lg/cmd/lg").CombinedOutput()
+		out, err := exec.Command("go", "build", "-o", path, "github.com/rosenhouse-bot-sandbox/lg/cmd/lg").CombinedOutput()
 		Expect(err).NotTo(HaveOccurred(), string(out))
 		info, err := buildinfo.ReadFile(path)
 		Expect(err).NotTo(HaveOccurred())

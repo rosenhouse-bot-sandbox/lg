@@ -17,7 +17,7 @@ import (
 	"testing/fstest"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/testsupport/recordings"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/recordings"
 )
 
 // Run is a run at one stage: the files record.sh writes, by slash path.

@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/index"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/index"
 )
 
 var _ = Describe("the schema", Label("index"), func() {

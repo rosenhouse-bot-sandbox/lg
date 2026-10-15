@@ -10,14 +10,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/auth"
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/daemon"
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/mirror"
-	"github.com/rosenhouse/lg/internal/status"
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/auth"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/mirror"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 // cycleWait bounds how long sync --wait waits for the daemon's cycle.

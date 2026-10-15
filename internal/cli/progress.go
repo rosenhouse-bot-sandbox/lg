@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
 )
 
 // progressEvery is how often lg sync prints what its cycle is doing.

@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/lock"
-	"github.com/rosenhouse/lg/internal/status"
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/lock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 const requestWait = 10 * time.Second

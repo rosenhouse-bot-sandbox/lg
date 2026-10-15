@@ -9,10 +9,10 @@ import (
 	"slices"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/layout"
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 // pending is state/pending-artifacts.json: by host and run id, each run's

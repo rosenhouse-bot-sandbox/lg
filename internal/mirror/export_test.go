@@ -3,7 +3,7 @@ package mirror
 import (
 	"errors"
 
-	"github.com/rosenhouse/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
 )
 
 var (

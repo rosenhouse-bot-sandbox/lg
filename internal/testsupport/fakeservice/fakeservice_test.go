@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/testsupport/fakeservice"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakeservice"
 )
 
 var _ = Describe("fake systemctl", Label("install"), func() {

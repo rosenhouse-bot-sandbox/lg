@@ -13,17 +13,17 @@ import (
 	"slices"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/auth"
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/layout"
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/retention"
-	"github.com/rosenhouse/lg/internal/status"
-	"github.com/rosenhouse/lg/internal/store"
-	"github.com/rosenhouse/lg/internal/tombstone"
-	"github.com/rosenhouse/lg/internal/version"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/auth"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/retention"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/tombstone"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/version"
 )
 
 type Mirror struct {

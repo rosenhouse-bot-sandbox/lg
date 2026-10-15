@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"golang.org/x/sys/unix"
 
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 var _ = Describe("OSFS.Mount on Linux", Label("store"), func() {

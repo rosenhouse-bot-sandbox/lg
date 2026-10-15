@@ -12,7 +12,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/rosenhouse/lg/internal/testsupport/scenario"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/scenario"
 )
 
 const (

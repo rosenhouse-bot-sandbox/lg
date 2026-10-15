@@ -16,7 +16,7 @@ func TestFakegithub(t *testing.T) {
 var serverPath string
 
 var _ = SynchronizedBeforeSuite(func() []byte {
-	path, err := gexec.Build("github.com/rosenhouse/lg/internal/testsupport/cmd/fakegithub")
+	path, err := gexec.Build("github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/cmd/fakegithub")
 	Expect(err).NotTo(HaveOccurred())
 	return []byte(path)
 }, func(path []byte) {

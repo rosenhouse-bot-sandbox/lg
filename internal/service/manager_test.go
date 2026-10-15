@@ -14,9 +14,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/service"
-	"github.com/rosenhouse/lg/internal/testsupport/fakeservice"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/service"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakeservice"
 )
 
 var _ = Describe("Manager", Label("install"), func() {

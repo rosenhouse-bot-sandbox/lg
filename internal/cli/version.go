@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/rosenhouse/lg/internal/version"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/version"
 )
 
 type versionCmd struct{}

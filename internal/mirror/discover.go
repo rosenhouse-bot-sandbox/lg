@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/layout"
-	"github.com/rosenhouse/lg/internal/retention"
-	"github.com/rosenhouse/lg/internal/status"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/retention"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
 // Discover lists the runs created in [from, to], newest first, halving the

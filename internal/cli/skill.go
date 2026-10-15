@@ -3,9 +3,9 @@ package cli
 import (
 	"fmt"
 
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/store"
-	skill "github.com/rosenhouse/lg/skill/lg"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
+	skill "github.com/rosenhouse-bot-sandbox/lg/skill/lg"
 )
 
 type skillCmd struct {
