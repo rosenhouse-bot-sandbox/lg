@@ -16,8 +16,8 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 
-	"github.com/rosenhouse/lg/internal/testsupport/fakeservice"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakeservice"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
 )
 
 // The golden files name lg and the dir of gh by these paths.

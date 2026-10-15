@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
 )
 
 // lookups holds each head SHA's pull requests, or the error that looking

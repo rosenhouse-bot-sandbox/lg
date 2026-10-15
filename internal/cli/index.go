@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/index"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/index"
 )
 
 type indexCmd struct {

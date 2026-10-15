@@ -6,8 +6,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/testsupport/recordings"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/recordings"
 )
 
 var _ = Describe("MatchOriginal", Label("index"), func() {

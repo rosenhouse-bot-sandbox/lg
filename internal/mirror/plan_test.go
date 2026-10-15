@@ -4,9 +4,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/mirror"
-	"github.com/rosenhouse/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/mirror"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
 )
 
 func listed(status string, runAttempt int) github.Run {

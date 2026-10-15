@@ -10,7 +10,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/rosenhouse/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
 )
 
 // invalid matches the config.Error Load gives, naming the file, for a value it cannot use.

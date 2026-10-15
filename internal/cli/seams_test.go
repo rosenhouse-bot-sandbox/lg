@@ -12,12 +12,12 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/cli"
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/store"
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/cli"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
 )
 
 var _ = Describe("lg sync", Label("failures"), func() {

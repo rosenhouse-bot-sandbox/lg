@@ -10,7 +10,7 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/rosenhouse/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
 )
 
 func BeTransient() types.GomegaMatcher {

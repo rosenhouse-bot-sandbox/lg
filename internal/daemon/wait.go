@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/lock"
-	"github.com/rosenhouse/lg/internal/status"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/lock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
 // waitPoll is how often WaitForCycle reads status.json.

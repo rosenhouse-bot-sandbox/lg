@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"testing/fstest"
 
-	"github.com/rosenhouse/lg/internal/testsupport/archives"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/archives"
 )
 
 // BuildArtifactZip gives a zip holding top.log, a hidden

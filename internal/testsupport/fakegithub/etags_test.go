@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
 )
 
 var _ = Describe("Server conditional requests", Label("etags"), func() {

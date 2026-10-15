@@ -18,12 +18,12 @@ import (
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 
-	"github.com/rosenhouse/lg/internal/testsupport/archives"
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
-	"github.com/rosenhouse/lg/internal/testsupport/matchers"
-	"github.com/rosenhouse/lg/internal/testsupport/scenario"
-	"github.com/rosenhouse/lg/internal/testsupport/treesnap"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/archives"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/matchers"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/scenario"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/treesnap"
 )
 
 const passArtifact = 11276272069

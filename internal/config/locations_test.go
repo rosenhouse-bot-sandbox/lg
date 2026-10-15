@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
 )
 
 var _ = Describe("Locations", Label("cli"), func() {

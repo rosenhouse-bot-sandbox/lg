@@ -11,10 +11,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/cli"
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/cli"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
 )
 
 const neverSynced = "lg: warning: never synced; run `lg sync`\n"

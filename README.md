@@ -4,7 +4,7 @@ lg mirrors one GitHub repository's Actions runs, attempts, job logs and artifact
 You and your coding agents then answer CI questions from disk with `rg`, `grep` and `jq`, such as when an error first appeared or which jobs are flaky.
 A daemon keeps the mirror up to date.
 lg runs on Linux and macOS against github.com.
-GitHub Enterprise Server is tested only against a fake ([#3 §13](https://github.com/rosenhouse/lg/issues/3)); to try it, run `gh auth login --hostname HOST` and `lg init --repo OWNER/NAME --host HOST`.
+GitHub Enterprise Server is tested only against a fake ([#3 §13](https://github.com/rosenhouse-bot-sandbox/lg/issues/3)); to try it, run `gh auth login --hostname HOST` and `lg init --repo OWNER/NAME --host HOST`.
 
 ## Install
 
@@ -12,7 +12,7 @@ lg needs Go 1.21 or later and [gh](https://cli.github.com). The examples below u
 Go 1.21 to 1.24 first download Go 1.25.0, which needs network access; `GOTOOLCHAIN` controls this.
 
 ```sh
-go install github.com/rosenhouse/lg/cmd/lg@latest
+go install github.com/rosenhouse-bot-sandbox/lg/cmd/lg@latest
 ```
 
 From a clone, run `go install ./cmd/lg`.
@@ -122,10 +122,10 @@ While `data/` exceeds `disk_cap`, 50GB by default, lg removes `extracted/` trees
 ## Design
 
 The design decisions are in GitHub issues:
-[product](https://github.com/rosenhouse/lg/issues/1),
-[engineering](https://github.com/rosenhouse/lg/issues/2),
-[storage layout and sync](https://github.com/rosenhouse/lg/issues/3), and
-[M1 plan, architecture and test harness](https://github.com/rosenhouse/lg/issues/4).
+[product](https://github.com/rosenhouse-bot-sandbox/lg/issues/1),
+[engineering](https://github.com/rosenhouse-bot-sandbox/lg/issues/2),
+[storage layout and sync](https://github.com/rosenhouse-bot-sandbox/lg/issues/3), and
+[M1 plan, architecture and test harness](https://github.com/rosenhouse-bot-sandbox/lg/issues/4).
 
 ## Develop
 

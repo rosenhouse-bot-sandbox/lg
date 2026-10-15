@@ -13,7 +13,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/execx"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/execx"
 )
 
 var _ = Describe("Real", Label("transport"), func() {

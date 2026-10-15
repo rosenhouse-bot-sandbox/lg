@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
 )
 
 // job is a job of run's attempt that ran, with the steps given as name, conclusion pairs.

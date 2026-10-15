@@ -10,8 +10,8 @@ import (
 	"github.com/onsi/gomega/gexec"
 	_ "modernc.org/sqlite"
 
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
 )
 
 var _ = Describe("lg index rebuild", Label("index"), func() {

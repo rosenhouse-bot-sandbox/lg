@@ -12,8 +12,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/testsupport/scenario"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/scenario"
 )
 
 const runID = 37129390741

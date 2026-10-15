@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/rosenhouse/lg/internal/cli"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/cli"
 )
 
 func main() {

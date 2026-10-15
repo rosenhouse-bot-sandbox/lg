@@ -10,11 +10,11 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/daemon"
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/lock"
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/lock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 const waitTimeout = time.Minute

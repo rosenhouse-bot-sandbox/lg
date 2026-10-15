@@ -13,12 +13,12 @@ import (
 	"github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/store"
-	"github.com/rosenhouse/lg/internal/testsupport/fakegh"
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
-	"github.com/rosenhouse/lg/internal/testsupport/treesnap"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegh"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/treesnap"
 )
 
 // ExitTimeout bounds how long a spec waits for a short-lived lg command.

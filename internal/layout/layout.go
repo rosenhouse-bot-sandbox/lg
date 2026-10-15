@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
 )
 
 // ExtractManifest is the file in an artifact's extracted/ that records how lg extract made it.

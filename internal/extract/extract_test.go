@@ -15,13 +15,13 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/rosenhouse/lg/internal/extract"
-	"github.com/rosenhouse/lg/internal/store"
-	"github.com/rosenhouse/lg/internal/testsupport/archives"
-	"github.com/rosenhouse/lg/internal/testsupport/faultfs"
-	"github.com/rosenhouse/lg/internal/testsupport/matchers"
-	"github.com/rosenhouse/lg/internal/testsupport/scenario"
-	"github.com/rosenhouse/lg/internal/version"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/extract"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/archives"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/faultfs"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/matchers"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/scenario"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/version"
 )
 
 var now = time.Date(2026, 10, 3, 18, 0, 0, 0, time.UTC)

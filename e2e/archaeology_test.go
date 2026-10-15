@@ -15,9 +15,9 @@ import (
 	"github.com/onsi/gomega/gexec"
 	"github.com/onsi/gomega/types"
 
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
-	"github.com/rosenhouse/lg/internal/testsupport/scenario"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/scenario"
 )
 
 // archaeologyEnv syncs the Archaeology runs and any others with backfill 60d.

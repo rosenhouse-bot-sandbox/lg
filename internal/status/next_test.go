@@ -10,8 +10,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/status"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
 const repo = "github.com/rosenhouse/lg"

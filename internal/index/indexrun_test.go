@@ -12,10 +12,10 @@ import (
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gstruct"
 
-	"github.com/rosenhouse/lg/internal/index"
-	"github.com/rosenhouse/lg/internal/layout"
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/index"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
 )
 
 var _ = Describe("IndexRun", Label("index"), func() {

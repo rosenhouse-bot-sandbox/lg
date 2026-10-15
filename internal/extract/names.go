@@ -8,7 +8,7 @@ import (
 
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/rosenhouse/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
 )
 
 const (

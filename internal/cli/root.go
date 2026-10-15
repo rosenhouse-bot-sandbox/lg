@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/rosenhouse/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
 )
 
 type rootCmd struct{}

@@ -21,14 +21,14 @@ import (
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/layout"
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
-	"github.com/rosenhouse/lg/internal/testsupport/recordings"
-	"github.com/rosenhouse/lg/internal/testsupport/treesnap"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/recordings"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/treesnap"
 )
 
 // maxRateLimitWait bounds how long syncLive waits out a rate-limit block.

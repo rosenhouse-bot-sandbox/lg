@@ -9,10 +9,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/store"
-	"github.com/rosenhouse/lg/internal/testsupport/faultfs"
-	"github.com/rosenhouse/lg/internal/testsupport/matchers"
-	"github.com/rosenhouse/lg/internal/testsupport/treesnap"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/faultfs"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/matchers"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/treesnap"
 )
 
 var _ = Describe("Unit", Label("sync"), func() {

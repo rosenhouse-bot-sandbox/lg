@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"maps"
 
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 const etagsFile = "etags.json"

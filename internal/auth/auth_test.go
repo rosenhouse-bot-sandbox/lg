@@ -12,11 +12,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/auth"
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/execx"
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/testsupport/fakegh"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/auth"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/execx"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegh"
 )
 
 type run struct {

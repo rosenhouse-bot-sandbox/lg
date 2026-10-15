@@ -16,8 +16,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/tombstone"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/tombstone"
 )
 
 // DefaultNow is past log_grace for every recorded attempt.

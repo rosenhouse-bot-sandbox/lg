@@ -8,11 +8,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/cli"
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/index"
-	"github.com/rosenhouse/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/cli"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/index"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
 )
 
 // help gives the --help of args with its whitespace collapsed.

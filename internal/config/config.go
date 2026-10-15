@@ -17,7 +17,7 @@ import (
 
 	"go.yaml.in/yaml/v3"
 
-	"github.com/rosenhouse/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
 )
 
 type Config struct {

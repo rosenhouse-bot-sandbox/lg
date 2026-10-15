@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/daemon"
-	"github.com/rosenhouse/lg/internal/status"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
 type statusCmd struct {

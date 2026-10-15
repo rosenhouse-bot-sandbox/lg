@@ -3,7 +3,7 @@ package mirror
 import (
 	"slices"
 
-	"github.com/rosenhouse/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
 )
 
 // Plan lists the completed attempts of a listed run that are not on disk,

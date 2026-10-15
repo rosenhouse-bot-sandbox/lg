@@ -14,12 +14,12 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/github"
-	"github.com/rosenhouse/lg/internal/model"
-	. "github.com/rosenhouse/lg/internal/testsupport/matchers"
-	"github.com/rosenhouse/lg/internal/testsupport/recordings"
-	"github.com/rosenhouse/lg/internal/tombstone"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	. "github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/matchers"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/recordings"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/tombstone"
 )
 
 const (

@@ -12,14 +12,14 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/cli"
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/index"
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/testsupport/doctest"
-	"github.com/rosenhouse/lg/internal/testsupport/faultfs"
-	skill "github.com/rosenhouse/lg/skill/lg"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/cli"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/index"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/doctest"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/faultfs"
+	skill "github.com/rosenhouse-bot-sandbox/lg/skill/lg"
 )
 
 var _ = Describe("lg skill install", Label("skill"), func() {

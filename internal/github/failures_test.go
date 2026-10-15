@@ -16,10 +16,10 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/github"
-	. "github.com/rosenhouse/lg/internal/testsupport/matchers"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	. "github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/matchers"
 )
 
 var hopTimeout = SpecTimeout(5 * time.Second)

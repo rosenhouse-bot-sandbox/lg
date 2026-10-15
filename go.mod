@@ -1,4 +1,4 @@
-module github.com/rosenhouse/lg
+module github.com/rosenhouse-bot-sandbox/lg
 
 go 1.25.0
 

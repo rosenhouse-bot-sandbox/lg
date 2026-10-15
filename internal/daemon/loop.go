@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/status"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
 // pollInterval is how often a Loop reads the sync request count while it waits.

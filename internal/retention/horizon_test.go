@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/retention"
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/retention"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 func newStore() *store.Store {

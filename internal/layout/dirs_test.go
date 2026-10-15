@@ -6,8 +6,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/layout"
-	"github.com/rosenhouse/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
 )
 
 var _ = Describe("RepoDir", Label("sync"), func() {

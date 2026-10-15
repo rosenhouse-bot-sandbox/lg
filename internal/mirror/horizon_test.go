@@ -11,13 +11,13 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/types"
 
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/mirror"
-	"github.com/rosenhouse/lg/internal/retention"
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
-	. "github.com/rosenhouse/lg/internal/testsupport/matchers"
-	"github.com/rosenhouse/lg/internal/testsupport/scenario"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/mirror"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/retention"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
+	. "github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/matchers"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/scenario"
 )
 
 var _ = Describe("discovery with an eviction horizon", Label("retention"), func() {

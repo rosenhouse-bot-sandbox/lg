@@ -9,10 +9,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/cli"
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/store"
-	"github.com/rosenhouse/lg/internal/testsupport/faultfs"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/cli"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/faultfs"
 )
 
 var _ = DescribeTable("lg sync blocks as local_io when opening the store fails", Label("blocked"),

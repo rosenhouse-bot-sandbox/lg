@@ -16,8 +16,8 @@ func TestE2E(t *testing.T) {
 var lgPath string
 
 var _ = SynchronizedBeforeSuite(func() []byte {
-	path, err := gexec.Build("github.com/rosenhouse/lg/cmd/lg",
-		"-race", "-ldflags", "-X github.com/rosenhouse/lg/internal/version.Version=test")
+	path, err := gexec.Build("github.com/rosenhouse-bot-sandbox/lg/cmd/lg",
+		"-race", "-ldflags", "-X github.com/rosenhouse-bot-sandbox/lg/internal/version.Version=test")
 	Expect(err).NotTo(HaveOccurred())
 	return []byte(path)
 }, func(path []byte) {

@@ -11,14 +11,14 @@ import (
 
 	"github.com/alecthomas/kong"
 
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/extract"
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/index"
-	"github.com/rosenhouse/lg/internal/layout"
-	"github.com/rosenhouse/lg/internal/lock"
-	"github.com/rosenhouse/lg/internal/retention"
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/extract"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/index"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/lock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/retention"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 type extractCmd struct {

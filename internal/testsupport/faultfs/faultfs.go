@@ -10,7 +10,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 // Op is a journaled op: mkdir, create, write, fsync, close, rename, remove or chmod.

@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/service"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/service"
 )
 
 var _ = DescribeTable("BuiltByGoRun", Label("install"),

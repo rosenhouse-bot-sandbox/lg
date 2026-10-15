@@ -4,7 +4,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/testsupport/doctest"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/doctest"
 )
 
 var _ = Describe("ShBlocks", Label("skill"), func() {

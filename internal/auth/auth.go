@@ -15,8 +15,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/rosenhouse/lg/internal/execx"
-	"github.com/rosenhouse/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/execx"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
 )
 
 type TokenSource interface {

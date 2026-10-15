@@ -8,9 +8,9 @@ import (
 	. "github.com/onsi/gomega"
 	"go.yaml.in/yaml/v3"
 
-	"github.com/rosenhouse/lg/internal/testsupport/doctest"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/doctest"
 
-	skill "github.com/rosenhouse/lg/skill/lg"
+	skill "github.com/rosenhouse-bot-sandbox/lg/skill/lg"
 )
 
 var _ = Describe("SKILL.md", Label("skill"), func() {
@@ -80,7 +80,7 @@ var _ = DescribeTable("SKILL.md covers", Label("skill"),
 	Entry("grep exit 1 and xargs exit 123 meaning no match",
 		`grep[^\n]*exit 1[^\n]*no match`, `xargs[^\n]*\b123\b`, `macOS xargs`, `stderr[^\n]*no match`),
 	Entry("installing lg with go install, lg init and lg daemon install",
-		`go install github\.com/rosenhouse/lg/cmd/lg@latest`, `lg init --repo`, `lg daemon install`),
+		`go install github\.com/rosenhouse-bot-sandbox/lg/cmd/lg@latest`, `lg init --repo`, `lg daemon install`),
 	Entry("putting rg and jq on PATH, where xargs finds them",
 		`ripgrep`, "`command -v rg jq`", `xargs[^\n]*alias`),
 	Entry("what each --unit prints",

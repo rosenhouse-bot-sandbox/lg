@@ -9,7 +9,7 @@ import (
 	"slices"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
 )
 
 // Flip is a rerun flip, with its run's head SHA.

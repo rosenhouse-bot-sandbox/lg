@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/rosenhouse/lg/internal/config"
-	"github.com/rosenhouse/lg/internal/service"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/service"
 )
 
 type daemonInstallCmd struct {

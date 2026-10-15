@@ -6,8 +6,8 @@ import (
 	"slices"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/store"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
 
 // watch is state/watch.json: by host and run id, the runs lg listed that

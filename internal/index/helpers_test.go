@@ -14,8 +14,8 @@ import (
 	. "github.com/onsi/gomega"
 	_ "modernc.org/sqlite"
 
-	"github.com/rosenhouse/lg/internal/index"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/index"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
 )
 
 const (

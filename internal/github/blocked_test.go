@@ -12,10 +12,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/clock"
-	"github.com/rosenhouse/lg/internal/failure"
-	"github.com/rosenhouse/lg/internal/github"
-	. "github.com/rosenhouse/lg/internal/testsupport/matchers"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/github"
+	. "github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/matchers"
 )
 
 var start = time.Date(2026, 10, 3, 18, 0, 0, 0, time.UTC)

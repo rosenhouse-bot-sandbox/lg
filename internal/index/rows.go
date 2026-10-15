@@ -11,9 +11,9 @@ import (
 	"slices"
 	"time"
 
-	"github.com/rosenhouse/lg/internal/layout"
-	"github.com/rosenhouse/lg/internal/model"
-	"github.com/rosenhouse/lg/internal/tombstone"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/model"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/tombstone"
 )
 
 // Rows are a run's rows in every table. Paths are relative to the run dir.

@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse/lg/internal/layout"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
 )
 
 // stat tells whether path is in existing, where a dir ends in /.

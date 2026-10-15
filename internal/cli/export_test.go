@@ -5,8 +5,8 @@ import (
 	"io"
 	"io/fs"
 
-	"github.com/rosenhouse/lg/internal/daemon"
-	"github.com/rosenhouse/lg/internal/grep"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/grep"
 )
 
 // RunDaemonCycle runs one cycle as a daemon started with deps would.

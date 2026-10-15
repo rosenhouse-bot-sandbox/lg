@@ -14,12 +14,12 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 
-	"github.com/rosenhouse/lg/internal/testsupport/doctest"
-	"github.com/rosenhouse/lg/internal/testsupport/fakegithub"
-	"github.com/rosenhouse/lg/internal/testsupport/harness"
-	"github.com/rosenhouse/lg/internal/testsupport/scenario"
-	"github.com/rosenhouse/lg/internal/testsupport/treesnap"
-	skill "github.com/rosenhouse/lg/skill/lg"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/doctest"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/scenario"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/treesnap"
+	skill "github.com/rosenhouse-bot-sandbox/lg/skill/lg"
 )
 
 var _ = Describe("lg skill install", Label("skill"), func() {
