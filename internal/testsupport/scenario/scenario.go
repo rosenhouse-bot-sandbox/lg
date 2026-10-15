@@ -473,7 +473,7 @@ func QueuedRun(id int64, createdAt time.Time) json.RawMessage {
 }
 
 func listedRun(id int64, createdAt time.Time, status, conclusion string) json.RawMessage {
-	return json.RawMessage(fmt.Sprintf(`{"id":%d,"created_at":%q,"status":%q,"conclusion":%s,"run_attempt":1,"repository":{"full_name":"rosenhouse/Lg"}}`,
+	return json.RawMessage(fmt.Sprintf(`{"id":%d,"created_at":%q,"status":%q,"conclusion":%s,"run_attempt":1,"repository":{"full_name":"rosenhouse-bot-sandbox/lg"}}`,
 		id, createdAt.UTC().Format(time.RFC3339), status, conclusion))
 }
 

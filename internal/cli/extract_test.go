@@ -92,7 +92,7 @@ var _ = Describe("lg extract PATH", Label("extract"), func() {
 	It("exits 1 naming each PATH that is not in an artifact dir, and extracts the others", func() {
 		c := harness.NewCLI()
 		Expect(c.Main("sync")).To(Equal(0))
-		run := filepath.Join(c.Home, "data", "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture")
+		run := filepath.Join(c.Home, "data", "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture")
 		artifact := filepath.Join(run, "artifacts", "11276272069_pass-artifact")
 		outside := GinkgoT().TempDir()
 
@@ -105,7 +105,7 @@ var _ = Describe("lg extract PATH", Label("extract"), func() {
 	It("exits 1 naming an artifact that fails to extract, and extracts the others", func() {
 		c := harness.NewCLI()
 		Expect(c.Main("sync")).To(Equal(0))
-		artifacts := filepath.Join(c.Home, "data", "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture", "artifacts")
+		artifacts := filepath.Join(c.Home, "data", "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture", "artifacts")
 		bad := filepath.Join(artifacts, "11276272069_pass-artifact")
 		good := filepath.Join(artifacts, "11275917910_expires-in-1-day")
 		Expect(os.WriteFile(filepath.Join(bad, "artifact.zip"), []byte("not a zip"), 0o644)).To(Succeed())
@@ -118,7 +118,7 @@ var _ = Describe("lg extract PATH", Label("extract"), func() {
 	It("names each PATH above a run dir in its error", func() {
 		c := harness.NewCLI()
 		Expect(c.Main("sync")).To(Equal(0))
-		owner := filepath.Join(c.Home, "data", "github.com", "rosenhouse")
+		owner := filepath.Join(c.Home, "data", "github.com", "rosenhouse-bot-sandbox")
 
 		Expect(c.Main("extract", owner)).To(Equal(1))
 		Expect(c.Stderr.String()).To(ContainSubstring("lg: " + owner + ": "))
@@ -130,7 +130,7 @@ var _ = Describe("lg extract PATH", Label("extract"), func() {
 		c.Home = filepath.Join(GinkgoT().TempDir(), "home-link")
 		Expect(os.Symlink(real, c.Home)).To(Succeed())
 		Expect(c.Main("sync")).To(Equal(0))
-		artifacts := filepath.Join("data", "github.com", "rosenhouse", "Lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture", "artifacts")
+		artifacts := filepath.Join("data", "github.com", "rosenhouse-bot-sandbox", "lg", "runs", "2026-10-03", "37129390741_lg-fixture_lg-fixture", "artifacts")
 		pass := filepath.Join(artifacts, "11276272069_pass-artifact")
 		expiring := filepath.Join(artifacts, "11275917910_expires-in-1-day")
 		link := filepath.Join(GinkgoT().TempDir(), "link")

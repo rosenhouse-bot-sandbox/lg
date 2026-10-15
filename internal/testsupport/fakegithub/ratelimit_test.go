@@ -28,11 +28,11 @@ var _ = Describe("Server rate-limit headers", Label("blocked"), func() {
 	}
 
 	It("derives X-RateLimit-Reset from its clock, which starts at the harness's LG_TEST_NOW", func() {
-		Expect(resetOf(fetch(fake.URL() + "/repos/rosenhouse/lg"))).To(Equal(harness.DefaultNow().Add(fakegithub.ResetAfter)))
+		Expect(resetOf(fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg"))).To(Equal(harness.DefaultNow().Add(fakegithub.ResetAfter)))
 
 		later := harness.DefaultNow().AddDate(1, 0, 0)
 		fake.SetClock(clock.NewFake(later))
-		Expect(resetOf(fetch(fake.URL() + "/repos/rosenhouse/lg"))).To(Equal(later.Add(fakegithub.ResetAfter)))
+		Expect(resetOf(fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg"))).To(Equal(later.Add(fakegithub.ResetAfter)))
 	})
 
 	It("sends a Date from its clock on both hosts", func() {
@@ -47,7 +47,7 @@ var _ = Describe("Server rate-limit headers", Label("blocked"), func() {
 	})
 
 	It("counts each API request against X-RateLimit-Limit 5000, and no blob request", func() {
-		first := fetch(fake.URL() + "/repos/rosenhouse/lg")
+		first := fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg")
 		redirect := fetch(fake.URL() + logPath)
 		blob := fetch(redirect.header.Get("Location"))
 
@@ -56,22 +56,22 @@ var _ = Describe("Server rate-limit headers", Label("blocked"), func() {
 		Expect(redirect.header.Get("X-RateLimit-Remaining")).To(Equal("4998"))
 		Expect(blob.status).To(Equal(http.StatusOK))
 		Expect(blob.header).NotTo(HaveKey("X-Ratelimit-Remaining"))
-		Expect(fetch(fake.URL() + "/repos/rosenhouse/lg").header.Get("X-RateLimit-Remaining")).To(Equal("4997"))
+		Expect(fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg").header.Get("X-RateLimit-Remaining")).To(Equal("4997"))
 	})
 
 	It("SetRateLimit sets the limit and what remains before the next request", func() {
 		fake.SetRateLimit(100, 12)
 
-		Expect(fetch(fake.URL() + "/repos/rosenhouse/lg").header).To(SatisfyAll(
+		Expect(fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg").header).To(SatisfyAll(
 			HaveKeyWithValue("X-Ratelimit-Limit", []string{"100"}),
 			HaveKeyWithValue("X-Ratelimit-Remaining", []string{"11"}),
 		))
 	})
 
 	It("Fail with Headers sets them on the faulted response", func() {
-		fake.Fail("api", "/repos/rosenhouse/lg", fakegithub.Fault{Status: http.StatusForbidden, Headers: map[string]string{"Retry-After": "120", "X-RateLimit-Remaining": "0"}})
+		fake.Fail("api", "/repos/rosenhouse-bot-sandbox/lg", fakegithub.Fault{Status: http.StatusForbidden, Headers: map[string]string{"Retry-After": "120", "X-RateLimit-Remaining": "0"}})
 
-		repo := fetch(fake.URL() + "/repos/rosenhouse/lg")
+		repo := fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg")
 		Expect(repo.status).To(Equal(http.StatusForbidden))
 		Expect(repo.header).To(SatisfyAll(
 			HaveKeyWithValue("Retry-After", []string{"120"}),

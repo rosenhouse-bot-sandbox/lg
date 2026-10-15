@@ -31,15 +31,15 @@ var _ = Describe("Server conditional requests", Label("etags"), func() {
 			Expect(again.header.Get("ETag")).To(Equal(answer.header.Get("ETag")))
 			Expect(again.header).NotTo(HaveKey("Link"))
 		},
-		Entry("the repo", "/repos/rosenhouse/lg", Not(HaveKey("Link"))),
-		Entry("a run", "/repos/rosenhouse/lg/actions/runs/37129390741", Not(HaveKey("Link"))),
-		Entry("a page of a run listing", "/repos/rosenhouse/lg/actions/runs?status=completed&per_page=100", HaveKey("Link")),
-		Entry("a page of an artifact listing", "/repos/rosenhouse/lg/actions/runs/37129390741/artifacts?per_page=100", HaveKey("Link")),
+		Entry("the repo", "/repos/rosenhouse-bot-sandbox/lg", Not(HaveKey("Link"))),
+		Entry("a run", "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741", Not(HaveKey("Link"))),
+		Entry("a page of a run listing", "/repos/rosenhouse-bot-sandbox/lg/actions/runs?status=completed&per_page=100", HaveKey("Link")),
+		Entry("a page of an artifact listing", "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/artifacts?per_page=100", HaveKey("Link")),
 	)
 
 	It("sends an ETag with each blob it has, as blob storage does", func() {
 		blob := fetch(fetch(fake.URL() + logPath).header.Get("Location"))
-		missing := fetch(fetch(fake.URL() + "/repos/rosenhouse/lg/actions/jobs/111221290616/logs").header.Get("Location"))
+		missing := fetch(fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/jobs/111221290616/logs").header.Get("Location"))
 
 		Expect(blob.status).To(Equal(http.StatusOK))
 		Expect(blob.header.Get("ETag")).NotTo(BeEmpty())
@@ -48,7 +48,7 @@ var _ = Describe("Server conditional requests", Label("etags"), func() {
 	})
 
 	It("answers If-None-Match with an earlier ETag in full", func() {
-		path := "/repos/rosenhouse/lg/actions/runs/37129390741/artifacts?per_page=100"
+		path := "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/artifacts?per_page=100"
 		earlier := fetch(fake.URL() + path)
 		Expect(fake.Advance(runID, "after-attempt-3")).To(Succeed())
 
@@ -59,16 +59,16 @@ var _ = Describe("Server conditional requests", Label("etags"), func() {
 	})
 
 	It("does not count a 304 against the rate limit, as GitHub does", func() {
-		answer := fetch(fake.URL() + "/repos/rosenhouse/lg")
+		answer := fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg")
 		Expect(answer.header.Get("X-RateLimit-Remaining")).To(Equal("4999"))
 
-		again := fetch(fake.URL()+"/repos/rosenhouse/lg", "If-None-Match", answer.header.Get("ETag"))
+		again := fetch(fake.URL()+"/repos/rosenhouse-bot-sandbox/lg", "If-None-Match", answer.header.Get("ETag"))
 		Expect(again.header.Get("X-RateLimit-Remaining")).To(Equal("4999"))
-		Expect(fetch(fake.URL() + "/repos/rosenhouse/lg").header.Get("X-RateLimit-Remaining")).To(Equal("4998"))
+		Expect(fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg").header.Get("X-RateLimit-Remaining")).To(Equal("4998"))
 	})
 
 	It("records each request's If-None-Match", func() {
-		fetch(fake.URL()+"/repos/rosenhouse/lg", "If-None-Match", `"abc"`)
+		fetch(fake.URL()+"/repos/rosenhouse-bot-sandbox/lg", "If-None-Match", `"abc"`)
 
 		Expect(fake.Requests()).To(ConsistOf(HaveField("IfNoneMatch", `"abc"`)))
 	})

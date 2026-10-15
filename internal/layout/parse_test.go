@@ -15,12 +15,12 @@ import (
 
 var _ = Describe("Parse", Label("where"), func() {
 	const (
-		run      = "github.com/rosenhouse/Lg/runs/2026-10-03/37129390741_lg-fixture_lg-fixture"
+		run      = "github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03/37129390741_lg-fixture_lg-fixture"
 		attempt  = run + "/attempt-2"
 		job      = attempt + "/jobs/111221661475_flaky"
 		artifact = run + "/artifacts/11276401837_flaky-report"
 	)
-	inRun := layout.Location{Host: "github.com", Repo: "rosenhouse/Lg", RunID: 37129390741, RunDir: run}
+	inRun := layout.Location{Host: "github.com", Repo: "rosenhouse-bot-sandbox/lg", RunID: 37129390741, RunDir: run}
 	inAttempt := inRun
 	inAttempt.Attempt, inAttempt.AttemptDir = 2, attempt
 	inJob := inAttempt
@@ -54,13 +54,13 @@ var _ = Describe("Parse", Label("where"), func() {
 			_, err := layout.Parse(path)
 			Expect(err).To(MatchError(ContainSubstring(path)))
 		},
-		Entry("a repo dir", "github.com/rosenhouse/Lg/runs/2026-10-03"),
-		Entry("no runs dir", "github.com/rosenhouse/Lg/rns/2026-10-03/1_a_b"),
-		Entry("a bad date", "github.com/rosenhouse/Lg/runs/2026-13-03/1_a_b"),
+		Entry("a repo dir", "github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03"),
+		Entry("no runs dir", "github.com/rosenhouse-bot-sandbox/lg/rns/2026-10-03/1_a_b"),
+		Entry("a bad date", "github.com/rosenhouse-bot-sandbox/lg/runs/2026-13-03/1_a_b"),
 		Entry("a bad repo", "github.com/rosenhouse/../runs/2026-10-03/1_a_b"),
-		Entry("a bad host", "../rosenhouse/Lg/runs/2026-10-03/1_a_b"),
-		Entry("an absolute path", "/rosenhouse/Lg/runs/2026-10-03/1_a_b"),
-		Entry("a run dir with no id", "github.com/rosenhouse/Lg/runs/2026-10-03/x_a_b"),
+		Entry("a bad host", "../rosenhouse-bot-sandbox/lg/runs/2026-10-03/1_a_b"),
+		Entry("an absolute path", "/rosenhouse-bot-sandbox/lg/runs/2026-10-03/1_a_b"),
+		Entry("a run dir with no id", "github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03/x_a_b"),
 		Entry("an attempt dir with no number", run+"/attempt-x/fetch.json"),
 		Entry("another dir in a run", run+"/other"),
 		Entry("a job dir with no id", attempt+"/jobs/x_flaky/log.txt"),
@@ -68,7 +68,7 @@ var _ = Describe("Parse", Label("where"), func() {
 	)
 
 	It("round-trips every recorded run, job and artifact name", func() {
-		repo := layout.RepoDir("", "github.com", "rosenhouse/Lg")
+		repo := layout.RepoDir("", "github.com", "rosenhouse-bot-sandbox/lg")
 		attempts, err := filepath.Glob(filepath.Join(recordings.Root(), "*", "*", "attempt-*", "attempt.json"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(attempts).NotTo(BeEmpty())

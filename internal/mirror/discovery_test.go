@@ -40,7 +40,7 @@ func createdRange(from, to time.Time) string {
 // handMadeRunOn makes an empty run dir in the date dir of at.
 func handMadeRunOn(env *harness.InProcessEnv, at time.Time) {
 	GinkgoHelper()
-	Expect(os.MkdirAll(filepath.Join(env.Data(), "github.com/rosenhouse/Lg/runs", at.UTC().Format(time.DateOnly), "9999_ci_main"), 0o755)).To(Succeed())
+	Expect(os.MkdirAll(filepath.Join(env.Data(), "github.com/rosenhouse-bot-sandbox/lg/runs", at.UTC().Format(time.DateOnly), "9999_ci_main"), 0o755)).To(Succeed())
 }
 
 // readWatch reads state/watch.json as the run ids watched per host, which
@@ -174,7 +174,7 @@ var _ = Describe("a rerun of a run created before the window", Label("discovery"
 
 		before := len(env.Fake.Requests())
 		Expect(env.Sync(ctx)).To(Succeed())
-		Expect(env.Fake.Requests()[before:]).NotTo(ContainElement(HaveField("Path", "/repos/rosenhouse/lg/actions/runs/1")), "a run still listed is not fetched")
+		Expect(env.Fake.Requests()[before:]).NotTo(ContainElement(HaveField("Path", "/repos/rosenhouse-bot-sandbox/lg/actions/runs/1")), "a run still listed is not fetched")
 		Expect(readWatch(env)).To(HaveKeyWithValue("github.com", ConsistOf("1")))
 
 		Expect(env.Fake.AddRun(old)).To(Succeed())
@@ -240,7 +240,7 @@ var _ = Describe("a watched run created before the window that completes between
 		before := len(env.Fake.Requests())
 
 		Expect(env.Sync(ctx)).To(Succeed())
-		Expect(env.Fake.Requests()[before:]).To(ContainElement(HaveField("Path", "/repos/rosenhouse/lg/actions/runs/1")))
+		Expect(env.Fake.Requests()[before:]).To(ContainElement(HaveField("Path", "/repos/rosenhouse-bot-sandbox/lg/actions/runs/1")))
 		Expect(env.AttemptDirs(1)).To(ConsistOf(HaveSuffix("/attempt-1"), HaveSuffix("/attempt-2")))
 	}, cycleTimeout)
 })
@@ -401,8 +401,8 @@ var _ = Describe("mirror.Cycle after a pause in syncing longer than backfill", L
 		Expect(createdRanges(env.Fake.Requests())).To(ContainElement(createdRange(last.Add(-7*scenario.Day), last)))
 		Expect(createdRanges(env.Fake.Requests())).NotTo(ContainElement(HavePrefix(other)))
 		Expect(readJSONFile(listedJSON)).To(Equal(map[string]any{
-			"github.com/other/repo":    other,
-			"github.com/rosenhouse/Lg": last.Format(time.RFC3339),
+			"github.com/other/repo":                other,
+			"github.com/rosenhouse-bot-sandbox/lg": last.Format(time.RFC3339),
 		}))
 	}, cycleTimeout)
 })
@@ -531,7 +531,7 @@ var _ = Describe("the watch list", Label("discovery"), func() {
 		Expect(env.Sync(ctx)).To(Succeed())
 		Expect(readWatch(env)).To(HaveKeyWithValue("github.com", BeEmpty()))
 		requests := env.Fake.Requests()[before:]
-		Expect(requests).To(ContainElement(HaveField("Path", "/repos/rosenhouse/lg/actions/runs/1")))
+		Expect(requests).To(ContainElement(HaveField("Path", "/repos/rosenhouse-bot-sandbox/lg/actions/runs/1")))
 		Expect(requests).NotTo(ContainElement(HaveField("Path", MatchRegexp(`/runs/1/`))))
 		Expect(requests).NotTo(ContainElement(HaveField("Path", MatchRegexp(`/runs/5(/|$)`))))
 	}, cycleTimeout)
@@ -540,7 +540,7 @@ var _ = Describe("the watch list", Label("discovery"), func() {
 var _ = Describe("a listed run without created_at", Label("discovery"), func() {
 	It("is reported as malformed, and neither fetched nor watched", func(ctx SpecContext) {
 		env := harness.InProcess()
-		env.Fake.AddListed(json.RawMessage(`{"id":7,"status":"in_progress","conclusion":null,"run_attempt":1,"repository":{"full_name":"rosenhouse/Lg"}}`))
+		env.Fake.AddListed(json.RawMessage(`{"id":7,"status":"in_progress","conclusion":null,"run_attempt":1,"repository":{"full_name":"rosenhouse-bot-sandbox/lg"}}`))
 
 		err := env.Sync(ctx)
 		Expect(err).To(MatchError(ContainSubstring("run 7: no created_at")))

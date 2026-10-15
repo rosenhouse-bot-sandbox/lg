@@ -202,7 +202,7 @@ var _ = Describe("index.Reconcile", Label("index"), func() {
 		Expect(row(db, "SELECT * FROM runs")).To(SatisfyAll(
 			HaveKeyWithValue("run_id", BeEquivalentTo(cloneID)),
 			HaveKeyWithValue("host", "github.com"),
-			HaveKeyWithValue("repo", "rosenhouse/Lg"),
+			HaveKeyWithValue("repo", "rosenhouse-bot-sandbox/lg"),
 			HaveKeyWithValue("created_at", "2026-10-03T14:22:54Z"),
 			HaveKeyWithValue("date_dir", "2026-10-03"),
 			HaveKeyWithValue("path", runDir(env.Data(), cloneID)),

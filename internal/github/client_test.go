@@ -58,7 +58,7 @@ var _ = Describe("HTTP client", Label("sync"), func() {
 
 	BeforeEach(func() {
 		fake = fakegithub.Start(runID, "after-attempt-1")
-		client = github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse/lg", "lg-test-token", clock.Real{})
+		client = github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse-bot-sandbox/lg", "lg-test-token", clock.Real{})
 	})
 
 	DescribeTable("sends Accept, X-GitHub-Api-Version, User-Agent lg/<version> and Authorization: Bearer <token> on every API request", Label("transport"),
@@ -109,7 +109,7 @@ var _ = Describe("HTTP client", Label("sync"), func() {
 			Status:       "completed",
 			Conclusion:   "failure",
 			RunAttempt:   1,
-			Repository:   model.Repository{FullName: "rosenhouse/Lg"},
+			Repository:   model.Repository{FullName: "rosenhouse-bot-sandbox/lg"},
 			WorkflowID:   373958224,
 			Event:        "push",
 			PullRequests: []model.PullRequest{},
@@ -170,7 +170,7 @@ var _ = Describe("HTTP client", Label("sync"), func() {
 		_, listing, err := client.ListAttemptJobs(context.Background(), runID, 1)
 		Expect(err).NotTo(HaveOccurred())
 
-		api := fake.URL() + "/repos/rosenhouse/lg/actions/"
+		api := fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/"
 		Expect(attempt).To(Equal(github.Source{URL: api + "runs/37129390741/attempts/1"}))
 		Expect(listing).To(Equal(github.Source{URL: api + "runs/37129390741/attempts/1/jobs?per_page=100", Pages: 3}))
 		Expect(client.JobLogURL(111221289888)).To(Equal(api + "jobs/111221289888/logs"))
@@ -204,14 +204,14 @@ var _ = Describe("HTTP client", Label("sync"), func() {
 				RepositoryID: 1402714635, HeadRepositoryID: 1402714635, HeadBranch: "lg-fixture", HeadSHA: "1a51097dadb5b55978ac401b93f1ca9d8d317b02",
 			},
 		}))
-		Expect(source).To(Equal(github.Source{URL: fake.URL() + "/repos/rosenhouse/lg/actions/runs/37129390741/artifacts?per_page=100", Pages: 2}))
+		Expect(source).To(Equal(github.Source{URL: fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/artifacts?per_page=100", Pages: 2}))
 	})
 
 	It("downloads an artifact's zip through the redirect, byte for byte", Label("artifacts"), func() {
 		var zip bytes.Buffer
 		Expect(client.DownloadArtifact(context.Background(), 11276272069, &zip)).To(Succeed())
 		Expect(zip.Bytes()).To(Equal(fake.Served("artifacts/11276272069.zip")))
-		Expect(client.ArtifactZipURL(11276272069)).To(Equal(fake.URL() + "/repos/rosenhouse/lg/actions/artifacts/11276272069/zip"))
+		Expect(client.ArtifactZipURL(11276272069)).To(Equal(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/artifacts/11276272069/zip"))
 	})
 
 	It("sends no Authorization to a blob host on the API host's IP at another port", Label("transport"), func() {
@@ -265,9 +265,9 @@ var _ = Describe("HTTP client", Label("sync"), func() {
 			return SatisfyAll(HaveField("Path", path), HaveField("Query", fmt.Sprintf("page=%d&per_page=100", page)))
 		}
 		want := []any{
-			HaveField("Path", "/repos/rosenhouse/lg/actions/runs"),
+			HaveField("Path", "/repos/rosenhouse-bot-sandbox/lg/actions/runs"),
 			requested("/repositories/1402714635/actions/runs", 2),
-			HaveField("Path", "/repos/rosenhouse/lg/actions/runs/37129390741/attempts/1/jobs"),
+			HaveField("Path", "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/attempts/1/jobs"),
 		}
 		for page := 2; page <= 12; page++ {
 			want = append(want, requested("/repositories/1402714635/actions/runs/37129390741/attempts/1/jobs", page))
@@ -427,7 +427,7 @@ var _ = Describe("HTTP client", Label("sync"), func() {
 
 	It("returns an error naming the URL and status of a failed request", func() {
 		_, _, err := client.GetAttempt(context.Background(), runID, 9)
-		Expect(err).To(MatchError(fake.URL() + "/repos/rosenhouse/lg/actions/runs/37129390741/attempts/9: 404 Not Found"))
+		Expect(err).To(MatchError(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/attempts/9: 404 Not Found"))
 	})
 })
 

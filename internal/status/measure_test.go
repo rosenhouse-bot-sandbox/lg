@@ -29,17 +29,17 @@ var _ = Describe("Measure", Label("status"), func() {
 		root := GinkgoT().TempDir()
 		data, state := filepath.Join(root, "data"), filepath.Join(root, "state")
 		completed := time.Date(2026, 10, 3, 14, 22, 54, 0, time.UTC)
-		older := "github.com/rosenhouse/Lg/runs/2026-10-02/1_ci_main"
+		older := "github.com/rosenhouse-bot-sandbox/Lg/runs/2026-10-02/1_ci_main"
 		writeFile(data, older+"/attempt-1/fetch.json", fetchJSON(completed.Add(-24*time.Hour)))
-		run := "github.com/rosenhouse/Lg/runs/2026-10-03/2_ci_main"
+		run := "github.com/rosenhouse-bot-sandbox/Lg/runs/2026-10-03/2_ci_main"
 		writeFile(data, run+"/attempt-1/fetch.json", fetchJSON(completed))
 		writeFile(data, run+"/attempt-2/log.txt", "0123456789")
-		artifactsOnly := "github.com/rosenhouse/Lg/runs/2026-10-03/3_ci_main"
+		artifactsOnly := "github.com/rosenhouse-bot-sandbox/Lg/runs/2026-10-03/3_ci_main"
 		writeFile(data, artifactsOnly+"/artifacts/9_report/fetch.json", fetchJSON(completed.Add(time.Hour)))
-		writeFile(data, "github.com/rosenhouse/other/runs/2026-10-03/4_ci_main/attempt-1/fetch.json", fetchJSON(completed.Add(2*time.Hour)))
-		writeFile(state, "horizon.json", `{"github.com/rosenhouse/Lg":"2026-09-01T00:00:00Z","github.com/rosenhouse/lg":"2026-08-01T00:00:00Z","github.com/rosenhouse/other":"2026-09-30T00:00:00Z"}`)
+		writeFile(data, "github.com/rosenhouse-bot-sandbox/other/runs/2026-10-03/4_ci_main/attempt-1/fetch.json", fetchJSON(completed.Add(2*time.Hour)))
+		writeFile(state, "horizon.json", `{"github.com/rosenhouse-bot-sandbox/Lg":"2026-09-01T00:00:00Z","github.com/rosenhouse-bot-sandbox/lg":"2026-08-01T00:00:00Z","github.com/rosenhouse-bot-sandbox/other":"2026-09-30T00:00:00Z"}`)
 
-		disk, err := status.Measure(data, state, "github.com/rosenhouse/lg")
+		disk, err := status.Measure(data, state, "github.com/rosenhouse-bot-sandbox/lg")
 
 		Expect(err).NotTo(HaveOccurred())
 		Expect(disk).To(Equal(status.Disk{

@@ -63,7 +63,7 @@ var _ = Describe("lg where", Ordered, ContinueOnFailure, Label("where"), func() 
 		Expect(outputLines(session)).To(HaveExactElements(MatchJSON(`{
 			"path": ` + quote(log) + `,
 			"host": "github.com",
-			"repo": "rosenhouse/Lg",
+			"repo": "rosenhouse-bot-sandbox/lg",
 			"run_id": 7,
 			"attempt": 1,
 			"job_id": 7111221289888,
@@ -79,7 +79,7 @@ var _ = Describe("lg where", Ordered, ContinueOnFailure, Label("where"), func() 
 			"job_conclusion": "failure",
 			"line": 107,
 			"text": "2026-10-03T14:23:01.2367849Z LG_MARKER flaky failure attempt=1",
-			"html_url": "https://github.com/rosenhouse/Lg/actions/runs/7/job/7111221289888"
+			"html_url": "https://github.com/rosenhouse-bot-sandbox/lg/actions/runs/7/job/7111221289888"
 		}`)))
 	})
 
@@ -128,7 +128,7 @@ var _ = Describe("lg where", Ordered, ContinueOnFailure, Label("where"), func() 
 	})
 
 	It("resolves a relative path against the working directory, as in W4", func() {
-		runs := filepath.Join(env.Data(), "github.com", "rosenhouse", "Lg", "runs")
+		runs := filepath.Join(env.Data(), "github.com", "rosenhouse-bot-sandbox", "lg", "runs")
 		hits := env.Sh("cd '" + runs + "' && grep -rn 'foo bar' 2026-09-10 | lg where")
 		Eventually(hits, harness.ExitTimeout).Should(gexec.Exit(0))
 		Expect(decoded(hits)).To(HaveExactElements(SatisfyAll(
@@ -151,7 +151,7 @@ var _ = Describe("lg where", Ordered, ContinueOnFailure, Label("where"), func() 
 		link := filepath.Join(GinkgoT().TempDir(), "link")
 		Expect(os.Symlink(env.Getenv("LG_HOME"), link)).To(Succeed())
 		log := passLog(env, a.MainSeptember.ID)
-		repo := "/data/github.com/rosenhouse/Lg"
+		repo := "/data/github.com/rosenhouse-bot-sandbox/lg"
 		hits := env.Sh(fmt.Sprintf(`set -e
 LG_HOME='%[1]s' lg where '%[3]s'
 cd '%[1]s%[4]s' && grep -rn 'foo bar' runs/2026-09-10 | env -u PWD LG_HOME='%[1]s' lg where
@@ -240,7 +240,7 @@ var _ = Describe("lg where", Label("where"), func() {
 				HaveKeyWithValue("artifact", "rerun-only-attempt-2"),
 				HaveKeyWithValue("attributed_attempt", BeEquivalentTo(2)),
 				HaveKeyWithValue("attribution", "listing-diff"),
-				HaveKeyWithValue("html_url", "https://github.com/rosenhouse/Lg/actions/runs/37129390741"),
+				HaveKeyWithValue("html_url", "https://github.com/rosenhouse-bot-sandbox/lg/actions/runs/37129390741"),
 			),
 			SatisfyAll(
 				HaveKeyWithValue("artifact_id", BeEquivalentTo(11276401837)),

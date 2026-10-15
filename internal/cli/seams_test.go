@@ -25,7 +25,7 @@ var _ = Describe("lg sync", Label("failures"), func() {
 		fake := fakegithub.Start(37129390741, "after-attempt-1")
 		fake.Fail("blob", "/logs/111221289888.txt", fakegithub.Fault{Truncate: true, Stall: true})
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\napi_url: "+fake.URL()+"\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\napi_url: "+fake.URL()+"\n"), 0o644)).To(Succeed())
 		short := github.Timeouts{Dial: time.Second, TLSHandshake: time.Second, ResponseHeader: time.Second, BodyIdle: 200 * time.Millisecond}
 
 		var stderr bytes.Buffer

@@ -54,7 +54,7 @@ var at = time.Date(2026, 9, 26, 18, 0, 0, 0, time.UTC)
 
 var _ = Describe("ListRuns", Label("discovery"), func() {
 	newClient := func(fake *fakegithub.Server) *github.HTTP {
-		return github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse/lg", "lg-test-token", clock.Real{})
+		return github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse-bot-sandbox/lg", "lg-test-token", clock.Real{})
 	}
 
 	It("stops after the first page when total_count reaches ListingCap, since GitHub serves no more than that of a filtered listing", func() {

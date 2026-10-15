@@ -68,7 +68,7 @@ var _ = DescribeTable("mirror.Cycle when a ran job's log 404s publishes no attem
 		Expect(readTombstone(attempt1, ranJob)).To(SatisfyAll(
 			HaveKeyWithValue("reason", "deleted"),
 			HaveKeyWithValue("http_status", BeEquivalentTo(404)),
-			HaveKeyWithValue("url", env.Fake.URL()+"/repos/rosenhouse/lg/actions/"+ranJobLog),
+			HaveKeyWithValue("url", env.Fake.URL()+"/repos/rosenhouse-bot-sandbox/lg/actions/"+ranJobLog),
 			HaveKeyWithValue("tombstoned_at", "2026-10-03T15:24:13Z"),
 		))
 	},
@@ -286,13 +286,13 @@ var _ = Describe("attempt-N/fetch.json", Label("failures"), func() {
 		Expect(fetch.LgVersion).To(Equal(version.Version))
 		Expect(fetch.FetchedAt).To(Equal("2026-10-03T18:00:00Z"))
 		Expect(fetch.Host).To(Equal("ghe.corp.example"))
-		Expect(fetch.Repo).To(Equal("rosenhouse/Lg"))
+		Expect(fetch.Repo).To(Equal("rosenhouse-bot-sandbox/lg"))
 		Expect(fetch.RunID).To(BeEquivalentTo(runID))
 		Expect(fetch.Attempt).To(Equal(1))
 		Expect(fetch.RunCreatedAt).To(Equal("2026-10-03T14:22:54Z"))
 		Expect(fetch.RunAttemptAtFetch).To(Equal(3))
 
-		api := env.Fake.URL() + "/repos/rosenhouse/lg/actions/"
+		api := env.Fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/"
 		urls := map[string]string{}
 		for name, source := range fetch.Sources {
 			if name == "commit_pr_numbers" {
@@ -340,7 +340,7 @@ var _ = Describe("mirror.Cycle with a job that has no steps and no runner", Labe
 			"lg_format":     1.0,
 			"tombstoned_at": "2026-10-03T18:00:00Z",
 			"target":        "log.txt",
-			"url":           env.Fake.URL() + "/repos/rosenhouse/lg/actions/jobs/111221290616/logs",
+			"url":           env.Fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/jobs/111221290616/logs",
 			"http_status":   nil,
 			"reason":        "not_applicable",
 			"message":       "GitHub produces no log for a job with no steps and no runner",

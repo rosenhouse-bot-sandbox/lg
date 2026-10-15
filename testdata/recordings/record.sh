@@ -4,7 +4,7 @@
 set -euo pipefail
 shopt -s nullglob
 run=$1 label=$2
-api=${GITHUB_API_URL:-https://api.github.com}/repos/rosenhouse/lg/actions
+api=${GITHUB_API_URL:-https://api.github.com}/repos/rosenhouse-bot-sandbox/lg/actions
 accept='Accept: application/vnd.github+json'
 root=$(cd "$(dirname "$0")" && pwd)
 out=$root/run-$run/$label

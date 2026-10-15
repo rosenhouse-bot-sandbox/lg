@@ -376,14 +376,14 @@ var _ = Describe("CreatedAt", Label("discovery"), func() {
 })
 
 var _ = Describe("ListedRun", Label("discovery"), func() {
-	It("is a completed run of rosenhouse/Lg with the id and created_at given", func() {
+	It("is a completed run of rosenhouse-bot-sandbox/lg with the id and created_at given", func() {
 		var run map[string]any
 		Expect(json.Unmarshal(scenario.ListedRun(42, time.Date(2026, 9, 3, 14, 22, 54, 0, time.UTC)), &run)).To(Succeed())
 		Expect(run).To(SatisfyAll(
 			HaveKeyWithValue("id", BeEquivalentTo(42)),
 			HaveKeyWithValue("created_at", "2026-09-03T14:22:54Z"),
 			HaveKeyWithValue("status", "completed"),
-			HaveKeyWithValue("repository", HaveKeyWithValue("full_name", "rosenhouse/Lg")),
+			HaveKeyWithValue("repository", HaveKeyWithValue("full_name", "rosenhouse-bot-sandbox/lg")),
 		))
 	})
 })
@@ -562,7 +562,7 @@ var _ = Describe("AddRerunAttempt", Label("flakes"), func() {
 	It("gives the new attempt, and each of its jobs, its own attempt number and URLs", func() {
 		rerun := scenario.AddRerunAttempt(run, "flaky")
 
-		attempts := "https://api.github.com/repos/rosenhouse/Lg/actions/runs/7/attempts/"
+		attempts := "https://api.github.com/repos/rosenhouse-bot-sandbox/lg/actions/runs/7/attempts/"
 		for _, file := range []string{"attempt-2/attempt.json", "run.json"} {
 			Expect(field(rerun, file, "previous_attempt_url")).To(Equal(attempts+"1"), file)
 		}

@@ -39,7 +39,7 @@ var _ = Describe("discovery with an eviction horizon", Label("retention"), func(
 		Expect(env.Fake.AddRun(scenario.CloneAt(1, "after-attempt-1", horizon))).To(Succeed())
 		Expect(env.Fake.AddRun(scenario.CloneAt(2, "after-attempt-1", horizon.Add(-time.Hour)))).To(Succeed())
 		Expect(env.Fake.AddRun(scenario.CloneAt(3, "after-attempt-1", horizon.Add(time.Second)))).To(Succeed())
-		Expect(retention.Horizons{"github.com/rosenhouse/Lg": horizon}.Write(env.Mirror.Store)).To(Succeed())
+		Expect(retention.Horizons{"github.com/rosenhouse-bot-sandbox/lg": horizon}.Write(env.Mirror.Store)).To(Succeed())
 
 		Expect(env.Sync(ctx)).To(Succeed())
 		Expect(env.Fake.Requests()).NotTo(ContainElement(runRequest(1)))
@@ -56,7 +56,7 @@ var _ = Describe("discovery with an eviction horizon", Label("retention"), func(
 		env.Fake.Remove(pendingRun)
 		watched := fmt.Sprintf(`{"github.com":{"4":%s}}`, scenario.ListedRun(4, horizon.Add(-10*scenario.Day)))
 		Expect(os.WriteFile(filepath.Join(env.State(), "watch.json"), []byte(watched), 0o644)).To(Succeed())
-		Expect(retention.Horizons{"github.com/rosenhouse/Lg": horizon}.Write(env.Mirror.Store)).To(Succeed())
+		Expect(retention.Horizons{"github.com/rosenhouse-bot-sandbox/lg": horizon}.Write(env.Mirror.Store)).To(Succeed())
 		before := len(env.Fake.Requests())
 
 		Expect(cycleErr(ctx, env.Mirror)).To(Succeed())

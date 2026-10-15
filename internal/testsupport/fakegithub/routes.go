@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	recordedRepo = "rosenhouse/lg"
+	recordedRepo = "rosenhouse-bot-sandbox/lg"
 	repoID       = "1402714635"
-	repoBody     = `{"id":1402714635,"name":"Lg","full_name":"rosenhouse/Lg","default_branch":"main"}`
+	repoBody     = `{"id":1402714635,"name":"lg","full_name":"rosenhouse-bot-sandbox/lg","default_branch":"main"}`
 )
 
 // routes mounts every route at the root and under /api/v3, and addresses

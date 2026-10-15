@@ -112,7 +112,7 @@ var _ = DescribeTable("mirror.Cycle returns Blocked and makes no further request
 		blockedAs(failure.LocalIO, time.Time{}), SatisfyAll(listedOneRunsArtifacts(), endWithOnly("/runs/37129738159", http.StatusOK)), cycleTimeout),
 	Entry("EXDEV rebuilding a missing state/pending-artifacts.json, before any run listing: local_io",
 		func(env *harness.InProcessEnv) { env.FS.FailOnUnder("rename", env.State(), syscall.EXDEV) },
-		blockedAs(failure.LocalIO, time.Time{}), endWithOnly("/repos/rosenhouse/lg", http.StatusOK), cycleTimeout),
+		blockedAs(failure.LocalIO, time.Time{}), endWithOnly("/repos/rosenhouse-bot-sandbox/lg", http.StatusOK), cycleTimeout),
 )
 
 var _ = Describe("mirror.Cycle", Label("blocked"), func() {

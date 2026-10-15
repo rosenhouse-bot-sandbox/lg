@@ -44,7 +44,7 @@ func NewCLI() *CLI {
 		Runner: TokenRunner{},
 		Stdin:  strings.NewReader(""),
 	}
-	c.WriteConfig("repo: rosenhouse/lg\napi_url: " + c.Fake.URL() + "\n")
+	c.WriteConfig("repo: rosenhouse-bot-sandbox/lg\napi_url: " + c.Fake.URL() + "\n")
 	return c
 }
 

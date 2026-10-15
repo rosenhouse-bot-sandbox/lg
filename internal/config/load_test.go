@@ -34,20 +34,20 @@ var _ = Describe("Load", Label("sync"), func() {
 	})
 
 	It("defaults host to github.com", func() {
-		Expect(config.Load(write("repo: rosenhouse/lg\n"))).To(HaveField("Host", "github.com"))
+		Expect(config.Load(write("repo: rosenhouse-bot-sandbox/lg\n"))).To(HaveField("Host", "github.com"))
 	})
 
 	It("defaults log_grace to 1h", Label("failures"), func() {
-		Expect(config.Load(write("repo: rosenhouse/lg\n"))).To(HaveField("LogGrace", config.Duration(time.Hour)))
+		Expect(config.Load(write("repo: rosenhouse-bot-sandbox/lg\n"))).To(HaveField("LogGrace", config.Duration(time.Hour)))
 	})
 
 	It("reads log_grace as a Go duration", Label("failures"), func() {
-		Expect(config.Load(write("repo: rosenhouse/lg\nlog_grace: 90m\n"))).To(HaveField("LogGrace", config.Duration(90*time.Minute)))
+		Expect(config.Load(write("repo: rosenhouse-bot-sandbox/lg\nlog_grace: 90m\n"))).To(HaveField("LogGrace", config.Duration(90*time.Minute)))
 	})
 
 	DescribeTable("accepts a log_grace of 0",
 		func(zero string) {
-			Expect(config.Load(write("repo: rosenhouse/lg\nlog_grace: " + zero + "\n"))).To(HaveField("LogGrace", config.Duration(0)))
+			Expect(config.Load(write("repo: rosenhouse-bot-sandbox/lg\nlog_grace: " + zero + "\n"))).To(HaveField("LogGrace", config.Duration(0)))
 		},
 		Entry("with a unit", "0s", Label("failures")),
 		Entry("bare", "0", Label("failures")),
@@ -55,7 +55,7 @@ var _ = Describe("Load", Label("sync"), func() {
 
 	DescribeTable("rejects a log_grace that is not a duration",
 		func(value, message string) {
-			_, err := config.Load(write("repo: rosenhouse/lg\nlog_grace: " + value + "\n"))
+			_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nlog_grace: " + value + "\n"))
 			Expect(err).To(MatchError(HaveSuffix("config.yaml: line 2: " + message)))
 			Expect(err).To(BeAssignableToTypeOf(config.Error("")))
 		},
@@ -66,17 +66,17 @@ var _ = Describe("Load", Label("sync"), func() {
 	)
 
 	It("rejects a negative log_grace", Label("failures"), func() {
-		_, err := config.Load(write("repo: rosenhouse/lg\nlog_grace: -1m\n"))
+		_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nlog_grace: -1m\n"))
 		Expect(err).To(invalid("log_grace must not be negative: -1m"))
 	})
 
 	It("defaults artifact_max_bytes to 500MB", Label("artifacts"), func() {
-		Expect(config.Load(write("repo: rosenhouse/lg\n"))).To(HaveField("ArtifactMaxBytes", config.Bytes(500_000_000)))
+		Expect(config.Load(write("repo: rosenhouse-bot-sandbox/lg\n"))).To(HaveField("ArtifactMaxBytes", config.Bytes(500_000_000)))
 	})
 
 	DescribeTable("reads artifact_max_bytes with MB and GB decimal, and MiB and GiB binary", Label("artifacts"),
 		func(value string, bytes config.Bytes) {
-			Expect(config.Load(write("repo: rosenhouse/lg\nartifact_max_bytes: " + value + "\n"))).To(HaveField("ArtifactMaxBytes", bytes))
+			Expect(config.Load(write("repo: rosenhouse-bot-sandbox/lg\nartifact_max_bytes: " + value + "\n"))).To(HaveField("ArtifactMaxBytes", bytes))
 		},
 		Entry("one byte", "1", config.Bytes(1)),
 		Entry("bare", "700", config.Bytes(700)),
@@ -107,7 +107,7 @@ var _ = Describe("Load", Label("sync"), func() {
 
 	DescribeTable("rejects an artifact_max_bytes that is not a size", Label("artifacts"),
 		func(value, message string) {
-			_, err := config.Load(write("repo: rosenhouse/lg\nartifact_max_bytes: " + value + "\n"))
+			_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nartifact_max_bytes: " + value + "\n"))
 			Expect(err).To(MatchError(HaveSuffix("config.yaml: line 2: " + message)))
 			Expect(err).To(BeAssignableToTypeOf(config.Error("")))
 		},
@@ -121,7 +121,7 @@ var _ = Describe("Load", Label("sync"), func() {
 
 	DescribeTable("rejects an artifact_max_bytes of 0", Label("artifacts"),
 		func(zero string) {
-			_, err := config.Load(write("repo: rosenhouse/lg\nartifact_max_bytes: " + zero + "\n"))
+			_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nartifact_max_bytes: " + zero + "\n"))
 			Expect(err).To(invalid("artifact_max_bytes must be at least 1B"))
 		},
 		Entry("bare", "0"),
@@ -129,7 +129,7 @@ var _ = Describe("Load", Label("sync"), func() {
 	)
 
 	It("rejects a disk_cap of 0", Label("discovery"), func() {
-		_, err := config.Load(write("repo: rosenhouse/lg\ndisk_cap: 0\n"))
+		_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\ndisk_cap: 0\n"))
 		Expect(err).To(invalid("disk_cap must be at least 1B"))
 	})
 
@@ -156,18 +156,18 @@ var _ = Describe("Load", Label("sync"), func() {
 			Expect(err).To(invalid(`repo must be owner/name: ""`))
 		},
 		Entry("empty", ""),
-		Entry("only a comment", "# repo: rosenhouse/lg\n"),
+		Entry("only a comment", "# repo: rosenhouse-bot-sandbox/lg\n"),
 	)
 
 	It("lowercases host", func() {
-		cfg, err := config.Load(write("host: GitHub.com\nrepo: rosenhouse/lg\n"))
+		cfg, err := config.Load(write("host: GitHub.com\nrepo: rosenhouse-bot-sandbox/lg\n"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(cfg.Host).To(Equal("github.com"))
 	})
 
 	DescribeTable("rejects a host that is not a host name",
 		func(host string) {
-			_, err := config.Load(write("host: '" + host + "'\nrepo: rosenhouse/lg\n"))
+			_, err := config.Load(write("host: '" + host + "'\nrepo: rosenhouse-bot-sandbox/lg\n"))
 			Expect(err).To(invalid(`host must be a host name: "` + host + `"`))
 		},
 		Entry("empty", ""),
@@ -178,7 +178,7 @@ var _ = Describe("Load", Label("sync"), func() {
 
 	DescribeTable("rejects an api_url that is not an absolute http or https URL without user info, query or fragment, hiding any password",
 		func(apiURL, shown string) {
-			_, err := config.Load(write("repo: rosenhouse/lg\napi_url: '" + apiURL + "'\n"))
+			_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\napi_url: '" + apiURL + "'\n"))
 			Expect(err).To(invalid(`api_url must be an http or https URL with no user info, query or fragment: "` + shown + `"`))
 		},
 		Entry("no scheme", "127.0.0.1:18301", "127.0.0.1:18301"),
@@ -193,7 +193,7 @@ var _ = Describe("Load", Label("sync"), func() {
 
 	DescribeTable("accepts an api_url on host or api.<host> over https, or on a loopback address", Label("transport"),
 		func(host, apiURL string) {
-			_, err := config.Load(write("host: " + host + "\nrepo: rosenhouse/lg\napi_url: '" + apiURL + "'\n"))
+			_, err := config.Load(write("host: " + host + "\nrepo: rosenhouse-bot-sandbox/lg\napi_url: '" + apiURL + "'\n"))
 			Expect(err).NotTo(HaveOccurred())
 		},
 		Entry("api.<host>", "github.com", "https://api.github.com"),
@@ -206,7 +206,7 @@ var _ = Describe("Load", Label("sync"), func() {
 
 	DescribeTable("rejects an api_url that could send host's token elsewhere", Label("transport"),
 		func(host, apiURL, reason string) {
-			_, err := config.Load(write("host: " + host + "\nrepo: rosenhouse/lg\napi_url: '" + apiURL + "'\n"))
+			_, err := config.Load(write("host: " + host + "\nrepo: rosenhouse-bot-sandbox/lg\napi_url: '" + apiURL + "'\n"))
 			Expect(err).To(invalid(reason + `: "` + apiURL + `"`))
 		},
 		Entry("another host", "github.com", "https://ghe.corp.example/api/v3", "api_url must be on host, api.<host> or a loopback address"),
@@ -219,13 +219,13 @@ var _ = Describe("Load", Label("sync"), func() {
 	)
 
 	It("rejects an unknown key, naming it and its line", func() {
-		path := write("repo: rosenhouse/lg\napi-url: http://127.0.0.1:1\n")
+		path := write("repo: rosenhouse-bot-sandbox/lg\napi-url: http://127.0.0.1:1\n")
 		_, err := config.Load(path)
 		Expect(err).To(MatchError(config.Error(path + `: line 2: unknown key "api-url"`)))
 	})
 
 	It("names every unknown key", func() {
-		path := write("repo: rosenhouse/lg\nfoo: 1\nHost: github.com\n")
+		path := write("repo: rosenhouse-bot-sandbox/lg\nfoo: 1\nHost: github.com\n")
 		_, err := config.Load(path)
 		Expect(err).To(MatchError(config.Error(path + `: line 2: unknown key "foo"; line 3: unknown key "Host"`)))
 	})

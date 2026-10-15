@@ -152,7 +152,7 @@ func expectReplay(r recording) {
 	Expect(len(lines)).To(BeNumerically(">", 10))
 	for _, line := range lines {
 		where := fmt.Sprintf("%d/%s %s", r.run, r.stage, line.Path)
-		resp := fetch(fake.URL() + "/repos/rosenhouse/lg/actions/" + line.Path)
+		resp := fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/" + line.Path)
 		Expect(resp.status).To(Equal(line.First), where)
 		if line.First != line.Final {
 			resp = fetch(resp.header.Get("Location"))
@@ -254,7 +254,7 @@ var _ = Describe("fakegithub", Label("transport"), func() {
 		fake.SetPageCap(1)
 		api, err := url.Parse(fake.URL())
 		Expect(err).NotTo(HaveOccurred())
-		actions := fake.URL() + "/repos/rosenhouse/lg/actions/"
+		actions := fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/"
 		dir := recordings.Dir(runID, "after-attempt-1")
 
 		for _, l := range []struct {
@@ -286,12 +286,12 @@ var _ = Describe("fakegithub", Label("transport"), func() {
 		dir := recordings.Dir(runID, "after-attempt-1")
 
 		routes := map[string]int{
-			"/repos/rosenhouse/lg":                               http.StatusOK,
-			"/repos/rosenhouse/lg/actions/runs?per_page=100":     http.StatusOK,
-			"/repos/rosenhouse/lg/actions/artifacts/11276401837": http.StatusOK,
+			"/repos/rosenhouse-bot-sandbox/lg":                               http.StatusOK,
+			"/repos/rosenhouse-bot-sandbox/lg/actions/runs?per_page=100":     http.StatusOK,
+			"/repos/rosenhouse-bot-sandbox/lg/actions/artifacts/11276401837": http.StatusOK,
 		}
 		for _, line := range recordedStatus(dir) {
-			routes["/repos/rosenhouse/lg/actions/"+line.Path] = line.First
+			routes["/repos/rosenhouse-bot-sandbox/lg/actions/"+line.Path] = line.First
 		}
 		for path, code := range routes {
 			root := fetch(fake.URL() + path)
@@ -302,7 +302,7 @@ var _ = Describe("fakegithub", Label("transport"), func() {
 		}
 
 		fake.SetPageCap(5)
-		elements, followed := listing(fake.URL()+"/api/v3/repos/rosenhouse/lg/actions/runs/37129390741/attempts/1/jobs?per_page=100", "jobs")
+		elements, followed := listing(fake.URL()+"/api/v3/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/attempts/1/jobs?per_page=100", "jobs")
 		expectJSONElements(elements, recordedElements(filepath.Join(dir, "attempt-1", "jobs.json"), "jobs"))
 		Expect(followed).To(HaveLen(2))
 		for _, next := range followed {
@@ -313,7 +313,7 @@ var _ = Describe("fakegithub", Label("transport"), func() {
 	It("returns 404 for both the metadata and the zip of artifacts absent after Advance to after-attempt-3", func() {
 		fake := fakegithub.Start(runID, "after-attempt-2")
 		artifact := func(id json.RawMessage) string {
-			return fake.URL() + "/repos/rosenhouse/lg/actions/artifacts/" + string(id)
+			return fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/artifacts/" + string(id)
 		}
 		ids := func(stage string) map[string]json.RawMessage {
 			present := map[string]json.RawMessage{}
@@ -353,7 +353,7 @@ var _ = Describe("fakegithub", Label("transport"), func() {
 			{logsDeletedRun, "11276237903"},
 		} {
 			fake := fakegithub.Start(expired.run, "after-expiry")
-			actions := fake.URL() + "/repos/rosenhouse/lg/actions/"
+			actions := fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/"
 			Expect(fetch(actions+"artifacts/"+expired.id+"/zip").status).To(Equal(http.StatusGone), expired.id)
 			listed, _ := listing(fmt.Sprintf("%sruns/%d/artifacts?per_page=100", actions, expired.run), "artifacts")
 			Expect(listed).NotTo(BeEmpty())
@@ -365,17 +365,17 @@ var _ = Describe("fakegithub", Label("transport"), func() {
 		}
 	})
 
-	It("serves GET /repos/rosenhouse/lg case-insensitively with full_name rosenhouse/Lg and default_branch main", func() {
+	It("serves GET /repos/rosenhouse-bot-sandbox/lg case-insensitively with full_name rosenhouse-bot-sandbox/lg and default_branch main", func() {
 		fake := fakegithub.Start(runID, "after-attempt-1")
-		for _, path := range []string{"/repos/rosenhouse/lg", "/repos/Rosenhouse/LG", "/repositories/" + repoID} {
+		for _, path := range []string{"/repos/rosenhouse-bot-sandbox/lg", "/repos/Rosenhouse-Bot-Sandbox/LG", "/repositories/" + repoID} {
 			resp := fetch(fake.URL() + path)
 			Expect(resp.status).To(Equal(http.StatusOK), path)
 			var repo map[string]any
 			Expect(json.Unmarshal(resp.body, &repo)).To(Succeed())
-			Expect(repo).To(HaveKeyWithValue("full_name", "rosenhouse/Lg"))
+			Expect(repo).To(HaveKeyWithValue("full_name", "rosenhouse-bot-sandbox/lg"))
 			Expect(repo).To(HaveKeyWithValue("default_branch", "main"))
 		}
-		Expect(fetch(fake.URL() + "/repos/rosenhouse/other").status).To(Equal(http.StatusNotFound))
+		Expect(fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/other").status).To(Equal(http.StatusNotFound))
 	})
 
 	DescribeTable("pages listings at per_page up to 100, or 30 when per_page is missing or below 1",
@@ -386,7 +386,7 @@ var _ = Describe("fakegithub", Label("transport"), func() {
 				fake.AddListed(json.RawMessage(fmt.Sprintf(`{"id":%d,"created_at":"2026-10-02T00:00:00Z","status":"completed"}`, i+1)))
 			}
 
-			resp := fetch(fake.URL() + "/repos/rosenhouse/lg/actions/runs" + query)
+			resp := fetch(fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs" + query)
 			Expect(resp.status).To(Equal(http.StatusOK))
 			var page struct {
 				WorkflowRuns []any `json:"workflow_runs"`
@@ -406,16 +406,16 @@ var _ = Describe("fakegithub", Label("transport"), func() {
 		const added = 1050
 		for i := range added {
 			fake.AddListed(json.RawMessage(fmt.Sprintf(
-				`{"id":%d,"created_at":"2026-10-02T%02d:%02d:00Z","status":"completed","conclusion":"success","repository":{"full_name":"rosenhouse/Lg"}}`,
+				`{"id":%d,"created_at":"2026-10-02T%02d:%02d:00Z","status":"completed","conclusion":"success","repository":{"full_name":"rosenhouse-bot-sandbox/lg"}}`,
 				i+1, i/60, i%60)))
 		}
 		const unmatched = 5
 		for i := range unmatched {
 			fake.AddListed(json.RawMessage(fmt.Sprintf(
-				`{"id":%d,"created_at":"2026-10-03T00:%02d:00Z","status":"in_progress","repository":{"full_name":"rosenhouse/Lg"}}`,
+				`{"id":%d,"created_at":"2026-10-03T00:%02d:00Z","status":"in_progress","repository":{"full_name":"rosenhouse-bot-sandbox/lg"}}`,
 				added+i+1, i)))
 		}
-		runs := fake.URL() + "/repos/rosenhouse/lg/actions/runs?per_page=100"
+		runs := fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs?per_page=100"
 
 		all, _ := listing(runs, "workflow_runs")
 		Expect(all).To(HaveLen(unmatched + added))

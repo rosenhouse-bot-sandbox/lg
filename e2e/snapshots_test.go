@@ -54,7 +54,7 @@ func listedInAttempt1(fake *fakegithub.Server) types.GomegaMatcher {
 		HaveKeyWithValue("run_attempt_at_fetch", BeEquivalentTo(1)),
 		HaveKeyWithValue("run_status_at_fetch", "completed"),
 		HaveKeyWithValue("sources", HaveKeyWithValue("artifact.json", SatisfyAll(
-			HaveKeyWithValue("url", fake.URL()+"/repos/rosenhouse/lg/actions/runs/37129390741/artifacts?per_page=100"),
+			HaveKeyWithValue("url", fake.URL()+"/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/artifacts?per_page=100"),
 			HaveKeyWithValue("pages", BeEquivalentTo(1)),
 		))),
 	)

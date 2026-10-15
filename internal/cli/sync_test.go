@@ -28,7 +28,7 @@ var _ = Describe("lg sync", Label("store"), func() {
 	It("exits 4 after waiting 5m for a busy state/write.lock", Label("sync"), func() {
 		home := GinkgoT().TempDir()
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		writeLock := filepath.Join(home, "state", "write.lock")
 		Expect(os.Mkdir(filepath.Dir(writeLock), 0o755)).To(Succeed())
 		held, err := lock.Wait(writeLock, time.Second, clock.Real{}, func(string) {})
@@ -72,7 +72,7 @@ var _ = DescribeTable("lg sync without a daemon, while a request is held,", Labe
 		clk.Set(harness.DefaultNow().Add(30 * time.Second))
 		Consistently(stderr).ShouldNot(gbytes.Say("."))
 	},
-	Entry("says every 10s that it is starting", "/repos/rosenhouse/lg", "starting"),
+	Entry("says every 10s that it is starting", "/repos/rosenhouse-bot-sandbox/lg", "starting"),
 	Entry("says every 10s that it is listing runs", "/actions/runs", "listing runs"),
 	Entry("says every 10s how many runs' artifacts it fetched", "/artifacts/11276272069/zip", "fetching artifacts, 0 of 1 runs done"),
 	Entry("says every 10s how many attempts' logs it fetched", "jobs/111221289888/logs", "fetching logs, 0 of 1 attempts done"),
@@ -137,7 +137,7 @@ var _ = Describe("lg sync that cannot tell whether a daemon runs", Label("daemon
 var _ = Describe("lg sync with a loopback api_url", Label("transport"), func() {
 	It("exits 2 and runs no gh unless LG_GH names a test gh", func() {
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\napi_url: http://127.0.0.1:1\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\napi_url: http://127.0.0.1:1\n"), 0o644)).To(Succeed())
 		var stderr bytes.Buffer
 		runner := &countingRunner{}
 
@@ -188,7 +188,7 @@ var _ = DescribeTable("lg sync --timeout", Label("sync"),
 	func(args []string, want time.Duration, busy ...string) {
 		home := GinkgoT().TempDir()
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		Expect(os.Mkdir(filepath.Join(home, "state"), 0o755)).To(Succeed())
 		for _, name := range busy {
 			held, err := lock.Wait(filepath.Join(home, "state", name), time.Second, clock.Real{}, func(string) {})
@@ -222,7 +222,7 @@ var _ = Describe("lg sync --wait with a daemon running", Label("sync"), func() {
 	It("waits for the cycle even when it cannot write that it sent the request", func() {
 		home := GinkgoT().TempDir()
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		Expect(os.Mkdir(filepath.Join(home, "state"), 0o755)).To(Succeed())
 		held, err := lock.Wait(filepath.Join(home, "state", "daemon.lock"), time.Second, clock.Real{}, func(string) {})
 		Expect(err).NotTo(HaveOccurred())
@@ -242,7 +242,7 @@ var _ = Describe("lg sync --wait with a daemon running", Label("sync"), func() {
 	It("counts --timeout from before its wait for state/request.lock", func() {
 		home := GinkgoT().TempDir()
 		config := filepath.Join(GinkgoT().TempDir(), "config.yaml")
-		Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+		Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 		state := filepath.Join(home, "state")
 		Expect(os.Mkdir(state, 0o755)).To(Succeed())
 		held, err := lock.Wait(filepath.Join(state, "daemon.lock"), time.Second, clock.Real{}, func(string) {})

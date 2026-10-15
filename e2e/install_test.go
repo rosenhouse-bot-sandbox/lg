@@ -284,7 +284,7 @@ func newInstallEnv(kv ...string) (*harness.Env, *fakeservice.Fake, string) {
 	}
 	config := env.ConfigFile()
 	Expect(os.MkdirAll(filepath.Dir(config), 0o755)).To(Succeed())
-	Expect(os.WriteFile(config, []byte("repo: rosenhouse/lg\n"), 0o644)).To(Succeed())
+	Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
 	bin := GinkgoT().TempDir()
 	env.PrependPath(bin)
 	if runtime.GOOS == "darwin" {

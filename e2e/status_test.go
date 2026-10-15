@@ -38,8 +38,8 @@ var _ = Describe("lg sync", Label("status"), func() {
 		Expect(st).To(HaveKeyWithValue("daemon_pid", BeNil()))
 		Expect(st).To(HaveKeyWithValue("daemon_version", BeNil()))
 		Expect(st).To(HaveKey("repos"))
-		Expect(st["repos"]).To(HaveKey("github.com/rosenhouse/lg"))
-		repo := st["repos"].(map[string]any)["github.com/rosenhouse/lg"].(map[string]any)
+		Expect(st["repos"]).To(HaveKey("github.com/rosenhouse-bot-sandbox/lg"))
+		repo := st["repos"].(map[string]any)["github.com/rosenhouse-bot-sandbox/lg"].(map[string]any)
 		Expect(repo).To(HaveKeyWithValue("default_branch", "main"))
 		newest := time.Date(2026, 10, 3, 14, 22, 54, 0, time.UTC)
 		Expect(timeAt(repo, "newest_completed_run_created_at")).To(Equal(newest))
@@ -137,7 +137,7 @@ var _ = Describe("lg status", Label("status"), func() {
   "daemon_pid": 4242,
   "daemon_version": "test",
   "repos": {
-    "github.com/rosenhouse/lg": {
+    "github.com/rosenhouse-bot-sandbox/lg": {
       "default_branch": "main",
       "newest_completed_run_created_at": "2026-10-03T14:22:54Z",
       "lag_seconds": 13026,
@@ -170,7 +170,7 @@ last ok sync: 2026-10-03T17:50:00Z
 next sync: 2026-10-03T18:01:00Z
 blocked: rate_limit since 2026-10-03T17:55:00Z, retry_at 2026-10-03T18:01:00Z: 429 Too Many [1mRequests
 daemon: running
-github.com/rosenhouse/lg:
+github.com/rosenhouse-bot-sandbox/lg:
   default branch: main
   newest completed run created: 2026-10-03T14:22:54Z, lag: 3h37m6s
   runs: 3, attempts: 4, bytes: 123456
@@ -300,7 +300,7 @@ func withStuckLog() (*harness.Env, *fakegithub.Server) {
 // pendingSince gives the since of the one pending unit in env's status.json.
 func pendingSince(env *harness.Env) time.Time {
 	GinkgoHelper()
-	repo := env.Status()["repos"].(map[string]any)["github.com/rosenhouse/lg"].(map[string]any)
+	repo := env.Status()["repos"].(map[string]any)["github.com/rosenhouse-bot-sandbox/lg"].(map[string]any)
 	Expect(repo).To(HaveKeyWithValue("pending", HaveLen(1)))
 	return timeAt(repo["pending"].([]any)[0].(map[string]any), "since")
 }

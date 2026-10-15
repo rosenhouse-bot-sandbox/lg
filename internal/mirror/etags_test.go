@@ -35,7 +35,7 @@ var _ = Describe("state/etags.json", Label("etags"), func() {
 		env = harness.InProcess()
 		Expect(env.Fake.Load(runID, "after-attempt-1")).To(Succeed())
 		etags = filepath.Join(env.State(), "etags.json")
-		repoURL = env.Fake.URL() + "/repos/rosenhouse/lg"
+		repoURL = env.Fake.URL() + "/repos/rosenhouse-bot-sandbox/lg"
 		unrelated = repoURL + "/actions/runs/1"
 	})
 

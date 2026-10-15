@@ -70,7 +70,7 @@ var _ = Describe("Intermittent", Label("flakes"), func() {
 			Expect(field(r, "run.json", "event")).To(Equal("push"))
 			Expect(field(r, "run.json", "head_branch")).To(Equal("main"))
 			Expect(field(r, "run.json", "head_sha")).To(Equal(strings.Repeat(fmt.Sprint(n+1), 40)))
-			Expect(field(r, "run.json", "head_repository")).To(HaveKeyWithValue("full_name", "rosenhouse/Lg"))
+			Expect(field(r, "run.json", "head_repository")).To(HaveKeyWithValue("full_name", "rosenhouse-bot-sandbox/lg"))
 			created := field(r, "run.json", "created_at").(string)
 			Expect(created > last).To(BeTrue(), "%s after %s", created, last)
 			last = created
@@ -95,7 +95,7 @@ var _ = Describe("Intermittent", Label("flakes"), func() {
 	It("adds a fork pull_request run on head main that fails steady, and a cancelled main run", func() {
 		Expect(field(i.Fork, "run.json", "event")).To(Equal("pull_request"))
 		Expect(field(i.Fork, "run.json", "head_branch")).To(Equal("main"))
-		Expect(field(i.Fork, "run.json", "head_repository")).NotTo(HaveKeyWithValue("full_name", "rosenhouse/Lg"))
+		Expect(field(i.Fork, "run.json", "head_repository")).NotTo(HaveKeyWithValue("full_name", "rosenhouse-bot-sandbox/lg"))
 		Expect(conclusionOf(i.Fork, "attempt-1", "steady", "")).To(Equal("F"))
 
 		Expect(field(i.Cancelled, "attempt-1/attempt.json", "conclusion")).To(Equal("cancelled"))

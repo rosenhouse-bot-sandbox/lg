@@ -131,9 +131,9 @@ var _ = Describe("lg gc --dry-run", Label("retention"), func() {
 	It("prints the paths it would remove and removes nothing", func() {
 		env := harness.New(lgPath)
 		env.WriteConfig("http://127.0.0.1:1")
-		older := handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-01/2_ci_main")
-		old := handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-02/1_ci_main")
-		handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-10-03/3_ci_main")
+		older := handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/2_ci_main")
+		old := handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-02/1_ci_main")
+		handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03/3_ci_main")
 		before := treesnap.Snapshot(env.Store())
 
 		session := gc(env, "--dry-run")
@@ -148,7 +148,7 @@ var _ = Describe("lg gc", Label("retention"), func() {
 		env := harness.New(lgPath)
 		env.WriteConfig("http://127.0.0.1:1")
 		expired := []string{
-			handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main"),
+			handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main"),
 			handMadeRun(env, "github.com/other/repo/runs/2026-06-01/2_ci_main"),
 			handMadeRun(env, "ghe.example.com/acme/widgets/runs/2026-06-01/3_ci_main"),
 		}
@@ -166,7 +166,7 @@ var _ = Describe("lg gc with a symlinked repo dir", Label("retention"), func() {
 	It("fails naming the link and removes nothing outside the store", func() {
 		env := harness.New(lgPath)
 		env.WriteConfig("http://127.0.0.1:1")
-		expired := handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main")
+		expired := handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main")
 		outside := GinkgoT().TempDir()
 		Expect(os.MkdirAll(filepath.Join(outside, "runs", "2026-01-01"), 0o755)).To(Succeed())
 		Expect(os.MkdirAll(filepath.Join(outside, "runs", "2026-01-02", "5_ci_main"), 0o755)).To(Succeed())
@@ -187,8 +187,8 @@ var _ = Describe("lg gc into a pipe whose reader has closed", Label("retention")
 	It("evicts every victim and exits 1, not by SIGPIPE", func() {
 		env := harness.New(lgPath)
 		env.WriteConfig("http://127.0.0.1:1")
-		first := handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main")
-		second := handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-02/2_ci_main")
+		first := handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main")
+		second := handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-02/2_ci_main")
 		dir := GinkgoT().TempDir()
 
 		// lg gc starts once the pipe's only reader has closed it.
@@ -258,7 +258,7 @@ var _ = Describe("lg gc while a cycle is publishing", Label("retention"), func()
 		env := harness.New(lgPath)
 		fake := fakegithub.Start(fixtureRun, "after-attempt-1")
 		env.WriteConfig(fake.URL())
-		old := handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main")
+		old := handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main")
 		release := fake.Hold("jobs/111221289888/logs")
 		sync := env.Lg("sync")
 		Eventually(fake.Requests, harness.ExitTimeout).Should(ContainElement(HaveField("Path", HaveSuffix("jobs/111221289888/logs"))))
@@ -281,7 +281,7 @@ var _ = Describe("lg gc --timeout 1s while another process holds the write lock"
 	It("exits 4 naming the holder's pid", func() {
 		env := harness.New(lgPath)
 		env.WriteConfig("http://127.0.0.1:1")
-		old := handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main")
+		old := handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main")
 		held, err := lock.Wait(filepath.Join(env.State(), "write.lock"), time.Second, clock.Real{}, func(string) {})
 		Expect(err).NotTo(HaveOccurred())
 		DeferCleanup(held.Release)
@@ -368,7 +368,7 @@ var _ = Describe("lg sync", Label("retention"), func() {
 			fake := fakegithub.New()
 			DeferCleanup(fake.Close)
 			env.WriteConfig(fake.URL())
-			old := handMadeRun(env, "github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main")
+			old := handMadeRun(env, "github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main")
 			if blocked {
 				env.GH().Fail("no oauth token found for github.com")
 			}

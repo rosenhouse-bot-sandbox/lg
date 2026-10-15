@@ -51,7 +51,7 @@ var _ = Describe("GET /commits/{sha}/pulls", Label("prs"), func() {
 	})
 
 	It("serves the union of the WithCommitPulls lists of the loaded runs with that head_sha, [] when none set one, and 422 when none has it", func() {
-		for _, repo := range []string{"/repos/rosenhouse/lg", "/api/v3/repos/rosenhouse/lg", "/repositories/" + repoID} {
+		for _, repo := range []string{"/repos/rosenhouse-bot-sandbox/lg", "/api/v3/repos/rosenhouse-bot-sandbox/lg", "/repositories/" + repoID} {
 			listed := fetch(fake.URL() + repo + "/commits/" + shared + "/pulls")
 			Expect(listed.status).To(Equal(http.StatusOK), repo)
 			var pulls []json.RawMessage
@@ -68,7 +68,7 @@ var _ = Describe("GET /commits/{sha}/pulls", Label("prs"), func() {
 
 		var pulls []json.RawMessage
 		var followed []string
-		for next := fake.URL() + "/repos/rosenhouse/lg/commits/" + shared + "/pulls?per_page=100"; next != ""; {
+		for next := fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/commits/" + shared + "/pulls?per_page=100"; next != ""; {
 			page := fetch(next)
 			Expect(page.status).To(Equal(http.StatusOK))
 			var elements []json.RawMessage

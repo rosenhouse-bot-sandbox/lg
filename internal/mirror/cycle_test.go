@@ -66,11 +66,11 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 		m = mirror.Mirror{
 			Tokens: tokens,
 			NewGitHub: func(token string, cache *github.Cache) github.Client {
-				return github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse/lg", token, m.Clock).WithCache(cache)
+				return github.NewHTTP(http.DefaultTransport, mustParse(fake.URL()), "rosenhouse-bot-sandbox/lg", token, m.Clock).WithCache(cache)
 			},
 			Store:            s,
 			Host:             "github.com",
-			Repo:             "rosenhouse/lg",
+			Repo:             "rosenhouse-bot-sandbox/lg",
 			Clock:            clock.NewFake(harness.DefaultNow()),
 			LogGrace:         time.Hour,
 			ArtifactMaxBytes: int64(config.Defaults().ArtifactMaxBytes),
@@ -157,7 +157,7 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 
 	DescribeTable("returns an error, sends no request and evicts nothing when DiskCap or Retention is not set", Label("retention"),
 		func(unset func(*mirror.Mirror), message string) {
-			old := filepath.Join(root, "data/github.com/rosenhouse/Lg/runs/2026-06-01/1_ci_main")
+			old := filepath.Join(root, "data/github.com/rosenhouse-bot-sandbox/lg/runs/2026-06-01/1_ci_main")
 			Expect(os.MkdirAll(old, 0o755)).To(Succeed())
 			unset(&m)
 
@@ -207,7 +207,7 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 			})
 
 			Expect(cycleErr(context.Background(), &m)).To(MatchError(
-				`run 37129390741 belongs to "` + fullName + `", not "rosenhouse/Lg"`))
+				`run 37129390741 belongs to "` + fullName + `", not "rosenhouse-bot-sandbox/lg"`))
 			Expect(os.ReadDir(filepath.Join(root, "data"))).To(BeEmpty())
 			Expect(filepath.Join(root, "tmp")).To(matchers.BeSwept())
 		},
@@ -230,7 +230,7 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 		Expect(fsys.Journal()).To(HaveEach(HaveField("Path", BeElementOf(listed+".tmp", filepath.Dir(listed)))))
 		Expect(fsys.Journal()).To(ContainElement(faultfs.Op{Name: "rename", Path: listed + ".tmp", To: listed}))
 		Expect(fake.Requests()[before:]).To(HaveLen(2+len(mirror.NonTerminal)), "the repo, the backfill window and one listing per non-terminal status")
-		Expect(fake.Requests()[before:]).To(HaveEach(HaveField("Path", BeElementOf("/repos/rosenhouse/lg", "/repos/rosenhouse/lg/actions/runs"))))
+		Expect(fake.Requests()[before:]).To(HaveEach(HaveField("Path", BeElementOf("/repos/rosenhouse-bot-sandbox/lg", "/repos/rosenhouse-bot-sandbox/lg/actions/runs"))))
 	})
 
 	It("removes its staged unit when a log download fails", Label("store"), func() {
@@ -246,7 +246,7 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 
 		Expect(cycleErr(context.Background(), &m)).To(Succeed())
 		var stored, served []json.RawMessage
-		raw, err := os.ReadFile(filepath.Join(root, "data/github.com/rosenhouse/Lg/runs/2026-10-03/37129390741_lg-fixture_lg-fixture/attempt-1/jobs.json"))
+		raw, err := os.ReadFile(filepath.Join(root, "data/github.com/rosenhouse-bot-sandbox/lg/runs/2026-10-03/37129390741_lg-fixture_lg-fixture/attempt-1/jobs.json"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(json.Unmarshal(raw, &stored)).To(Succeed())
 		var listing struct{ Jobs []json.RawMessage }
@@ -259,21 +259,21 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 	})
 
 	It("names the repo dir as GET /repos spells the repo's full name", Label("blocked"), func() {
-		fake.Fail("api", "/repos/rosenhouse/lg", fakegithub.Fault{Status: http.StatusOK, Body: `{"full_name":"RosenHouse/LG"}`})
+		fake.Fail("api", "/repos/rosenhouse-bot-sandbox/lg", fakegithub.Fault{Status: http.StatusOK, Body: `{"full_name":"RosenHouse-Bot-Sandbox/LG"}`})
 
 		Expect(cycleErr(context.Background(), &m)).To(Succeed())
-		Expect(os.ReadDir(filepath.Join(root, "data/github.com"))).To(ConsistOf(HaveField("Name()", "RosenHouse")))
-		Expect(os.ReadDir(filepath.Join(root, "data/github.com/RosenHouse"))).To(ConsistOf(HaveField("Name()", "LG")))
+		Expect(os.ReadDir(filepath.Join(root, "data/github.com"))).To(ConsistOf(HaveField("Name()", "RosenHouse-Bot-Sandbox")))
+		Expect(os.ReadDir(filepath.Join(root, "data/github.com/RosenHouse-Bot-Sandbox"))).To(ConsistOf(HaveField("Name()", "LG")))
 	})
 
 	DescribeTable("refuses a full name from GET /repos that is not owner/name and writes nothing", Label("blocked"),
 		func(fullName string) {
-			fake.Fail("api", "/repos/rosenhouse/lg", fakegithub.Fault{Status: http.StatusOK, Body: `{"full_name":"` + fullName + `"}`})
+			fake.Fail("api", "/repos/rosenhouse-bot-sandbox/lg", fakegithub.Fault{Status: http.StatusOK, Body: `{"full_name":"` + fullName + `"}`})
 			editJSON(filepath.Join(recording, "run.json"), func(run map[string]any) {
 				run["repository"].(map[string]any)["full_name"] = fullName
 			})
 
-			Expect(cycleErr(context.Background(), &m)).To(MatchError(MatchRegexp(`/repos/rosenhouse/lg: full_name %q is not owner/name$`, fullName)))
+			Expect(cycleErr(context.Background(), &m)).To(MatchError(MatchRegexp(`/repos/rosenhouse-bot-sandbox/lg: full_name %q is not owner/name$`, fullName)))
 			Expect(os.ReadDir(filepath.Join(root, "data"))).To(BeEmpty())
 		},
 		Entry("a path out of the store", "../../escaped"),
@@ -282,11 +282,11 @@ var _ = Describe("mirror.Cycle", Label("sync"), func() {
 	)
 
 	It("blocks as auth when GET /repos returns 404, naming the host and repo", Label("blocked"), func() {
-		fake.Fail("api", "/repos/rosenhouse/lg", fakegithub.Fault{Status: http.StatusNotFound})
+		fake.Fail("api", "/repos/rosenhouse-bot-sandbox/lg", fakegithub.Fault{Status: http.StatusNotFound})
 
 		Expect(cycleErr(context.Background(), &m)).To(Equal(failure.Blocked{
 			Kind:   failure.Auth,
-			Detail: "github.com/rosenhouse/lg was not found, or the token lacks access to it",
+			Detail: "github.com/rosenhouse-bot-sandbox/lg was not found, or the token lacks access to it",
 		}))
 		Expect(fake.Requests()).To(HaveLen(1))
 	})

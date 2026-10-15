@@ -350,13 +350,13 @@ var _ = Describe("Loop", Label("daemon"), func() {
 
 	It("logs one line per cycle with its start, its error and when the next is due", func() {
 		failed := outcomeAt(t0)
-		failed.Err = errors.New("GET /repos/rosenhouse/lg:\n502 Bad Gateway")
+		failed.Err = errors.New("GET /repos/rosenhouse-bot-sandbox/lg:\n502 Bad Gateway")
 		e := newLoopEnv(failed)
 		e.run()
 		e.expectCycle(t0, 0)
 
 		Eventually(e.log.String, time.Second).Should(Equal(
-			"lg: sync at 2026-10-03T18:00:00Z: GET /repos/rosenhouse/lg: 502 Bad Gateway; next sync at 2026-10-03T18:10:00Z\n"))
+			"lg: sync at 2026-10-03T18:00:00Z: GET /repos/rosenhouse-bot-sandbox/lg: 502 Bad Gateway; next sync at 2026-10-03T18:10:00Z\n"))
 	})
 
 	It("logs an error without terminal controls", func() {
