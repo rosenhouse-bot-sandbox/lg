@@ -27,7 +27,16 @@ jobs:
         env:
           GOOS: ${{ matrix.goos }}
         with:
-          version: v2.5.0
+          version: v2.15.0
+
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+      - run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
   test:
     strategy:
