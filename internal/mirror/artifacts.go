@@ -38,14 +38,15 @@ type candidate struct {
 	Origin   origin          `json:"origin"`
 }
 
-// needsListing sets the run's planned attempts, and reports whether its
-// artifacts need listing. A run complete on disk with nothing to retry needs none.
+// needsListing sets the run's attempts on disk and planned, and reports
+// whether its artifacts need listing. A run complete on disk with nothing to
+// retry needs none.
 func (m *Mirror) needsListing(run *listedRun, p *pending) (bool, error) {
 	onDisk, err := m.attemptsOnDisk(run.dir)
 	if err != nil {
 		return false, err
 	}
-	run.planned = Plan(run.Run, onDisk)
+	run.onDisk, run.planned = onDisk, Plan(run.Run, onDisk)
 	if run.Status != "completed" || len(run.planned) > 0 {
 		return true, nil
 	}
@@ -57,7 +58,7 @@ func (m *Mirror) needsListing(run *listedRun, p *pending) (bool, error) {
 // before a cycle tries the repo's listing in place of theirs.
 const catchUpRuns = 100
 
-var catchUpRunsNow = catchUpRuns
+var catchUpThreshold = catchUpRuns
 
 // repoArtifacts is the repo's artifacts by run, as one listing gave them.
 type repoArtifacts struct {
@@ -67,10 +68,10 @@ type repoArtifacts struct {
 
 // listRepoArtifacts lists the repo's artifacts when at least catchUpRuns
 // completed runs need a listing, and the repo's takes fewer requests than
-// theirs. It gives nil when the runs are to list their own, also when the
-// repo's listing fails with an error that runScoped accepts.
+// theirs. It returns nil when each run should list its own, including after
+// an error that runScoped accepts.
 func (m *Mirror) listRepoArtifacts(ctx context.Context, gh github.Client, completed int) (*repoArtifacts, error) {
-	if completed < catchUpRunsNow {
+	if completed < catchUpThreshold {
 		return nil, nil
 	}
 	m.say("listing the repo's artifacts for %d runs", completed)
@@ -93,13 +94,10 @@ func (m *Mirror) listRepoArtifacts(ctx context.Context, gh github.Client, comple
 // run's listing from repo when that is set, since its artifacts no longer
 // change. It returns the errors that runScoped accepts, and stops at any other.
 func (m *Mirror) syncArtifacts(ctx context.Context, gh github.Client, run *listedRun, p *pending, repo *repoArtifacts) ([]UnitError, error) {
-	if !run.unlisted {
+	if !run.listingDue {
 		return nil, nil
 	}
-	onDisk, err := m.attemptsOnDisk(run.dir)
-	if err != nil {
-		return nil, err
-	}
+	onDisk := run.onDisk
 	if run.Status != "completed" {
 		repo = nil
 	}
@@ -140,7 +138,8 @@ func (m *Mirror) syncArtifacts(ctx context.Context, gh github.Client, run *liste
 	return failed, p.set(run.Run, unpublished)
 }
 
-// listArtifacts lists the run's artifacts, or takes them from repo when set, then gets the run when needsRun,
+// listArtifacts lists the run's artifacts, or takes them from repo when
+// set, then gets the run when needsRun,
 // since a re-run may have started after ListRuns. When GetRun fails, it
 // returns the listing with the error.
 func (m *Mirror) listArtifacts(ctx context.Context, gh github.Client, run *listedRun, repo *repoArtifacts) (*artifactListing, error) {

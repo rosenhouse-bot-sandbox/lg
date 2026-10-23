@@ -201,17 +201,18 @@ func (m *Mirror) saveWatch(w *watch, runs []listedRun) error {
 	return w.save()
 }
 
-// listedRun is a listed run with its dir, the attempts that Plan gives for
-// it, whether its artifacts need listing, this cycle's listing of them, which
+// listedRun is a listed run with its dir, its attempts on disk, the
+// attempts that Plan gives for it, whether its artifacts need listing, this cycle's listing of them, which
 // is nil when ListArtifacts failed, and whether an attempt or its jobs
 // answered 404.
 type listedRun struct {
 	github.Run
-	dir       string
-	planned   []int
-	unlisted  bool
-	artifacts *artifactListing
-	gone      bool
+	dir        string
+	onDisk     []int
+	planned    []int
+	listingDue bool
+	artifacts  *artifactListing
+	gone       bool
 }
 
 // artifactListing is a run's artifacts as one listing gave them. Its
@@ -240,7 +241,7 @@ func (m *Mirror) artifactPhase(ctx context.Context, gh github.Client, runs []lis
 		if err != nil {
 			return nil, err
 		}
-		run.unlisted = needed
+		run.listingDue = needed
 		if needed && run.Status == "completed" {
 			completed++
 		}

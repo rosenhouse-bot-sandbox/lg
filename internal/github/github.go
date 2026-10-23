@@ -424,9 +424,10 @@ var ErrTooManyPages = errors.New("the repo's artifact listing needs too many pag
 // ListRepoArtifacts lists the repo's artifacts in at most maxPages pages.
 // GitHub lists them by id, highest first, and pages them by offset, so a
 // deletion between pages shifts unread artifacts onto pages already read.
-// Each page after the first therefore starts a few artifacts before the last
-// one read, and a page that starts after it fails the listing as Transient.
-// An artifact added during the listing may be missing from it.
+// Each page after the first therefore repeats the last max(2, size/10)
+// artifacts read, and fails the listing as Transient when it starts after
+// the last one, which takes as many deletions as it repeats. An artifact
+// added during the listing may be missing from it.
 func (h *HTTP) ListRepoArtifacts(ctx context.Context, maxPages int) ([]Artifact, Source, error) {
 	firstURL := h.repoURL + "/actions/artifacts?per_page=100"
 	all, total, err := h.artifactPage(ctx, firstURL)
@@ -437,12 +438,19 @@ func (h *HTTP) ListRepoArtifacts(ctx context.Context, maxPages int) ([]Artifact,
 	if len(all) >= total {
 		return all, source, nil
 	}
+	if len(all) == 0 {
+		return nil, Source{}, failure.Transient{Err: fmt.Errorf("%s: listed no artifacts of %d", firstURL, total)}
+	}
 	// GitHub's pages hold 100, and a fake's may hold fewer.
 	size := len(all)
-	if (total+size-1)/size > maxPages {
+	overlap := max(2, size/10)
+	pages, ok := pagesToList(total, size, overlap)
+	if !ok {
+		return nil, Source{}, failure.Transient{Err: fmt.Errorf("pages of %d artifacts are too small to overlap by %d", size, overlap)}
+	}
+	if pages > maxPages {
 		return nil, Source{}, ErrTooManyPages
 	}
-	overlap := max(2, size/10)
 	last := len(all) - 1
 	for {
 		perPage, page := overlappingPage(last+1-overlap, last, size)
@@ -462,8 +470,7 @@ func (h *HTTP) ListRepoArtifacts(ctx context.Context, maxPages int) ([]Artifact,
 		if len(artifacts) == 0 || artifacts[0].ID < lastID {
 			return nil, Source{}, failure.Transient{Err: fmt.Errorf("%s: the listing shifted past artifact %d, so artifacts were deleted during it", pageURL, lastID)}
 		}
-		unread := slices.IndexFunc(artifacts, func(a Artifact) bool { return a.ID < lastID })
-		if unread >= 0 {
+		if unread := slices.IndexFunc(artifacts, func(a Artifact) bool { return a.ID < lastID }); unread >= 0 {
 			all = append(all, artifacts[unread:]...)
 		}
 		start := (page - 1) * perPage
@@ -472,6 +479,20 @@ func (h *HTTP) ListRepoArtifacts(ctx context.Context, maxPages int) ([]Artifact,
 		}
 		last = start + len(artifacts) - 1
 	}
+}
+
+// pagesToList is how many pages list total artifacts that do not change,
+// or false if overlappingPage finds no page for some offset.
+func pagesToList(total, size, overlap int) (int, bool) {
+	pages := 1
+	for last := size - 1; last+1 < total; pages++ {
+		perPage, page := overlappingPage(last+1-overlap, last, size)
+		if perPage == 0 {
+			return 0, false
+		}
+		last = page*perPage - 1
+	}
+	return pages, true
 }
 
 // overlappingPage is the page of perPage at most size that starts at or

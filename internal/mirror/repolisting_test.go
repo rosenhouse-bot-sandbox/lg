@@ -97,7 +97,7 @@ var _ = Describe("mirror.Cycle catching up on many completed runs", Label("artif
 	})
 
 	It("lists each run's artifacts when the repo's listing needs as many pages as there are runs", func(ctx SpecContext) {
-		env.Fake.SetPageCap(5)
+		env.Fake.SetPageCap(7)
 
 		Expect(env.Sync(ctx)).To(Succeed())
 		Expect(listingsOf("/actions/artifacts")).To(Equal(1))
