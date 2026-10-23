@@ -67,6 +67,7 @@ type Client interface {
 	DownloadJobLog(ctx context.Context, jobID int64, w io.Writer) error
 	JobLogURL(jobID int64) string
 	ListArtifacts(ctx context.Context, runID int64) ([]Artifact, Source, error)
+	ListRepoArtifacts(ctx context.Context, maxPages int) ([]Artifact, Source, error)
 	DownloadArtifact(ctx context.Context, artifactID int64, w io.Writer) error
 	ArtifactZipURL(artifactID int64) string
 	CommitPulls(ctx context.Context, sha string) ([]CommitPull, Source, error)
@@ -415,6 +416,102 @@ func (h *HTTP) ListArtifacts(ctx context.Context, runID int64) ([]Artifact, Sour
 		}
 	}
 	return artifacts, source, nil
+}
+
+// ErrTooManyPages is ListRepoArtifacts declining a listing longer than maxPages.
+var ErrTooManyPages = errors.New("the repo's artifact listing needs too many pages")
+
+// ListRepoArtifacts lists the repo's artifacts in at most maxPages pages.
+// GitHub lists them by id, highest first, and pages them by offset, so a
+// deletion between pages shifts unread artifacts onto pages already read.
+// Each page after the first therefore starts a few artifacts before the last
+// one read, and a page that starts after it fails the listing as Transient.
+// An artifact added during the listing may be missing from it.
+func (h *HTTP) ListRepoArtifacts(ctx context.Context, maxPages int) ([]Artifact, Source, error) {
+	firstURL := h.repoURL + "/actions/artifacts?per_page=100"
+	all, total, err := h.artifactPage(ctx, firstURL)
+	if err != nil {
+		return nil, Source{}, err
+	}
+	source := Source{URL: firstURL, Pages: 1}
+	if len(all) >= total {
+		return all, source, nil
+	}
+	// GitHub's pages hold 100, and a fake's may hold fewer.
+	size := len(all)
+	if (total+size-1)/size > maxPages {
+		return nil, Source{}, ErrTooManyPages
+	}
+	overlap := max(2, size/10)
+	last := len(all) - 1
+	for {
+		perPage, page := overlappingPage(last+1-overlap, last, size)
+		if perPage == 0 {
+			return nil, Source{}, failure.Transient{Err: fmt.Errorf("pages of %d artifacts are too small to overlap by %d", size, overlap)}
+		}
+		if source.Pages == maxPages {
+			return nil, Source{}, ErrTooManyPages
+		}
+		pageURL := h.repoURL + fmt.Sprintf("/actions/artifacts?page=%d&per_page=%d", page, perPage)
+		artifacts, total, err := h.artifactPage(ctx, pageURL)
+		if err != nil {
+			return nil, Source{}, err
+		}
+		source.Pages++
+		lastID := all[len(all)-1].ID
+		if len(artifacts) == 0 || artifacts[0].ID < lastID {
+			return nil, Source{}, failure.Transient{Err: fmt.Errorf("%s: the listing shifted past artifact %d, so artifacts were deleted during it", pageURL, lastID)}
+		}
+		unread := slices.IndexFunc(artifacts, func(a Artifact) bool { return a.ID < lastID })
+		if unread >= 0 {
+			all = append(all, artifacts[unread:]...)
+		}
+		start := (page - 1) * perPage
+		if start+len(artifacts) >= total {
+			return all, source, nil
+		}
+		last = start + len(artifacts) - 1
+	}
+}
+
+// overlappingPage is the page of perPage at most size that starts at or
+// before offset from and ends furthest past offset last, if any does.
+func overlappingPage(from, last, size int) (perPage, page int) {
+	end := last + 1
+	for p := size; p > 0; p-- {
+		n := max(0, from)/p + 1
+		if n*p > end {
+			perPage, page, end = p, n, n*p
+		}
+	}
+	return perPage, page
+}
+
+// artifactPage GETs a page of the repo's artifact listing, which must list
+// each artifact with its run, highest id first.
+func (h *HTTP) artifactPage(ctx context.Context, pageURL string) ([]Artifact, int, error) {
+	var page map[string]json.RawMessage
+	if err := getJSON(ctx, h.get, pageURL, &page); err != nil {
+		return nil, 0, err
+	}
+	var total int
+	var artifacts []Artifact
+	if err := errors.Join(unmarshalField(page, "total_count", &total), unmarshalField(page, "artifacts", &artifacts)); err != nil {
+		return nil, 0, malformed(pageURL, "%w", err)
+	}
+	for i, a := range artifacts {
+		switch {
+		case a.ID <= 0:
+			return nil, 0, malformed(pageURL, "artifact #%d has no id", i)
+		case i > 0 && a.ID >= artifacts[i-1].ID:
+			return nil, 0, malformed(pageURL, "artifact %d follows artifact %d", a.ID, artifacts[i-1].ID)
+		case a.WorkflowRun.ID <= 0:
+			return nil, 0, malformed(pageURL, "artifact %d has no workflow_run id", a.ID)
+		case a.CreatedAt.IsZero():
+			return nil, 0, malformed(pageURL, "artifact %d has no created_at", a.ID)
+		}
+	}
+	return artifacts, total, nil
 }
 
 // listByID lists the elements of field, which decode reads with their ids.

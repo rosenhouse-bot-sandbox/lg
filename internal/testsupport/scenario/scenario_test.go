@@ -351,6 +351,18 @@ var _ = Describe("mutations", Label("attempts"), func() {
 		})
 	})
 
+	Describe("WithoutArtifact", Label("artifacts"), func() {
+		It("drops the artifact from the listing and its total_count, leaving the original run unchanged", func() {
+			listed := len(field(run, "artifacts.json", "artifacts").([]any))
+			without := scenario.WithoutArtifact(run, 7_011275917910)
+
+			Expect(without.ListsArtifact(7_011275917910)).To(BeFalse())
+			Expect(field(without, "artifacts.json", "artifacts")).To(HaveLen(listed - 1))
+			Expect(field(without, "artifacts.json", "total_count")).To(BeEquivalentTo(listed - 1))
+			Expect(run.ListsArtifact(7_011275917910)).To(BeTrue())
+		})
+	})
+
 	Describe("WithoutArtifacts", Label("prs"), func() {
 		It("lists no artifacts", func() {
 			Expect(field(scenario.WithoutArtifacts(run), "artifacts.json", "artifacts")).To(BeEmpty())

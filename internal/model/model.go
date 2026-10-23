@@ -106,6 +106,7 @@ type Artifact struct {
 
 // ArtifactRun is the run an artifact lists itself under.
 type ArtifactRun struct {
+	ID               int64  `json:"id"`
 	RepositoryID     int64  `json:"repository_id"`
 	HeadRepositoryID int64  `json:"head_repository_id"`
 	HeadBranch       string `json:"head_branch"`
