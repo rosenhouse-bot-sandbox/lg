@@ -165,7 +165,8 @@ var _ = Describe("lg status", Label("status"), func() {
 		DeferCleanup(held.Release)
 		session := env.Lg("status")
 		Eventually(session, harness.ExitTimeout).Should(gexec.Exit(0))
-		Expect(string(session.Out.Contents())).To(Equal(`last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 7)
+		Expect(string(session.Out.Contents())).To(Equal("data dir: " + env.Data() + `
+last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 7)
 last ok sync: 2026-10-03T17:50:00Z
 next sync: 2026-10-03T18:01:00Z
 blocked: rate_limit since 2026-10-03T17:55:00Z, retry_at 2026-10-03T18:01:00Z: 429 Too Many [1mRequests

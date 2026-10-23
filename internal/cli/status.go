@@ -55,7 +55,8 @@ func (c statusCmd) Run(deps *Deps) error {
 	if err != nil {
 		return err
 	}
-	_, err = io.WriteString(deps.Stdout, strings.Join(statusLines(st, running), "\n")+"\n")
+	lines := append([]string{"data dir: " + roots.Data}, statusLines(st, running)...)
+	_, err = io.WriteString(deps.Stdout, strings.Join(lines, "\n")+"\n")
 	return err
 }
 
