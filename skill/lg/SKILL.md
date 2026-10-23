@@ -12,7 +12,7 @@ Do not call the GitHub API for data that lg mirrors.
 ## Check freshness first
 
 Always run `lg status` first.
-It shows the last sync, the lag, pending units, and why a sync is blocked.
+It shows the data dir, the last sync, the lag, pending units, and why a sync is blocked.
 The lag is the time from the newest completed run's creation to the last sync's finish, so it grows with each sync that finds no newer run.
 Every lg command also prints `lg: warning: ...` to stderr while the mirror is stale or blocked, or while units stay pending.
 Stale means the last successful sync is older than twice the sync_interval that the last sync used, not the one config.yaml now sets.

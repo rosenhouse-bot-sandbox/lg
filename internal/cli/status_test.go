@@ -119,7 +119,7 @@ var _ = Describe("lg status before any sync", Label("status"), func() {
 		s := harness.NewCLI()
 
 		Expect(s.Main("status")).To(Equal(0))
-		Expect(s.Stdout.String()).To(Equal("last sync: never\ndaemon: not running\n"))
+		Expect(s.Stdout.String()).To(Equal("data: " + filepath.Join(s.Home, "data") + "\nlast sync: never\ndaemon: not running\n"))
 
 		Expect(s.Main("status", "--json")).To(Equal(1))
 		Expect(s.Stdout.String()).To(BeEmpty())
@@ -133,7 +133,8 @@ var _ = Describe("lg status after a good sync", Label("status"), func() {
 		s.WriteStatus(goodStatus)
 
 		Expect(s.Main("status")).To(Equal(0))
-		Expect(s.Stdout.String()).To(Equal(`last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 2)
+		Expect(s.Stdout.String()).To(Equal("data: " + filepath.Join(s.Home, "data") + `
+last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 2)
 last ok sync: 2026-10-03T17:59:30Z
 next sync: none (daemon not running)
 blocked: no
