@@ -9,7 +9,7 @@ GitHub Enterprise Server is tested only against a fake ([#3 §13](https://github
 ## Install
 
 lg needs Go 1.21 or later and [gh](https://cli.github.com). The examples below use [rg](https://github.com/BurntSushi/ripgrep) and [jq](https://jqlang.org).
-Go 1.21 to 1.24 first download Go 1.25.0, which needs network access; `GOTOOLCHAIN` controls this.
+Go 1.21 to 1.26 first download Go 1.27.3, which needs network access; `GOTOOLCHAIN` controls this.
 
 ```sh
 go install github.com/rosenhouse-bot-sandbox/lg/cmd/lg@latest
@@ -129,6 +129,5 @@ The design decisions are in GitHub issues:
 
 ## Develop
 
-`make lint test build` needs [golangci-lint](https://golangci-lint.run) v2.5.0.
+`make lint test build` needs [golangci-lint](https://golangci-lint.run) v2.15.0.
 `go tool ginkgo -r --label-filter=<feature>` runs the specs of one feature, such as `extract`.
-Never run `go get -u`, because newer dependencies need a Go that golangci-lint v2.5.0 refuses.

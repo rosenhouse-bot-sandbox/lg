@@ -109,7 +109,7 @@ var _ = Describe("lg daemon run", Label("daemon"), func() {
 		Consistently(dead, 2*time.Second).WithContext(ctx).Should(BeADirectory())
 
 		Expect(writer.Release()).To(Succeed())
-		Eventually(env.Tmp(), cycleWait).WithContext(ctx).Should(matchers.BeSwept())
+		Eventually(env.Tmp, cycleWait).WithContext(ctx).Should(matchers.BeSwept())
 	}, daemonTimeout)
 
 	It("exits 0 on SIGTERM mid-cycle, releases its locks and leaves no partial unit", func(ctx SpecContext) {
@@ -337,7 +337,7 @@ var _ = Describe("lg daemon run restarted while rate limited", Label("daemon"), 
 
 		env.Start("daemon", "run")
 
-		Eventually(env.Tmp(), cycleWait).WithContext(ctx).Should(matchers.BeSwept())
+		Eventually(env.Tmp, cycleWait).WithContext(ctx).Should(matchers.BeSwept())
 		Consistently(cycle(env), 3*time.Second).WithContext(ctx).Should(Equal(1.0))
 	}, daemonTimeout)
 })
