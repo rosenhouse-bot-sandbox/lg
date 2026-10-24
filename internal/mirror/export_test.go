@@ -14,6 +14,10 @@ var (
 	MatchingPRs  = matchingPRs
 )
 
+const DefaultCatchUpRuns = catchUpRuns
+
+func SetCatchUpRuns(n int) { catchUpThreshold = n }
+
 // Retry is an artifact of a retry set, with the run_attempt of its origin.
 type Retry struct {
 	github.Artifact

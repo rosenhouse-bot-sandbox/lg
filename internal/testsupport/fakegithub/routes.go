@@ -2,6 +2,7 @@ package fakegithub
 
 import (
 	"bytes"
+	"cmp"
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
@@ -53,6 +54,7 @@ func (s *Server) routes() http.Handler {
 	handle("/actions/runs/{id}/attempts/{n}/jobs", s.ofRun(func(w http.ResponseWriter, r *http.Request, run *run) {
 		s.serveListing(w, r, run, path.Join("attempt-"+r.PathValue("n"), "jobs.json"), "jobs")
 	}))
+	handle("/actions/artifacts", s.serveRepoArtifacts)
 	handle("/actions/artifacts/{id}", s.serveArtifact)
 	handle("/commits/{sha}/pulls", s.serveCommitPulls)
 	handle("/actions/runs/{id}/attempts/{n}/logs", s.serveDownload)
@@ -114,6 +116,45 @@ func (s *Server) serveListing(w http.ResponseWriter, r *http.Request, run *run, 
 		return
 	}
 	s.servePage(w, r, field, total, elements)
+}
+
+// serveRepoArtifacts lists the artifacts of every loaded run, highest id
+// first as GitHub orders them, filtered by name.
+func (s *Server) serveRepoArtifacts(w http.ResponseWriter, r *http.Request) {
+	type listed struct {
+		ID   int64
+		Name string
+		raw  json.RawMessage
+	}
+	var all []listed
+	for _, run := range s.loaded() {
+		body, err := served(run.files, "artifacts.json")
+		if errors.Is(err, fs.ErrNotExist) {
+			continue
+		}
+		var listing struct{ Artifacts []json.RawMessage }
+		if err == nil {
+			err = json.Unmarshal(body, &listing)
+		}
+		for _, raw := range listing.Artifacts {
+			a := listed{raw: raw}
+			err = errors.Join(err, json.Unmarshal(raw, &a))
+			all = append(all, a)
+		}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+	slices.SortFunc(all, func(a, b listed) int { return cmp.Compare(b.ID, a.ID) })
+	name := r.URL.Query().Get("name")
+	var elements []json.RawMessage
+	for _, a := range all {
+		if name == "" || a.Name == name {
+			elements = append(elements, a.raw)
+		}
+	}
+	s.servePage(w, r, "artifacts", len(elements), elements)
 }
 
 // serveArtifact serves an artifact's element of its run's current listing.

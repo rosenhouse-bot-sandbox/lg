@@ -201,7 +201,7 @@ var _ = Describe("HTTP client", Label("sync"), func() {
 			ExpiresAt:   time.Date(2027, 1, 1, 14, 22, 54, 0, time.UTC),
 			Digest:      "sha256:9b47ee49e71ab033f37453c4d1ffb4cb5c1608046721a8bcb15f5d1d70508a61",
 			WorkflowRun: model.ArtifactRun{
-				RepositoryID: 1402714635, HeadRepositoryID: 1402714635, HeadBranch: "lg-fixture", HeadSHA: "1a51097dadb5b55978ac401b93f1ca9d8d317b02",
+				ID: 37129390741, RepositoryID: 1402714635, HeadRepositoryID: 1402714635, HeadBranch: "lg-fixture", HeadSHA: "1a51097dadb5b55978ac401b93f1ca9d8d317b02",
 			},
 		}))
 		Expect(source).To(Equal(github.Source{URL: fake.URL() + "/repos/rosenhouse-bot-sandbox/lg/actions/runs/37129390741/artifacts?per_page=100", Pages: 2}))

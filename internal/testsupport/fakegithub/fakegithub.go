@@ -97,6 +97,7 @@ type fault struct {
 
 type hold struct {
 	match    string
+	skip     int
 	released chan struct{}
 	once     sync.Once
 }
@@ -306,8 +307,11 @@ func (s *Server) Fail(host, match string, f Fault) {
 }
 
 // Hold delays requests whose path ends in match until release is called.
-func (s *Server) Hold(match string) (release func()) {
-	h := &hold{match: match, released: make(chan struct{})}
+func (s *Server) Hold(match string) (release func()) { return s.HoldAfter(match, 0) }
+
+// HoldAfter is Hold, except that it lets the first n matching requests through.
+func (s *Server) HoldAfter(match string, n int) (release func()) {
+	h := &hold{match: match, skip: n, released: make(chan struct{})}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.holds = append(s.holds, h)
@@ -483,7 +487,11 @@ func writeError(w http.ResponseWriter, status int) {
 func (s *Server) holdsOf(path string) []*hold {
 	var holds []*hold
 	for _, h := range s.holds {
-		if strings.HasSuffix(path, h.match) {
+		switch {
+		case !strings.HasSuffix(path, h.match):
+		case h.skip > 0:
+			h.skip--
+		default:
 			holds = append(holds, h)
 		}
 	}

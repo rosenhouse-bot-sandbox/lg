@@ -712,6 +712,27 @@ func WithCommitPulls(r Run, prs ...CommitPull) Run {
 	return out
 }
 
+// WithoutArtifact lists the run's artifacts without the artifact, and drops its zip, as if it were deleted.
+func WithoutArtifact(r Run, artifactID int64) Run {
+	out := r.copy()
+	id := strconv.FormatInt(artifactID, 10)
+	delete(out.Files, "artifacts/"+id+".zip")
+	var status []string
+	for _, line := range strings.SplitAfter(string(out.Files["status.txt"].Data), "\n") {
+		if !strings.HasSuffix(strings.TrimSuffix(line, "\n"), " artifacts/"+id+"/zip") {
+			status = append(status, line)
+		}
+	}
+	out.Files["status.txt"].Data = []byte(strings.Join(status, ""))
+	out.edit("artifacts.json", func(listing map[string]any) {
+		kept := slices.DeleteFunc(listing["artifacts"].([]any), func(a any) bool {
+			return a.(map[string]any)["id"].(json.Number).String() == strconv.FormatInt(artifactID, 10)
+		})
+		listing["artifacts"], listing["total_count"] = kept, len(kept)
+	})
+	return out
+}
+
 // WithoutArtifacts lists no artifacts for the run.
 func WithoutArtifacts(r Run) Run {
 	out := r.copy()

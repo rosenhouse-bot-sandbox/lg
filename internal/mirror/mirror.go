@@ -201,15 +201,18 @@ func (m *Mirror) saveWatch(w *watch, runs []listedRun) error {
 	return w.save()
 }
 
-// listedRun is a listed run with its dir, the attempts that Plan gives for
-// it, this cycle's listing of its artifacts, which is nil when
-// ListArtifacts failed, and whether an attempt or its jobs answered 404.
+// listedRun is a listed run with its dir, its attempts on disk, the
+// attempts that Plan gives for it, whether its artifacts need listing, this cycle's listing of them, which
+// is nil when ListArtifacts failed, and whether an attempt or its jobs
+// answered 404.
 type listedRun struct {
 	github.Run
-	dir       string
-	planned   []int
-	artifacts *artifactListing
-	gone      bool
+	dir        string
+	onDisk     []int
+	planned    []int
+	listingDue bool
+	artifacts  *artifactListing
+	gone       bool
 }
 
 // artifactListing is a run's artifacts as one listing gave them. Its
@@ -231,10 +234,26 @@ func (l *artifactListing) candidates() []candidate {
 // artifactPhase publishes every run's artifacts, newest run first. It
 // returns the errors that runScoped accepts, and stops at any other.
 func (m *Mirror) artifactPhase(ctx context.Context, gh github.Client, runs []listedRun, p *pending) ([]UnitError, error) {
+	completed := 0
+	for i := range runs {
+		run := &runs[i]
+		needed, err := m.needsListing(run, p)
+		if err != nil {
+			return nil, err
+		}
+		run.listingDue = needed
+		if needed && run.Status == "completed" {
+			completed++
+		}
+	}
+	byRun, err := m.listRepoArtifacts(ctx, gh, completed)
+	if err != nil {
+		return nil, err
+	}
 	var failed []UnitError
 	for i := len(runs) - 1; i >= 0; i-- {
 		m.say("fetching artifacts, %d of %d runs done", len(runs)-1-i, len(runs))
-		runFailed, err := m.syncArtifacts(ctx, gh, &runs[i], p)
+		runFailed, err := m.syncArtifacts(ctx, gh, &runs[i], p, byRun)
 		failed = append(failed, runFailed...)
 		if err != nil {
 			return failed, err

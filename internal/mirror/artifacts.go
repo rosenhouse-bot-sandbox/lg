@@ -38,26 +38,70 @@ type candidate struct {
 	Origin   origin          `json:"origin"`
 }
 
-// syncArtifacts lists the run's artifacts into run.artifacts, which stays nil
-// when ListArtifacts fails, and publishes its retry set. A run complete on
-// disk with nothing to retry needs no listing. It returns the errors that
-// runScoped accepts, and stops at any other.
-func (m *Mirror) syncArtifacts(ctx context.Context, gh github.Client, run *listedRun, p *pending) ([]UnitError, error) {
+// needsListing sets the run's attempts on disk and planned, and reports
+// whether its artifacts need listing. A run complete on disk with nothing to
+// retry needs none.
+func (m *Mirror) needsListing(run *listedRun, p *pending) (bool, error) {
 	onDisk, err := m.attemptsOnDisk(run.dir)
 	if err != nil {
+		return false, err
+	}
+	run.onDisk, run.planned = onDisk, Plan(run.Run, onDisk)
+	if run.Status != "completed" || len(run.planned) > 0 {
+		return true, nil
+	}
+	retry, unreadable, err := m.retrySet(run.dir, onDisk, nil, p.runs[run.ID].Artifacts)
+	return len(retry) > 0 || unreadable != nil, err
+}
+
+// catchUpRuns is how many completed runs must need an artifact listing
+// before a cycle tries the repo's listing in place of theirs.
+const catchUpRuns = 100
+
+var catchUpThreshold = catchUpRuns
+
+// repoArtifacts is the repo's artifacts by run, as one listing gave them.
+type repoArtifacts struct {
+	byRun  map[int64][]github.Artifact
+	source github.Source
+}
+
+// listRepoArtifacts lists the repo's artifacts when at least catchUpRuns
+// completed runs need a listing, and the repo's takes fewer requests than
+// theirs. It returns nil when each run should list its own, including after
+// an error that runScoped accepts.
+func (m *Mirror) listRepoArtifacts(ctx context.Context, gh github.Client, completed int) (*repoArtifacts, error) {
+	if completed < catchUpThreshold {
+		return nil, nil
+	}
+	m.say("listing the repo's artifacts for %d runs", completed)
+	artifacts, source, err := gh.ListRepoArtifacts(ctx, completed-1)
+	switch {
+	case errors.Is(err, github.ErrTooManyPages) || runScoped(err):
+		return nil, nil
+	case err != nil:
 		return nil, err
 	}
-	run.planned = Plan(run.Run, onDisk)
-	if run.Status == "completed" && len(run.planned) == 0 {
-		retry, unreadable, err := m.retrySet(run.dir, onDisk, nil, p.runs[run.ID].Artifacts)
-		if err != nil {
-			return nil, err
-		}
-		if len(retry) == 0 && unreadable == nil {
-			return nil, nil
-		}
+	byRun := map[int64][]github.Artifact{}
+	for _, a := range artifacts {
+		byRun[a.WorkflowRun.ID] = append(byRun[a.WorkflowRun.ID], a)
 	}
-	listing, err := m.listArtifacts(ctx, gh, run)
+	return &repoArtifacts{byRun: byRun, source: source}, nil
+}
+
+// syncArtifacts lists the run's artifacts into run.artifacts, which stays nil
+// when ListArtifacts fails, and publishes its retry set. It takes a completed
+// run's listing from repo when that is set, since its artifacts no longer
+// change. It returns the errors that runScoped accepts, and stops at any other.
+func (m *Mirror) syncArtifacts(ctx context.Context, gh github.Client, run *listedRun, p *pending, repo *repoArtifacts) ([]UnitError, error) {
+	if !run.listingDue {
+		return nil, nil
+	}
+	onDisk := run.onDisk
+	if run.Status != "completed" {
+		repo = nil
+	}
+	listing, err := m.listArtifacts(ctx, gh, run, repo)
 	var failed []UnitError
 	switch {
 	case errors.Is(err, github.ErrNotFound):
@@ -94,13 +138,20 @@ func (m *Mirror) syncArtifacts(ctx context.Context, gh github.Client, run *liste
 	return failed, p.set(run.Run, unpublished)
 }
 
-// listArtifacts lists the run's artifacts, then gets the run when needsRun,
+// listArtifacts lists the run's artifacts, or takes them from repo when
+// set, then gets the run when needsRun,
 // since a re-run may have started after ListRuns. When GetRun fails, it
 // returns the listing with the error.
-func (m *Mirror) listArtifacts(ctx context.Context, gh github.Client, run *listedRun) (*artifactListing, error) {
-	artifacts, source, err := gh.ListArtifacts(ctx, run.ID)
-	if err != nil {
-		return nil, err
+func (m *Mirror) listArtifacts(ctx context.Context, gh github.Client, run *listedRun, repo *repoArtifacts) (*artifactListing, error) {
+	var artifacts []github.Artifact
+	var source github.Source
+	if repo != nil {
+		artifacts, source = repo.byRun[run.ID], repo.source
+	} else {
+		var err error
+		if artifacts, source, err = gh.ListArtifacts(ctx, run.ID); err != nil {
+			return nil, err
+		}
 	}
 	listing := &artifactListing{artifacts: artifacts, origin: origin{URL: source.URL, Pages: source.Pages}}
 	needed, err := m.needsRun(run, artifacts)
