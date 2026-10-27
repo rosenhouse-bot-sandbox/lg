@@ -12,6 +12,7 @@ import (
 	"github.com/onsi/gomega/gexec"
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/lock"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
@@ -163,9 +164,11 @@ var _ = Describe("lg status", Label("status"), func() {
 		held, err := lock.Wait(filepath.Join(env.State(), "daemon.lock"), time.Second, clock.Real{}, func(string) {})
 		Expect(err).NotTo(HaveOccurred())
 		DeferCleanup(held.Release)
+		usage, err := du.Bytes(env.Data())
+		Expect(err).NotTo(HaveOccurred())
 		session := env.Lg("status")
 		Eventually(session, harness.ExitTimeout).Should(gexec.Exit(0))
-		Expect(string(session.Out.Contents())).To(Equal("data dir: " + env.Data() + `
+		Expect(string(session.Out.Contents())).To(Equal("config file: " + env.ConfigFile() + "\ndata dir: " + env.Data() + "\ndisk usage: " + du.Human(usage) + `
 last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 7)
 last ok sync: 2026-10-03T17:50:00Z
 next sync: 2026-10-03T18:01:00Z
@@ -174,7 +177,7 @@ daemon: running
 github.com/rosenhouse-bot-sandbox/lg:
   default branch: main
   newest completed run created: 2026-10-03T14:22:54Z, lag: 3h37m6s
-  runs: 3, attempts: 4, bytes: 123456
+  runs: 3, attempts: 4, size: 0.1GB
   pending units: 1
     run 37129390741 attempt 2: 502 Bad Gateway
   horizon: 2026-09-01T00:00:00Z

@@ -15,6 +15,7 @@ import (
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
@@ -55,7 +56,22 @@ func (c statusCmd) Run(deps *Deps) error {
 	if err != nil {
 		return err
 	}
-	lines := append([]string{"data dir: " + roots.Data}, statusLines(st, running)...)
+	configFile, err := config.File(deps.Env)
+	if err != nil {
+		return err
+	}
+	lines := []string{"config file: " + configFile}
+	if unit := manager(deps).Installed("lg"); unit != "" {
+		lines = append(lines, "service file: "+unit)
+	}
+	usage, err := du.Bytes(roots.Data)
+	diskUsage := du.Human(usage)
+	if err != nil {
+		diskUsage = "at least " + diskUsage
+		_, _ = fmt.Fprintf(deps.Stderr, "lg: warning: disk usage: %s\n", status.OneLine(err.Error()))
+	}
+	lines = append(lines, "data dir: "+roots.Data, "disk usage: "+diskUsage)
+	lines = append(lines, statusLines(st, running)...)
 	_, err = io.WriteString(deps.Stdout, strings.Join(lines, "\n")+"\n")
 	return err
 }
@@ -96,7 +112,7 @@ func statusLines(st *status.Status, daemon bool) []string {
 			name+":",
 			"  default branch: "+cmp.Or(r.DefaultBranch, "unknown"),
 			fmt.Sprintf("  newest completed run created: %s, lag: %s", orNone(r.NewestCompletedRunCreatedAt, "none"), lag),
-			fmt.Sprintf("  runs: %d, attempts: %d, bytes: %d", r.Runs, r.Attempts, r.BytesData),
+			fmt.Sprintf("  runs: %d, attempts: %d, size: %s", r.Runs, r.Attempts, config.Bytes(r.BytesData).GB()),
 			fmt.Sprintf("  pending units: %d", r.PendingUnits))
 		for _, pending := range r.Pending {
 			lines = append(lines, "    "+pending.String())
