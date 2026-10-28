@@ -1,0 +1,40 @@
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to tag, such as v0.1.0
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Check ref and version
+        run: |
+          if [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo "::error::run this from main, not $GITHUB_REF"
+            exit 1
+          fi
+          # v2 and later need a /v2 module path.
+          if ! [[ "$VERSION" =~ ^v[01]\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::version must look like v0.1.2 or v1.2.3, got $VERSION"
+            exit 1
+          fi
+          matches=$(gh api "repos/$GH_REPO/git/matching-refs/tags/$VERSION" --jq "map(select(.ref == \"refs/tags/$VERSION\")) | length")
+          if [ "$matches" != 0 ]; then
+            echo "::error::tag $VERSION already exists"
+            exit 1
+          fi
+      - name: Tag and release
+        run: gh release create "$VERSION" --target "$GITHUB_SHA" --title "$VERSION" --generate-notes
