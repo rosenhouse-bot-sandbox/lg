@@ -70,6 +70,31 @@ var _ = Describe("lg daemon install and uninstall", Label("install"), func() {
 		Entry(nil, "darwin", []string{"--name", "lg-test"}, "Library/LaunchAgents/com.github.rosenhouse.lg-test.plist"),
 	)
 
+	DescribeTable("lg status shows the unit file only while one is installed",
+		func(goos, unit string) {
+			Expect(run(goos, "daemon", "install")).To(Equal(0), stderr.String())
+			stdout.Reset()
+			Expect(run(goos, "status")).To(Equal(0), stderr.String())
+			Expect(stdout.String()).To(ContainSubstring("\nservice file: " + filepath.Join(home, unit) + "\ndata dir: "))
+
+			Expect(run(goos, "daemon", "uninstall")).To(Equal(0), stderr.String())
+			stdout.Reset()
+			Expect(run(goos, "status")).To(Equal(0), stderr.String())
+			Expect(stdout.String()).NotTo(ContainSubstring("service file"))
+		},
+		Entry(nil, "linux", ".config/systemd/user/lg.service"),
+		Entry(nil, "darwin", "Library/LaunchAgents/com.github.rosenhouse.lg.plist"),
+	)
+
+	It("lg status shows no unit file without a HOME", func() {
+		Expect(run("linux", "daemon", "install")).To(Equal(0), stderr.String())
+		stdout.Reset()
+		env = map[string]string{"LG_HOME": filepath.Join(home, ".local", "share", "lg"), "LG_CONFIG": filepath.Join(home, ".config", "lg", "config.yaml")}
+
+		Expect(run("linux", "status")).To(Equal(0), stderr.String())
+		Expect(stdout.String()).NotTo(ContainSubstring("service file"))
+	})
+
 	DescribeTable("refuses when the path lg was run by, or the file it resolves to, was built by go run",
 		func(path, resolved string) {
 			exe, file = path, resolved

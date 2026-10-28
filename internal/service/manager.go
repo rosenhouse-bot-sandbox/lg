@@ -147,6 +147,19 @@ func (m Manager) Uninstall(ctx context.Context, name string) (Removal, error) {
 	return r, b.removed(ctx)
 }
 
+// Installed gives the path of the unit file named name, or "" when lg
+// cannot find one.
+func (m Manager) Installed(name string) string {
+	b, err := m.backend(name)
+	if err != nil {
+		return ""
+	}
+	if _, err := os.Stat(b.path()); err != nil {
+		return ""
+	}
+	return b.path()
+}
+
 type backend interface {
 	path() string
 	render(Unit) ([]byte, error)

@@ -33,7 +33,7 @@ lg status
 After a pause in syncing longer than `backfill`, the next sync fetches the runs created since the last successful sync, up to `retention` ago.
 The first `lg sync` can take several minutes, so every 10s it prints what it is doing.
 When 100 or more completed runs need their artifacts listed, lg lists the repository's artifacts instead of each run's, if that takes fewer requests.
-`lg status` shows the data dir, the last sync, the lag, pending units and why syncs are blocked.
+`lg status` shows the config file, the service file if installed, the data dir and its disk usage, the last sync, the lag, pending units and why syncs are blocked.
 A unit is a run, attempt, job, log, artifact or `extracted/` dir.
 The lag is the time from the newest completed run's creation to the last sync's finish, so it grows with each sync that finds no newer run.
 

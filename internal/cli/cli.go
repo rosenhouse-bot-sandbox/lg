@@ -51,7 +51,7 @@ type commands struct {
 	Init    initCmd    `cmd:"" help:"Write config.yaml for one repository and initialize the store."`
 	Sync    syncCmd    `cmd:"" help:"Mirror the repository's Actions runs into the data directory."`
 	Daemon  daemonCmd  `cmd:"" help:"Run the daemon that keeps the store fresh."`
-	Status  statusCmd  `cmd:"" help:"Print the data dir, the last sync, the lag, pending units, whether the daemon runs, and why syncs are blocked."`
+	Status  statusCmd  `cmd:"" help:"Print the config file, the service file if installed, the data dir and its disk usage, the last sync, the lag, pending units, whether the daemon runs, and why syncs are blocked."`
 	Paths   pathsCmd   `cmd:"" help:"Print the paths of mirrored files, for grep or rg."`
 	Grep    grepCmd    `cmd:"" help:"Print the lines of mirrored files that match a regular expression."`
 	Where   whereCmd   `cmd:"" help:"Decode a path or an rg hit into JSON."`

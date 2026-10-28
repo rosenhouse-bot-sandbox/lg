@@ -105,6 +105,16 @@ var _ = Describe("Load", Label("sync"), func() {
 		Entry("TB", config.Bytes(3_000_000_000_000), "3TB"),
 	)
 
+	DescribeTable("writes a size in GB to one decimal, rounded up",
+		func(bytes config.Bytes, want string) { Expect(bytes.GB()).To(Equal(want)) },
+		Entry("zero", config.Bytes(0), "0.0GB"),
+		Entry("one byte", config.Bytes(1), "0.1GB"),
+		Entry("a tenth", config.Bytes(100_000_000), "0.1GB"),
+		Entry("over a tenth", config.Bytes(100_000_001), "0.2GB"),
+		Entry("over a GB", config.Bytes(1_000_000_001), "1.1GB"),
+		Entry("many GB", config.Bytes(123_400_000_000), "123.4GB"),
+	)
+
 	DescribeTable("rejects an artifact_max_bytes that is not a size", Label("artifacts"),
 		func(value, message string) {
 			_, err := config.Load(write("repo: rosenhouse-bot-sandbox/lg\nartifact_max_bytes: " + value + "\n"))

@@ -251,3 +251,10 @@ func (b Bytes) String() string {
 	}
 	return fmt.Sprintf("%dB", int64(b))
 }
+
+// GB gives b in GB to one decimal, rounded up.
+func (b Bytes) GB() string {
+	tenth := sizeUnits["GB"] / 10
+	tenths := (int64(b) + tenth - 1) / tenth
+	return fmt.Sprintf("%d.%dGB", tenths/10, tenths%10)
+}

@@ -463,6 +463,26 @@ var _ = Describe("Manager", Label("install"), func() {
 		Entry(nil, "darwin", "Library/LaunchAgents/com.github.rosenhouse.lg.plist", false, 1),
 	)
 
+	DescribeTable("gives the unit file's path only while it exists, running nothing",
+		func(goos, file string) {
+			path := filepath.Join(home, file)
+			Expect(manager(goos).Installed("lg")).To(BeEmpty())
+			Expect(service.Manager{GOOS: goos}.Installed("lg")).To(BeEmpty())
+
+			Expect(os.MkdirAll(filepath.Dir(path), 0o755)).To(Succeed())
+			Expect(os.WriteFile(path, nil, 0o644)).To(Succeed())
+
+			Expect(manager(goos).Installed("lg")).To(Equal(path))
+			Expect(runner.Calls()).To(BeEmpty())
+		},
+		Entry(nil, "linux", ".config/systemd/user/lg.service"),
+		Entry(nil, "darwin", "Library/LaunchAgents/com.github.rosenhouse.lg.plist"),
+	)
+
+	It("finds nothing installed on an OS it cannot install on", func() {
+		Expect(manager("windows").Installed("lg")).To(BeEmpty())
+	})
+
 	DescribeTable("waits for another install or uninstall in the unit's dir to finish",
 		func(goos string, dir func() string, uninstall bool) {
 			Expect(os.MkdirAll(dir(), 0o755)).To(Succeed())
