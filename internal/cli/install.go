@@ -75,15 +75,15 @@ func notOtherDaemon(deps *Deps, name string, roots config.Roots) error {
 	if err != nil || !running {
 		return err
 	}
-	service, err := manager(deps).PID(context.Background(), name)
+	servicePID, err := manager(deps).PID(context.Background(), name)
 	if err != nil {
 		return err
 	}
 	pid, ok := daemon.Holder(roots.State)
-	if ok && pid == service {
+	if ok && pid == servicePID {
 		return nil
 	}
-	return fmt.Errorf("another lg daemon (%s) runs on store %s; stop it, then install", daemon.RunningPID(roots.State), roots.Store)
+	return fmt.Errorf("another lg daemon (%s) runs on store %s; stop it, then install", daemon.PIDName(pid, ok), roots.Store)
 }
 
 type daemonUninstallCmd struct {

@@ -21,8 +21,9 @@ import (
 // loaded from FragmentPath, which enable --now and restart start, and
 // disable and stop stop. It models one launchd agent, which bootstrap
 // loads, and bootout unloads after Lingering more prints; print fails while
-// the agent is not loaded. The service and the agent run as PID. With Hang set, such a print blocks until ctx
-// ends, as one execx.Real kills at a deadline.
+// the agent is not loaded. With Hang set, such a print blocks until ctx
+// ends, as one execx.Real kills at a deadline. The service and the agent
+// run as PID, or not at all when PID is 0.
 type Runner struct {
 	Dir          string
 	Fail         map[string]string
@@ -133,7 +134,11 @@ func (r *Runner) launchctl(args []string) (stdout, stderr []byte, err error) {
 		if !r.Loaded {
 			return nil, []byte("Could not find service\n"), errors.New("exit status 113")
 		}
-		return fmt.Appendf(nil, "%s = {\n\tstate = running\n\tpid = %d\n\tendpoints = {\n\t\tpid = 1\n\t}\n}\n", args[1], r.PID), nil, nil
+		out := fmt.Sprintf("%s = {\n\tendpoints = {\n\t\tpid = 1\n\t}\n", args[1])
+		if r.PID != 0 {
+			out += fmt.Sprintf("\tpid = %d\n", r.PID)
+		}
+		return []byte(out + "}\n"), nil, nil
 	}
 	return nil, nil, nil
 }

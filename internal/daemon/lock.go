@@ -34,7 +34,7 @@ func LockInstance(fsys store.FS, state string, clk clock.Clock, warn func(error)
 	pid := filepath.Join(state, "daemon.pid")
 	held, err := lock.Wait(instanceFile(state), instanceWait, clk, func(string) {})
 	if errors.Is(err, lock.ErrTimeout) {
-		return nil, fmt.Errorf("already running (%s)", RunningPID(state))
+		return nil, fmt.Errorf("already running (%s)", runningPID(state))
 	}
 	if err != nil {
 		return nil, err
@@ -50,9 +50,15 @@ func Running(state string) (bool, error) { return lock.Held(instanceFile(state))
 
 func instanceFile(state string) string { return filepath.Join(state, "daemon.lock") }
 
-// RunningPID names the daemon by Holder, as "pid N" or "pid unknown".
-func RunningPID(state string) string {
-	if pid, ok := Holder(state); ok {
+// runningPID names the daemon by Holder.
+func runningPID(state string) string {
+	pid, ok := Holder(state)
+	return PIDName(pid, ok)
+}
+
+// PIDName names a pid that Holder gives.
+func PIDName(pid int, ok bool) string {
+	if ok {
 		return "pid " + strconv.Itoa(pid)
 	}
 	return "pid unknown"

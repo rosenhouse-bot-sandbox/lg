@@ -57,7 +57,7 @@ func WaitForCycle(state string, n int64, since time.Time, timeout time.Duration,
 func otherWriter(state string) string {
 	path := filepath.Join(state, "write.lock")
 	holder, _ := lock.Holder(path)
-	if holder == "" || holder == RunningPID(state) {
+	if holder == "" || holder == runningPID(state) {
 		return ""
 	}
 	return fmt.Sprintf("%s is held by %s; ", path, holder)

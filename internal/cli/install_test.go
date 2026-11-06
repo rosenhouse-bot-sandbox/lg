@@ -204,11 +204,11 @@ var _ = Describe("lg daemon install and uninstall", Label("install"), func() {
 	})
 
 	Describe("with a daemon running on the store", func() {
-		var storeDir, unit string
+		var storeDir, state string
 
 		BeforeEach(func() {
 			storeDir = filepath.Join(home, ".local", "share", "lg")
-			state := filepath.Join(storeDir, "state")
+			state = filepath.Join(storeDir, "state")
 			Expect(os.MkdirAll(state, 0o755)).To(Succeed())
 			held, err := daemon.LockInstance(store.OSFS{}, state, clock.Real{}, func(error) {})
 			Expect(err).NotTo(HaveOccurred())
@@ -227,7 +227,7 @@ var _ = Describe("lg daemon install and uninstall", Label("install"), func() {
 
 		DescribeTable("refuses, naming the daemon and the store, when the service does not run it",
 			func(goos string, running bool, pid int, ask string) {
-				unit = filepath.Join(home, ".config", "systemd", "user", "lg.service")
+				unit := filepath.Join(home, ".config", "systemd", "user", "lg.service")
 				if goos == "darwin" {
 					unit = filepath.Join(home, "Library", "LaunchAgents", "com.github.rosenhouse.lg.plist")
 				}
@@ -244,5 +244,14 @@ var _ = Describe("lg daemon install and uninstall", Label("install"), func() {
 			Entry("no agent", "darwin", false, 0, fmt.Sprintf("launchctl print gui/%d/com.github.rosenhouse.lg", os.Getuid())),
 			Entry("an agent with another pid", "darwin", true, 1, fmt.Sprintf("launchctl print gui/%d/com.github.rosenhouse.lg", os.Getuid())),
 		)
+
+		It("refuses when it cannot tell which pid runs the daemon, though no service runs", func() {
+			Expect(os.Remove(filepath.Join(state, "daemon.pid"))).To(Succeed())
+			Expect(os.Truncate(filepath.Join(state, "daemon.lock"), 0)).To(Succeed())
+
+			Expect(run("linux", "daemon", "install")).To(Equal(1))
+
+			Expect(stderr.String()).To(ContainSubstring("another lg daemon (pid unknown) runs on store " + storeDir))
+		})
 	})
 })

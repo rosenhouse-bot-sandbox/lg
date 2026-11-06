@@ -294,8 +294,8 @@ var _ = Describe("under a real systemd user manager", Label("systemd"), func() {
 	}, SpecTimeout(3*time.Minute))
 })
 
-// newInstallEnv gives an env with config.yaml written, the further
-// variables in kv set, and fakeService.
+// newInstallEnv gives an env with config.yaml written and the further
+// variables in kv set, and what fakeService gives for it.
 func newInstallEnv(kv ...string) (*harness.Env, *fakeservice.Fake, string) {
 	GinkgoHelper()
 	env := harness.New(lgPath)

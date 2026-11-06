@@ -379,7 +379,11 @@ func (s systemd) pid(ctx context.Context) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return strconv.Atoi(strings.TrimSpace(out))
+	pid, err := strconv.Atoi(strings.TrimSpace(out))
+	if err != nil {
+		return 0, fmt.Errorf("systemctl --user show -p MainPID --value %s gave %q, not a pid", s.unit, strings.TrimSpace(out))
+	}
+	return pid, nil
 }
 
 func (s systemd) activeState(ctx context.Context) (string, error) {
@@ -471,7 +475,6 @@ func (l launchd) stopOrphan(ctx context.Context) (bool, error) {
 // launchdPID matches the agent's own pid in launchctl print, not a nested one.
 var launchdPID = regexp.MustCompile(`(?m)^\tpid = (\d+)$`)
 
-// pid gives 0 for an agent that is not loaded, or loaded but not running.
 func (l launchd) pid(ctx context.Context) (int, error) {
 	out, err := l.m.output(ctx, "launchctl", "print", l.target())
 	if err != nil {
