@@ -34,7 +34,7 @@ func LockInstance(fsys store.FS, state string, clk clock.Clock, warn func(error)
 	pid := filepath.Join(state, "daemon.pid")
 	held, err := lock.Wait(instanceFile(state), instanceWait, clk, func(string) {})
 	if errors.Is(err, lock.ErrTimeout) {
-		return nil, fmt.Errorf("already running (%s)", runningPID(state))
+		return nil, fmt.Errorf("already running (%s)", RunningPID(state))
 	}
 	if err != nil {
 		return nil, err
@@ -50,16 +50,24 @@ func Running(state string) (bool, error) { return lock.Held(instanceFile(state))
 
 func instanceFile(state string) string { return filepath.Join(state, "daemon.lock") }
 
-// runningPID names the daemon by state/daemon.pid, else by the pid
+// RunningPID names the daemon by Holder, as "pid N" or "pid unknown".
+func RunningPID(state string) string {
+	if pid, ok := Holder(state); ok {
+		return "pid " + strconv.Itoa(pid)
+	}
+	return "pid unknown"
+}
+
+// Holder gives the pid of the daemon by state/daemon.pid, else by the pid
 // state/daemon.lock records.
-func runningPID(state string) string {
+func Holder(state string) (pid int, ok bool) {
 	for _, name := range []string{"daemon.pid", "daemon.lock"} {
 		content, _ := os.ReadFile(filepath.Join(state, name))
 		if pid, err := strconv.Atoi(string(bytes.TrimSpace(content))); err == nil {
-			return "pid " + strconv.Itoa(pid)
+			return pid, true
 		}
 	}
-	return "pid unknown"
+	return 0, false
 }
 
 // Lost gives an error once state/daemon.lock is no longer the file l holds,

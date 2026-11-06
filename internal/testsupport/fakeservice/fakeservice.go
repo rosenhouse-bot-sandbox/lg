@@ -21,12 +21,14 @@ type Fake struct {
 // to Calls and the files then in unitDir to Units. A run with an argument
 // that Fail named prints that stderr and exits 1. It models a user manager
 // that loads units from unitDir, and one service, which enable --now and
-// restart start, and disable --now and stop stop.
+// restart start, and disable --now and stop stop. It has no MainPID, since
+// it runs nothing.
 func Systemctl(binDir, unitDir string) *Fake {
 	ginkgo.GinkgoHelper()
 	return write(binDir, "systemctl", unitDir, func(f *Fake) string {
 		return fmt.Sprintf(`case "$2 $3 $4" in
 "show -p UnitPath") echo '%[1]s' ;;
+"show -p MainPID") echo 0 ;;
 "show -p ActiveState") if [ -e '%[2]s' ]; then echo active; else echo inactive; fi ;;
 "enable --now "*|restart*) : > '%[2]s' ;;
 "disable --now "*|stop*) rm -f '%[2]s' ;;

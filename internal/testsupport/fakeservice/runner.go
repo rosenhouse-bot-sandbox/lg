@@ -3,6 +3,7 @@ package fakeservice
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"slices"
@@ -20,7 +21,7 @@ import (
 // loaded from FragmentPath, which enable --now and restart start, and
 // disable and stop stop. It models one launchd agent, which bootstrap
 // loads, and bootout unloads after Lingering more prints; print fails while
-// the agent is not loaded. With Hang set, such a print blocks until ctx
+// the agent is not loaded. The service and the agent run as PID. With Hang set, such a print blocks until ctx
 // ends, as one execx.Real kills at a deadline.
 type Runner struct {
 	Dir          string
@@ -33,6 +34,7 @@ type Runner struct {
 	Loaded       bool
 	Lingering    int
 	Hang         bool
+	PID          int
 
 	mu        sync.Mutex
 	calls     []string
@@ -94,6 +96,12 @@ func (r *Runner) systemctl(args []string) (stdout, stderr []byte, err error) {
 		if slices.Contains(args, "FragmentPath") {
 			return []byte(r.FragmentPath + "\n"), nil, nil
 		}
+		if slices.Contains(args, "MainPID") {
+			if r.Active {
+				return fmt.Appendf(nil, "%d\n", r.PID), nil, nil
+			}
+			return []byte("0\n"), nil, nil
+		}
 		if r.Active {
 			return []byte("active\n"), nil, nil
 		}
@@ -125,6 +133,7 @@ func (r *Runner) launchctl(args []string) (stdout, stderr []byte, err error) {
 		if !r.Loaded {
 			return nil, []byte("Could not find service\n"), errors.New("exit status 113")
 		}
+		return fmt.Appendf(nil, "%s = {\n\tstate = running\n\tpid = %d\n\tendpoints = {\n\t\tpid = 1\n\t}\n}\n", args[1], r.PID), nil, nil
 	}
 	return nil, nil, nil
 }

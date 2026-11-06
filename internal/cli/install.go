@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/service"
 )
 
@@ -19,6 +20,7 @@ func (daemonInstallCmd) Help() string {
 		"It bakes in lg's path, gh's dir, and whichever of LG_HOME, LG_CONFIG, LG_GH, the XDG dirs, GH_CONFIG_DIR, SSL_CERT_FILE and the proxy variables are set, " +
 		"so run it again after changing any of them; " +
 		"reinstalling rewrites the unit and restarts it. " +
+		"It refuses while a daemon other than the service runs on the store. " +
 		"Logs go to the journal (journalctl --user -u lg) on Linux and to the store's state/daemon.log on macOS."
 }
 
@@ -49,6 +51,9 @@ func (c daemonInstallCmd) Run(deps *Deps) error {
 	if err != nil {
 		return err
 	}
+	if err := notOtherDaemon(deps, c.Name, t.roots); err != nil {
+		return err
+	}
 	path, err := manager(deps).Install(context.Background(), service.Unit{
 		Name: c.Name,
 		Exe:  exe,
@@ -61,6 +66,24 @@ func (c daemonInstallCmd) Run(deps *Deps) error {
 	// Naming what the service uses shows a reinstall that dropped LG_HOME or LG_CONFIG.
 	_, err = fmt.Fprintf(deps.Stdout, "installed %s; store %s, config %s\n", path, t.roots.Store, configFile)
 	return err
+}
+
+// notOtherDaemon refuses when a daemon other than the service named name
+// runs on the store, since the service would fail until that daemon exits.
+func notOtherDaemon(deps *Deps, name string, roots config.Roots) error {
+	running, err := daemon.Running(roots.State)
+	if err != nil || !running {
+		return err
+	}
+	service, err := manager(deps).PID(context.Background(), name)
+	if err != nil {
+		return err
+	}
+	pid, ok := daemon.Holder(roots.State)
+	if ok && pid == service {
+		return nil
+	}
+	return fmt.Errorf("another lg daemon (%s) runs on store %s; stop it, then install", daemon.RunningPID(roots.State), roots.Store)
 }
 
 type daemonUninstallCmd struct {

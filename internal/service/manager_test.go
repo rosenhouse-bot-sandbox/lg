@@ -404,6 +404,27 @@ var _ = Describe("Manager", Label("install"), func() {
 		})
 	})
 
+	DescribeTable("gives the running service's pid, or 0 when it is not running",
+		func(goos string) {
+			runner.PID = 42
+			Expect(manager(goos).PID(context.Background(), "lg")).To(Equal(0))
+			_, err := manager(goos).Install(context.Background(), unit)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(manager(goos).PID(context.Background(), "lg")).To(Equal(42))
+		},
+		Entry(nil, "linux"),
+		Entry(nil, "darwin"),
+	)
+
+	It("says why systemctl cannot give the service's pid", func() {
+		runner.Fail["MainPID"] = "Failed to connect to bus"
+
+		_, err := manager("linux").PID(context.Background(), "lg")
+
+		Expect(err).To(MatchError(ContainSubstring("Failed to connect to bus")))
+	})
+
 	DescribeTable("picks its backend from GOOS",
 		func(goos, dir, file, command string) {
 			path, err := manager(goos).Install(context.Background(), unit)
