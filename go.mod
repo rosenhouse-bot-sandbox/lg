@@ -7,13 +7,13 @@ toolchain go1.27.3
 tool github.com/onsi/ginkgo/v2/ginkgo
 
 require (
-	github.com/alecthomas/kong v1.16.1
-	github.com/onsi/ginkgo/v2 v2.33.1
+	github.com/alecthomas/kong v1.17.0
+	github.com/onsi/ginkgo/v2 v2.34.0
 	github.com/onsi/gomega v1.44.0
-	go.yaml.in/yaml/v3 v3.0.5
+	go.yaml.in/yaml/v3 v3.0.6
 	golang.org/x/sys v0.49.0
 	golang.org/x/text v0.43.0
-	modernc.org/sqlite v1.61.0
+	modernc.org/sqlite v1.61.1
 )
 
 require (
