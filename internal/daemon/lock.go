@@ -50,16 +50,30 @@ func Running(state string) (bool, error) { return lock.Held(instanceFile(state))
 
 func instanceFile(state string) string { return filepath.Join(state, "daemon.lock") }
 
-// runningPID names the daemon by state/daemon.pid, else by the pid
-// state/daemon.lock records.
+// runningPID names the daemon by Holder.
 func runningPID(state string) string {
+	pid, ok := Holder(state)
+	return PIDName(pid, ok)
+}
+
+// PIDName names a pid that Holder gives.
+func PIDName(pid int, ok bool) string {
+	if ok {
+		return "pid " + strconv.Itoa(pid)
+	}
+	return "pid unknown"
+}
+
+// Holder gives the pid of the daemon by state/daemon.pid, else by the pid
+// state/daemon.lock records.
+func Holder(state string) (pid int, ok bool) {
 	for _, name := range []string{"daemon.pid", "daemon.lock"} {
 		content, _ := os.ReadFile(filepath.Join(state, name))
 		if pid, err := strconv.Atoi(string(bytes.TrimSpace(content))); err == nil {
-			return "pid " + strconv.Itoa(pid)
+			return pid, true
 		}
 	}
-	return "pid unknown"
+	return 0, false
 }
 
 // Lost gives an error once state/daemon.lock is no longer the file l holds,

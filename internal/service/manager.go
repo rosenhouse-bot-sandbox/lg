@@ -160,6 +160,15 @@ func (m Manager) Installed(name string) string {
 	return b.path()
 }
 
+// PID gives the pid of the service named name, or 0 when it is not running.
+func (m Manager) PID(ctx context.Context, name string) (int, error) {
+	b, err := m.backend(name)
+	if err != nil {
+		return 0, err
+	}
+	return b.pid(ctx)
+}
+
 type backend interface {
 	path() string
 	render(Unit) ([]byte, error)
@@ -175,6 +184,8 @@ type backend interface {
 	// stopOrphan stops a service whose unit file is missing, and reports
 	// whether one ran.
 	stopOrphan(ctx context.Context) (bool, error)
+	// pid gives the service's pid, or 0 when it is not running.
+	pid(ctx context.Context) (int, error)
 }
 
 // validName keeps a name to one plain file name that systemd and launchd accept.
@@ -363,6 +374,18 @@ func (s systemd) notElsewhere(ctx context.Context) error {
 	return fmt.Errorf("the systemd user manager loads %s from %s, not %s; give lg the XDG_CONFIG_HOME it was installed with", s.unit, fragment, s.path())
 }
 
+func (s systemd) pid(ctx context.Context) (int, error) {
+	out, err := s.output(ctx, "show", "-p", "MainPID", "--value", s.unit)
+	if err != nil {
+		return 0, err
+	}
+	pid, err := strconv.Atoi(strings.TrimSpace(out))
+	if err != nil {
+		return 0, fmt.Errorf("systemctl --user show -p MainPID --value %s gave %q, not a pid", s.unit, strings.TrimSpace(out))
+	}
+	return pid, nil
+}
+
 func (s systemd) activeState(ctx context.Context) (string, error) {
 	out, err := s.output(ctx, "show", "-p", "ActiveState", "--value", s.unit)
 	return strings.TrimSpace(out), err
@@ -447,6 +470,21 @@ func (l launchd) stopOrphan(ctx context.Context) (bool, error) {
 		return false, nil
 	}
 	return true, l.stop(ctx)
+}
+
+// launchdPID matches the agent's own pid in launchctl print, not a nested one.
+var launchdPID = regexp.MustCompile(`(?m)^\tpid = (\d+)$`)
+
+func (l launchd) pid(ctx context.Context) (int, error) {
+	out, err := l.m.output(ctx, "launchctl", "print", l.target())
+	if err != nil {
+		return 0, nil
+	}
+	m := launchdPID.FindStringSubmatch(out)
+	if m == nil {
+		return 0, nil
+	}
+	return strconv.Atoi(m[1])
 }
 
 func (l launchd) loaded(ctx context.Context) bool {

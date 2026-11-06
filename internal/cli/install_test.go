@@ -11,6 +11,7 @@ import (
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/cli"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakeservice"
 )
@@ -200,5 +201,57 @@ var _ = Describe("lg daemon install and uninstall", Label("install"), func() {
 		Expect(stderr.String()).To(ContainSubstring("config.yaml"))
 		Expect(filepath.Join(home, ".config", "systemd")).NotTo(BeADirectory())
 		Expect(runner.Calls()).To(BeEmpty())
+	})
+
+	Describe("with a daemon running on the store", func() {
+		var storeDir, state string
+
+		BeforeEach(func() {
+			storeDir = filepath.Join(home, ".local", "share", "lg")
+			state = filepath.Join(storeDir, "state")
+			Expect(os.MkdirAll(state, 0o755)).To(Succeed())
+			held, err := daemon.LockInstance(store.OSFS{}, state, clock.Real{}, func(error) {})
+			Expect(err).NotTo(HaveOccurred())
+			DeferCleanup(held.Release)
+		})
+
+		DescribeTable("reinstalls the service that runs it",
+			func(goos string) {
+				runner.Active, runner.Loaded, runner.PID = true, true, os.Getpid()
+
+				Expect(run(goos, "daemon", "install")).To(Equal(0), stderr.String())
+			},
+			Entry(nil, "linux"),
+			Entry(nil, "darwin"),
+		)
+
+		DescribeTable("refuses, naming the daemon and the store, when the service does not run it",
+			func(goos string, running bool, pid int, ask string) {
+				unit := filepath.Join(home, ".config", "systemd", "user", "lg.service")
+				if goos == "darwin" {
+					unit = filepath.Join(home, "Library", "LaunchAgents", "com.github.rosenhouse.lg.plist")
+				}
+				runner.Active, runner.Loaded, runner.PID = running, running, pid
+
+				Expect(run(goos, "daemon", "install")).To(Equal(1))
+
+				Expect(stderr.String()).To(ContainSubstring(fmt.Sprintf("another lg daemon (pid %d) runs on store %s; stop it, then install", os.Getpid(), storeDir)))
+				Expect(unit).NotTo(BeAnExistingFile())
+				Expect(runner.Calls()).To(Equal([]string{ask}))
+			},
+			Entry("no service", "linux", false, 0, "systemctl --user show -p MainPID --value lg.service"),
+			Entry("a service with another pid", "linux", true, 1, "systemctl --user show -p MainPID --value lg.service"),
+			Entry("no agent", "darwin", false, 0, fmt.Sprintf("launchctl print gui/%d/com.github.rosenhouse.lg", os.Getuid())),
+			Entry("an agent with another pid", "darwin", true, 1, fmt.Sprintf("launchctl print gui/%d/com.github.rosenhouse.lg", os.Getuid())),
+		)
+
+		It("refuses when it cannot tell which pid runs the daemon, though no service runs", func() {
+			Expect(os.Remove(filepath.Join(state, "daemon.pid"))).To(Succeed())
+			Expect(os.Truncate(filepath.Join(state, "daemon.lock"), 0)).To(Succeed())
+
+			Expect(run("linux", "daemon", "install")).To(Equal(1))
+
+			Expect(stderr.String()).To(ContainSubstring("another lg daemon (pid unknown) runs on store " + storeDir))
+		})
 	})
 })

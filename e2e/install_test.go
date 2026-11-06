@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"slices"
 	"strings"
@@ -14,6 +15,7 @@ import (
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakeservice"
@@ -192,6 +194,23 @@ var _ = Describe("lg daemon install", Label("install"), func() {
 	})
 })
 
+var _ = Describe("lg daemon install over a running lg daemon run", Label("install", "daemon"), func() {
+	It("refuses, naming the daemon and its store, and installs nothing", func(ctx SpecContext) {
+		env, _ := newDaemonEnv()
+		_, unit := fakeService(env)
+		running := env.Start("daemon", "run")
+		Eventually(cycle(env), cycleWait).WithContext(ctx).Should(Equal(1.0))
+
+		install := env.Lg("daemon", "install")
+
+		Eventually(install, harness.ExitTimeout).WithContext(ctx).Should(gexec.Exit(1))
+		Expect(install.Err).To(gbytes.Say(`another lg daemon \(pid %d\) runs on store %s; stop it, then install`,
+			running.Command.Process.Pid, regexp.QuoteMeta(env.Store())))
+		Expect(unit).NotTo(BeAnExistingFile())
+		Expect(running).NotTo(gexec.Exit())
+	}, daemonTimeout)
+})
+
 var _ = Describe("lg daemon uninstall", Label("install"), func() {
 	It("stops and disables the service before removing the unit or plist", func() {
 		env, service, unit := newInstallEnv()
@@ -244,7 +263,7 @@ var _ = Describe("lg daemon install on darwin", Label("install"), func() {
 })
 
 var _ = Describe("under a real systemd user manager", Label("systemd"), func() {
-	It("runs a daemon installed under a test --name, which syncs from fakegithub and writes status.json", func(ctx SpecContext) {
+	It("runs a daemon installed under a test --name, which syncs from fakegithub and writes status.json, and reinstalls over that daemon", func(ctx SpecContext) {
 		home, err := os.UserHomeDir()
 		Expect(err).NotTo(HaveOccurred())
 		env, _ := newDaemonEnv("backfill: 3650d", "retention: 3650d")
@@ -270,12 +289,13 @@ var _ = Describe("under a real systemd user manager", Label("systemd"), func() {
 		Eventually(cycle(env), time.Minute).WithContext(ctx).Should(BeNumerically(">=", 1))
 		Expect(env.Status()).To(HaveKeyWithValue("last_sync_ok_at", Not(BeNil())))
 		Expect(attemptDir(env, 1)).To(BeADirectory())
+
+		Eventually(env.Lg("daemon", "install", "--name", name), harness.ExitTimeout).WithContext(ctx).Should(gexec.Exit(0))
 	}, SpecTimeout(3*time.Minute))
 })
 
-// newInstallEnv gives an env with config.yaml written, the further
-// variables in kv set, and a fake systemctl or launchctl first on PATH. It
-// also gives the path of the default unit or plist.
+// newInstallEnv gives an env with config.yaml written and the further
+// variables in kv set, and what fakeService gives for it.
 func newInstallEnv(kv ...string) (*harness.Env, *fakeservice.Fake, string) {
 	GinkgoHelper()
 	env := harness.New(lgPath)
@@ -285,17 +305,25 @@ func newInstallEnv(kv ...string) (*harness.Env, *fakeservice.Fake, string) {
 	config := env.ConfigFile()
 	Expect(os.MkdirAll(filepath.Dir(config), 0o755)).To(Succeed())
 	Expect(os.WriteFile(config, []byte("repo: rosenhouse-bot-sandbox/lg\n"), 0o644)).To(Succeed())
+	service, unit := fakeService(env)
+	return env, service, unit
+}
+
+// fakeService puts a fake systemctl or launchctl first on env's PATH, and
+// gives the path of the default unit or plist.
+func fakeService(env *harness.Env) (*fakeservice.Fake, string) {
+	GinkgoHelper()
 	bin := GinkgoT().TempDir()
 	env.PrependPath(bin)
 	if runtime.GOOS == "darwin" {
 		dir := filepath.Join(env.Home(), "Library", "LaunchAgents")
-		return env, fakeservice.Launchctl(bin, dir), filepath.Join(dir, launchdLabel+".plist")
+		return fakeservice.Launchctl(bin, dir), filepath.Join(dir, launchdLabel+".plist")
 	}
 	dir := filepath.Join(env.Home(), ".config", "systemd", "user")
 	if xdg := env.Getenv("XDG_CONFIG_HOME"); xdg != "" {
 		dir = filepath.Join(xdg, "systemd", "user")
 	}
-	return env, fakeservice.Systemctl(bin, dir), filepath.Join(dir, "lg.service")
+	return fakeservice.Systemctl(bin, dir), filepath.Join(dir, "lg.service")
 }
 
 // goldenPaths gives the file at path with env's lg and gh's dir renamed as in the golden files.
