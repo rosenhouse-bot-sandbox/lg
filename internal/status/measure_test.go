@@ -9,6 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
@@ -39,6 +40,9 @@ var _ = Describe("Measure", Label("status"), func() {
 		writeFile(data, "github.com/rosenhouse-bot-sandbox/other/runs/2026-10-03/4_ci_main/attempt-1/fetch.json", fetchJSON(completed.Add(2*time.Hour)))
 		writeFile(state, "horizon.json", `{"github.com/rosenhouse-bot-sandbox/Lg":"2026-09-01T00:00:00Z","github.com/rosenhouse-bot-sandbox/lg":"2026-08-01T00:00:00Z","github.com/rosenhouse-bot-sandbox/other":"2026-09-30T00:00:00Z"}`)
 
+		usage, err := du.Bytes(data)
+		Expect(err).NotTo(HaveOccurred())
+
 		disk, err := status.Measure(data, state, "github.com/rosenhouse-bot-sandbox/lg")
 
 		Expect(err).NotTo(HaveOccurred())
@@ -46,6 +50,7 @@ var _ = Describe("Measure", Label("status"), func() {
 			Runs:            3,
 			Attempts:        3,
 			Bytes:           int64(3*len(fetchJSON(completed)) + 10),
+			DataDiskUsage:   &usage,
 			NewestCompleted: completed,
 			Horizon:         time.Date(2026, 9, 1, 0, 0, 0, 0, time.UTC),
 			Published:       map[status.Unit]bool{{Run: 1, Attempt: 1}: true, {Run: 2, Attempt: 1}: true, {Run: 2, Attempt: 2}: true, {Run: 3, Artifact: 9}: true},
@@ -55,6 +60,6 @@ var _ = Describe("Measure", Label("status"), func() {
 	It("measures nothing before the first sync", func() {
 		root := GinkgoT().TempDir()
 
-		Expect(status.Measure(filepath.Join(root, "data"), filepath.Join(root, "state"), "github.com/o/r")).To(Equal(status.Disk{Published: map[status.Unit]bool{}}))
+		Expect(status.Measure(filepath.Join(root, "data"), filepath.Join(root, "state"), "github.com/o/r")).To(Equal(status.Disk{Published: map[status.Unit]bool{}, DataDiskUsage: new(int64)}))
 	})
 })

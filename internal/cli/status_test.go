@@ -134,6 +134,7 @@ var _ = Describe("lg status after a good sync", Label("status"), func() {
 
 		Expect(s.Main("status")).To(Equal(0))
 		Expect(s.Stdout.String()).To(Equal("config file: " + s.Config + "\ndata dir: " + filepath.Join(s.Home, "data") + `
+disk usage: 20K
 last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 2)
 last ok sync: 2026-10-03T17:59:30Z
 next sync: none (daemon not running)
@@ -147,6 +148,16 @@ github.com/rosenhouse-bot-sandbox/lg:
   horizon: none
   retention: 30 days, disk_cap: 1MB
 `))
+	})
+})
+
+var _ = Describe("lg status with a status.json without data_disk_usage_bytes", Label("status"), func() {
+	It("prints no disk usage", func() {
+		s := harness.NewCLI()
+		s.WriteStatus(strings.Replace(goodStatus, `"data_disk_usage_bytes": 20480,`, "", 1))
+
+		Expect(s.Main("status")).To(Equal(0))
+		Expect(s.Stdout.String()).NotTo(ContainSubstring("disk usage"))
 	})
 })
 
@@ -188,6 +199,7 @@ const goodStatus = `{
   "blocked": null,
   "daemon_pid": null,
   "daemon_version": null,
+  "data_disk_usage_bytes": 20480,
   "repos": {
     "github.com/rosenhouse-bot-sandbox/lg": {
       "default_branch": "main",
@@ -438,8 +450,11 @@ var _ = Describe("lg gc", Label("status"), func() {
 		Expect(repo).To(HaveKeyWithValue("horizon", Not(Equal(before["repos"].(map[string]any)["github.com/rosenhouse-bot-sandbox/lg"].(map[string]any)["horizon"]))))
 		Expect(repo).To(HaveKeyWithValue("disk_cap_bytes", 50000.0))
 		Expect(repo).To(HaveKeyWithValue("default_branch", "main"))
-		delete(before, "repos")
-		delete(after, "repos")
+		Expect(after["data_disk_usage_bytes"]).To(BeNumerically("<", before["data_disk_usage_bytes"]))
+		for _, key := range []string{"repos", "data_disk_usage_bytes"} {
+			delete(before, key)
+			delete(after, key)
+		}
 		Expect(after).To(Equal(before))
 	})
 

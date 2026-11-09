@@ -14,6 +14,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/retention"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
@@ -33,6 +34,7 @@ type Status struct {
 	ServedRequest       int64           `json:"served_request"`
 	ConfigError         *string         `json:"config_error"`
 	LastSyncErrors      []string        `json:"last_sync_errors"`
+	DataDiskUsageBytes  *int64          `json:"data_disk_usage_bytes"`
 	Repos               map[string]Repo `json:"repos"`
 }
 
@@ -200,8 +202,10 @@ type Daemon struct {
 }
 
 type Disk struct {
-	Runs, Attempts           int
-	Bytes                    int64
+	Runs, Attempts int
+	Bytes          int64
+	// DataDiskUsage is what du gives for all of data/, or nil if unknown.
+	DataDiskUsage            *int64
 	NewestCompleted, Horizon time.Time
 	// Published are the attempts and artifacts on disk.
 	Published map[Unit]bool
@@ -220,6 +224,7 @@ func Next(prev *Status, c Cycle) Status {
 		LastSyncFinishedAt:  finished,
 		SyncIntervalSeconds: int64(c.SyncInterval / time.Second),
 		LastSyncErrors:      lines(c.Err),
+		DataDiskUsageBytes:  c.Disk.DataDiskUsage,
 	}
 	if !errors.Is(c.Err, context.Canceled) {
 		st.NextSyncAt = timeOrNil(c.NextSyncAt)
@@ -274,9 +279,11 @@ func keyIn(repos map[string]Repo, name string) (string, bool) {
 	return "", false
 }
 
-// Remeasured is st with the disk fields of repo, named in any case, from d,
-// retention and diskCap, and its lag as at st's last sync. It adds no repo.
+// Remeasured is st with data/'s disk usage from d. It also has the disk
+// fields of repo, named in any case, from d, retention and diskCap, and its
+// lag as at st's last sync. It adds no repo.
 func Remeasured(st Status, repo string, d Disk, retention time.Duration, diskCap int64) Status {
+	st.DataDiskUsageBytes = d.DataDiskUsage
 	key, ok := keyIn(st.Repos, repo)
 	if !ok {
 		return st
@@ -420,8 +427,8 @@ func Write(fsys store.FS, path string, st Status) error {
 }
 
 // Measure finds the runs of repo, as <host>/<owner>/<name> in any case, under
-// data/, and its eviction horizon in state/. A completed run is one with an
-// attempt on disk.
+// data/, its eviction horizon in state/, and data/'s disk usage. A completed
+// run is one with an attempt on disk.
 func Measure(data, state, repo string) (Disk, error) {
 	runs, err := retention.Scan(data)
 	if err != nil {
@@ -454,5 +461,10 @@ func Measure(data, state, repo string) (Disk, error) {
 			d.Horizon = horizon
 		}
 	}
+	usage, err := du.Bytes(data)
+	if err != nil {
+		return d, err
+	}
+	d.DataDiskUsage = &usage
 	return d, nil
 }

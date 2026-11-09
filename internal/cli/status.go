@@ -15,6 +15,7 @@ import (
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
@@ -64,6 +65,9 @@ func (c statusCmd) Run(deps *Deps) error {
 		lines = append(lines, "service file: "+unit)
 	}
 	lines = append(lines, "data dir: "+roots.Data)
+	if st != nil && st.DataDiskUsageBytes != nil {
+		lines = append(lines, "disk usage: "+du.Human(*st.DataDiskUsageBytes))
+	}
 	lines = append(lines, statusLines(st, running)...)
 	_, err = io.WriteString(deps.Stdout, strings.Join(lines, "\n")+"\n")
 	return err

@@ -29,7 +29,7 @@ func good(started time.Time) status.Cycle {
 		SyncInterval:  10 * time.Minute,
 		Retention:     90 * 24 * time.Hour,
 		DiskCap:       50e9,
-		Disk:          status.Disk{Runs: 3, Attempts: 4, Bytes: 1234, NewestCompleted: newest},
+		Disk:          status.Disk{Runs: 3, Attempts: 4, Bytes: 1234, DataDiskUsage: ptr(int64(4096)), NewestCompleted: newest},
 	}
 }
 
@@ -53,6 +53,7 @@ var _ = Describe("Next", Label("status"), func() {
 			LastSyncFinishedAt:  finished,
 			LastSyncOKAt:        &finished,
 			SyncIntervalSeconds: 600,
+			DataDiskUsageBytes:  ptr(int64(4096)),
 			Repos: map[string]status.Repo{repo: {
 				DefaultBranch:               "main",
 				NewestCompletedRunCreatedAt: &newest,
@@ -354,7 +355,7 @@ var _ = Describe("Remeasured", Label("status"), func() {
 		later := newest.Add(time.Hour)
 		horizon := newest.Add(-time.Hour)
 
-		st := status.Remeasured(prev, repo, status.Disk{Runs: 1, Attempts: 2, Bytes: 10, NewestCompleted: later, Horizon: horizon}, 30*24*time.Hour, 1e6)
+		st := status.Remeasured(prev, repo, status.Disk{Runs: 1, Attempts: 2, Bytes: 10, DataDiskUsage: ptr(int64(8192)), NewestCompleted: later, Horizon: horizon}, 30*24*time.Hour, 1e6)
 
 		want := before
 		want.Runs, want.Attempts, want.BytesData = 1, 2, 10
@@ -363,8 +364,9 @@ var _ = Describe("Remeasured", Label("status"), func() {
 		want.Horizon = &horizon
 		want.RetentionDays, want.DiskCapBytes = 30, 1e6
 		Expect(st.Repos).To(Equal(map[string]status.Repo{repo: want, "github.com/o/other": {Runs: 5}}))
+		Expect(st.DataDiskUsageBytes).To(Equal(ptr(int64(8192))))
 		Expect(prev.Repos[repo]).To(Equal(before))
-		st.Repos = prev.Repos
+		st.Repos, st.DataDiskUsageBytes = prev.Repos, prev.DataDiskUsageBytes
 		Expect(st).To(Equal(prev))
 	})
 
@@ -373,7 +375,10 @@ var _ = Describe("Remeasured", Label("status"), func() {
 
 		Expect(status.Remeasured(prev, strings.ToUpper(repo), status.Disk{Runs: 7}, 24*time.Hour, 1).Repos).
 			To(SatisfyAll(HaveLen(1), HaveKeyWithValue(repo, HaveField("Runs", 7))))
-		Expect(status.Remeasured(prev, "github.com/o/other", status.Disk{Runs: 7}, 24*time.Hour, 1)).To(Equal(prev))
+		other := status.Remeasured(prev, "github.com/o/other", status.Disk{Runs: 7, DataDiskUsage: ptr(int64(1))}, 24*time.Hour, 1)
+		Expect(other.DataDiskUsageBytes).To(Equal(ptr(int64(1))))
+		other.DataDiskUsageBytes = prev.DataDiskUsageBytes
+		Expect(other).To(Equal(prev))
 	})
 
 	It("clears the newest run and lag when no completed run is left", func() {
