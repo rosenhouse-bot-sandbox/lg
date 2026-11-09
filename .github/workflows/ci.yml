@@ -13,33 +13,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Other jobs run unless every changed path is in $irrelevant.
+  # Other jobs skip on PRs that change only these paths.
   changes:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     outputs:
-      code: ${{ steps.filter.outputs.code }}
+      code: ${{ github.event_name != 'pull_request' || steps.filter.outputs.code == 'true' }}
     steps:
       - id: filter
-        env:
-          GH_TOKEN: ${{ github.token }}
-          COMPARE: repos/${{ github.repository }}/compare/${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" != pull_request ]; then
-            echo code=true >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          irrelevant='CLAUDE.md
-          LICENSE
-          README.md
-          .github/dependabot.yml
-          .github/workflows/dependabot-auto-merge.yml
-          .github/workflows/lg-fixture.yml
-          .github/workflows/release.yml'
-          # The compare API lists at most 300 files.
-          files=$(gh api "$COMPARE" --jq 'if (.files | length) >= 300 then "too many files" else .files[] | .filename, .previous_filename // empty end')
-          code=true
-          grep -qvxF -f <(echo "$irrelevant") <<< "$files" || [ $? = 2 ] || code=false
-          echo "code=$code" >> "$GITHUB_OUTPUT"
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@v4
+        with:
+          predicate-quantifier: some-with-excludes
+          filters: |
+            code:
+              - '**'
+              - '!CLAUDE.md'
+              - '!LICENSE'
+              - '!README.md'
+              - '!.github/dependabot.yml'
+              - '!.github/workflows/dependabot-auto-merge.yml'
+              - '!.github/workflows/lg-fixture.yml'
+              - '!.github/workflows/release.yml'
 
   lint:
     needs: changes
