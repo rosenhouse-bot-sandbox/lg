@@ -63,6 +63,7 @@ func RepoDir(data, host, fullName string) string {
 }
 
 // RunDir is runs/<UTC date of created_at>/<id>_<workflow slug>_<branch slug>.
+// A renamed workflow gets a new slug, so the index matches workflows by workflow_id.
 func RunDir(repoDir string, run model.Run) string {
 	workflow := run.Name
 	if workflow == "" {
