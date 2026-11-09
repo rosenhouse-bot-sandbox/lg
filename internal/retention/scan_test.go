@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,6 +32,16 @@ func writeSized(root, rel string, size int) {
 	Expect(os.WriteFile(path, []byte(strings.Repeat("x", size)), 0o644)).To(Succeed())
 }
 
+// duK gives du -sk of dir.
+func duK(dir string) int64 {
+	GinkgoHelper()
+	out, err := exec.CommandContext(GinkgoT().Context(), "du", "-sk", dir).Output()
+	Expect(err).NotTo(HaveOccurred())
+	k, err := strconv.ParseInt(strings.Fields(string(out))[0], 10, 64)
+	Expect(err).NotTo(HaveOccurred())
+	return k
+}
+
 var _ = Describe("retention.Scan", Label("retention"), func() {
 	It("counts the apparent bytes of regular files in run dirs under data/, per run and per extracted/ tree", func() {
 		root := GinkgoT().TempDir()
@@ -48,7 +60,7 @@ var _ = Describe("retention.Scan", Label("retention"), func() {
 		writeSized(root, "state/lg.db", 1000)
 		writeSized(root, "tmp/unit-x/log.txt", 1000)
 
-		runs, err := retention.Scan(data)
+		runs, _, err := retention.Scan(data)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(runs).To(ConsistOf(
 			retention.Run{Dir: run, Repo: "github.com/o/r", Date: "2026-10-01", ID: 12, Bytes: 120, Attempts: []int{1}, Artifacts: []int64{5, 6}, Extracted: []retention.Tree{
@@ -73,7 +85,7 @@ var _ = Describe("retention.Scan", Label("retention"), func() {
 		writeSized(run, "artifacts/11_z/extracted/12_w/a.txt", 1)
 		writeSized(run, "attempt-1/13_v/a.txt", 1)
 
-		got, err := retention.Scan(data)
+		got, _, err := retention.Scan(data)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(got).To(HaveExactElements(And(HaveField("Attempts", []int{1, 3}), HaveField("Artifacts", ConsistOf(int64(9), int64(11))))))
 	})
@@ -85,7 +97,7 @@ var _ = Describe("retention.Scan", Label("retention"), func() {
 		writeFetch(filepath.Join(runs, "2_ci_main", "artifacts", "5_report"), time.Date(2026, 10, 1, 2, 0, 0, 0, time.UTC))
 		Expect(os.MkdirAll(filepath.Join(runs, "3_ci_main", "artifacts"), 0o755)).To(Succeed())
 
-		got, err := retention.Scan(data)
+		got, _, err := retention.Scan(data)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(got).To(HaveExactElements(
 			HaveField("CreatedAt", time.Date(2026, 10, 1, 1, 0, 0, 0, time.UTC)),
@@ -101,7 +113,7 @@ var _ = Describe("retention.Scan", Label("retention"), func() {
 		header := `{"lg_format":1,"run_id":1,"run_created_at":"2026-10-01T01:00:00Z","sources":{` + strings.Repeat("x", 100)
 		Expect(os.WriteFile(filepath.Join(attempt, "fetch.json"), []byte(header), 0o644)).To(Succeed())
 
-		runs, err := retention.Scan(data)
+		runs, _, err := retention.Scan(data)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(runs).To(ConsistOf(HaveField("CreatedAt", time.Date(2026, 10, 1, 1, 0, 0, 0, time.UTC))))
 	})
@@ -111,7 +123,7 @@ var _ = Describe("retention.Scan", Label("retention"), func() {
 		writeSized(data, "github.com/o/r/runs/2026-10-01/5_ci_main/attempt-1/log.txt", 1)
 		writeSized(data, "github.com/o/r/runs/notes/1_x/artifacts/a/extracted/b.txt", 1)
 
-		runs, err := retention.Scan(data)
+		runs, _, err := retention.Scan(data)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(runs).To(ConsistOf(HaveField("Extracted", BeEmpty())))
 	})
@@ -131,7 +143,7 @@ var _ = Describe("retention.Scan", Label("retention"), func() {
 				})
 			}
 
-			runs, err := retention.ScanWith(data, removingWalk)
+			runs, _, err := retention.ScanWith(data, removingWalk)
 			Expect(err).NotTo(HaveOccurred())
 			Expect(runs).To(ContainElement(HaveField("ID", int64(2))))
 		},
@@ -148,7 +160,7 @@ var _ = Describe("retention.Scan", Label("retention"), func() {
 			Expect(os.MkdirAll(filepath.Dir(link), 0o755)).To(Succeed())
 			Expect(os.Symlink(filepath.Join(root, "elsewhere"), link)).To(Succeed())
 
-			_, err := retention.Scan(data)
+			_, _, err := retention.Scan(data)
 			Expect(err).To(MatchError(ContainSubstring(link)))
 		},
 		Entry("host", "github.com"),
@@ -159,8 +171,28 @@ var _ = Describe("retention.Scan", Label("retention"), func() {
 	)
 
 	It("finds nothing in a missing data/", func() {
-		runs, err := retention.Scan(filepath.Join(GinkgoT().TempDir(), "data"))
+		runs, usage, err := retention.Scan(filepath.Join(GinkgoT().TempDir(), "data"))
 		Expect(err).NotTo(HaveOccurred())
 		Expect(runs).To(BeEmpty())
+		Expect(usage).To(BeZero())
+	})
+
+	It("gives data/'s disk usage as du -sk does, counting a hard-linked file once and a sparse file by its blocks", func() {
+		data := filepath.Join(GinkgoT().TempDir(), "data")
+		run := filepath.Join(data, "github.com/o/r/runs/2026-10-01/1_ci_main")
+		writeSized(run, "attempt-1/log.txt", 300_000)
+		Expect(os.Link(filepath.Join(run, "attempt-1/log.txt"), filepath.Join(run, "attempt-1/link.txt"))).To(Succeed())
+		Expect(os.Symlink("log.txt", filepath.Join(run, "attempt-1/symlink"))).To(Succeed())
+		writeSized(data, "github.com/o/r/notes.txt", 5)
+		sparse, err := os.Create(filepath.Join(run, "sparse"))
+		Expect(err).NotTo(HaveOccurred())
+		Expect(sparse.Truncate(1 << 30)).To(Succeed())
+		Expect(sparse.Close()).To(Succeed())
+
+		_, usage, err := retention.Scan(data)
+
+		Expect(err).NotTo(HaveOccurred())
+		Expect(usage).To(BeNumerically(">", 300_000))
+		Expect((usage + 1023) / 1024).To(Equal(duK(data)))
 	})
 })

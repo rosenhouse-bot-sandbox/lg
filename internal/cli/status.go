@@ -64,13 +64,10 @@ func (c statusCmd) Run(deps *Deps) error {
 	if unit := manager(deps).Installed("lg"); unit != "" {
 		lines = append(lines, "service file: "+unit)
 	}
-	usage, err := du.Bytes(roots.Data)
-	diskUsage := du.Human(usage)
-	if err != nil {
-		diskUsage = "at least " + diskUsage
-		_, _ = fmt.Fprintf(deps.Stderr, "lg: warning: disk usage: %s\n", status.OneLine(err.Error()))
+	lines = append(lines, "data dir: "+roots.Data)
+	if st != nil && st.DataDiskUsageBytes != nil {
+		lines = append(lines, "disk usage: "+du.Human(*st.DataDiskUsageBytes))
 	}
-	lines = append(lines, "data dir: "+roots.Data, "disk usage: "+diskUsage)
 	lines = append(lines, statusLines(st, running)...)
 	_, err = io.WriteString(deps.Stdout, strings.Join(lines, "\n")+"\n")
 	return err

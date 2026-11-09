@@ -4,7 +4,10 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -12,8 +15,8 @@ import (
 	"github.com/onsi/gomega/gexec"
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
-	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/lock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
 )
@@ -48,6 +51,7 @@ var _ = Describe("lg sync", Label("status"), func() {
 		Expect(repo).To(HaveKeyWithValue("runs", 1.0))
 		Expect(repo).To(HaveKeyWithValue("attempts", 1.0))
 		Expect(repo).To(HaveKeyWithValue("bytes_data", float64(treeBytes(env.Data()))))
+		Expect((int64(st["data_disk_usage_bytes"].(float64)) + 1023) / 1024).To(Equal(duK(env.Data())))
 		Expect(repo).To(HaveKeyWithValue("pending_units", 0.0))
 		Expect(repo).To(HaveKeyWithValue("retention_days", 90.0))
 		Expect(repo).To(HaveKeyWithValue("disk_cap_bytes", 50e9))
@@ -137,6 +141,7 @@ var _ = Describe("lg status", Label("status"), func() {
   "blocked": {"since": "2026-10-03T17:55:00Z", "kind": "rate_limit", "detail": "429 Too Many\n\u001b[1mRequests", "retry_at": "2026-10-03T18:01:00Z"},
   "daemon_pid": 4242,
   "daemon_version": "test",
+  "data_disk_usage_bytes": 50000000000,
   "repos": {
     "github.com/rosenhouse-bot-sandbox/lg": {
       "default_branch": "main",
@@ -164,11 +169,10 @@ var _ = Describe("lg status", Label("status"), func() {
 		held, err := lock.Wait(filepath.Join(env.State(), "daemon.lock"), time.Second, clock.Real{}, func(string) {})
 		Expect(err).NotTo(HaveOccurred())
 		DeferCleanup(held.Release)
-		usage, err := du.Bytes(env.Data())
-		Expect(err).NotTo(HaveOccurred())
 		session := env.Lg("status")
 		Eventually(session, harness.ExitTimeout).Should(gexec.Exit(0))
-		Expect(string(session.Out.Contents())).To(Equal("config file: " + env.ConfigFile() + "\ndata dir: " + env.Data() + "\ndisk usage: " + du.Human(usage) + `
+		Expect(string(session.Out.Contents())).To(Equal("config file: " + env.ConfigFile() + "\ndata dir: " + env.Data() + `
+disk usage: 47G
 last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 7)
 last ok sync: 2026-10-03T17:50:00Z
 next sync: 2026-10-03T18:01:00Z
@@ -312,4 +316,33 @@ func pendingSince(env *harness.Env) time.Time {
 // failStuckLog makes the blob host answer one log of attempt 2 with 503.
 func failStuckLog(fake *fakegithub.Server) {
 	fake.Fail("blob", "/logs/111221661475.txt", fakegithub.Fault{Status: http.StatusServiceUnavailable})
+}
+
+var _ = Describe("lg status with an unreadable dir in data/", Label("status"), func() {
+	// Walking data/ can take minutes on a slow disk.
+	It("does not walk data/", func() {
+		if os.Geteuid() == 0 {
+			Skip("root reads any dir")
+		}
+		env := harness.New(lgPath)
+		Expect(store.Init(filepath.Dir(env.Data()))).To(Succeed())
+		unreadable := filepath.Join(env.Data(), "unreadable")
+		Expect(os.MkdirAll(unreadable, 0o000)).To(Succeed())
+		DeferCleanup(os.Chmod, unreadable, os.FileMode(0o755))
+
+		session := env.Lg("status")
+
+		Eventually(session, harness.ExitTimeout).Should(gexec.Exit(0))
+		Expect(string(session.Err.Contents())).To(Equal("lg: warning: never synced; run `lg init --repo OWNER/NAME`\n"))
+	})
+})
+
+// duK gives du -sk of dir.
+func duK(dir string) int64 {
+	GinkgoHelper()
+	out, err := exec.CommandContext(GinkgoT().Context(), "du", "-sk", dir).Output()
+	Expect(err).NotTo(HaveOccurred())
+	k, err := strconv.ParseInt(strings.Fields(string(out))[0], 10, 64)
+	Expect(err).NotTo(HaveOccurred())
+	return k
 }
