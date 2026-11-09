@@ -1,0 +1,19 @@
+== store: 16G on disk, 16G apparent
+== filesystem: ext4
+== files by kind (count, total bytes, median, p90)
+  log.txt      n=31022 bytes=5.74GB median=55KB p90=470KB
+  *.json       n=86347 bytes=0.44GB median=2KB p90=7KB
+  artifact.zip n=3342 bytes=9.84GB median=7KB p90=4931KB
+  extracted/*  n=2543 bytes=0.11GB median=0KB p90=21KB
+  other        n=31665 bytes=0.01GB median=0KB p90=0KB
+== runs per day (last 14 days): 127 104 174 137 27 9 121 172 132 75 62 11 7 83 
+== jobs per attempt (median): 32
+== compression of log.txt in 200 random attempts
+  per-file zstd -3: 6.5x
+  per-file zstd -19: 8.0x
+  per-file zstd -3 with dictionary: 7.6x
+  per-attempt bundle zstd -3: 7.7x
+== 50 artifact.zip: zip 83927823B, unzipped 187625677B, zstd -3 of contents 80459978B (1.0x smaller than zip)
+== 50 extracted/ trees: zip 9475779B, expanded 112534293B, nested archives 1, tar.zst -3 12762844B (0.7x smaller than zip)
+== cold read of the sampled logs, one at a time
+  2071 files, 404MB in 3.4s: 118.9 MB/s, 1.6 ms/file
