@@ -70,7 +70,7 @@ var _ = Describe("lg skill install", Label("skill"), func() {
 		Expect(stale).NotTo(BeAnExistingFile())
 	})
 
-	It("prints the D24 warning, like every command", func() {
+	It("prints the stale-mirror warning, like every command", func() {
 		env := harness.New(lgPath)
 		session := env.Lg("skill", "install")
 		Eventually(session, harness.ExitTimeout).Should(gexec.Exit(0))

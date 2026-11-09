@@ -767,7 +767,8 @@ func isRedirect(status int) bool {
 // UserAgent names lg and its version to GitHub.
 func UserAgent() string { return "lg/" + version.Version }
 
-// do sends the token only to the API host. Go's own rule would send it to a
+// do sends the token only to the API host, since blob storage refuses a
+// request with GitHub's Authorization. Go's own rule would send it to a
 // blob host that differs only by port or is a subdomain.
 func (h *HTTP) do(ctx context.Context, u *url.URL, etag string) (*http.Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), http.NoBody)

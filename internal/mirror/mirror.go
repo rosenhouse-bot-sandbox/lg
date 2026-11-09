@@ -390,6 +390,9 @@ func (m *Mirror) publishAttempt(ctx context.Context, gh github.Client, run liste
 		return err
 	}
 	s := &staged{unit: unit, sources: map[string]source{"commit_pr_numbers": prsSource}, carriedForward: []int64{}}
+	// There is no run.json, because the run object changes with each attempt.
+	// attempt.json is the run as of this attempt, and its created_at is the
+	// attempt's, so fetch.json records run_created_at.
 	err = s.writeJSON("attempt.json", attempt.Raw, attemptSource)
 	if err == nil {
 		err = s.writeJSON("jobs.json", jsonArray(jobs, func(j github.Job) json.RawMessage { return j.Raw }), jobsSource)
