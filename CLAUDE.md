@@ -28,6 +28,11 @@ This applies to code comments, commit messages, issues, markdown docs, etc.
   Aggressively remove prose that doesn't add significant value beyond the code itself.
 - Prune historical context that isn't immediately necessary to understand current behavior.
 - Prefer short, complete sentences with a clear subject and verb.  A noun phrase is not a sentence.
+- Use idiomatic conversational English. When writing a proposal or change summary, lead with a clear goal.
+  For example, in a PR description that introduces a linter:
+    - Awkward: CI runs no linter. ("runs no" is not conversational)
+    - Better: CI does not run a linter.
+    - Best (clear goal): CI should run a linter.
 
 
 ## Adversarial review
