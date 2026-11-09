@@ -340,7 +340,7 @@ var _ = Describe("lg status with an unreadable dir in data/", Label("status"), f
 // duK gives du -sk of dir.
 func duK(dir string) int64 {
 	GinkgoHelper()
-	out, err := exec.Command("du", "-sk", dir).Output()
+	out, err := exec.CommandContext(GinkgoT().Context(), "du", "-sk", dir).Output()
 	Expect(err).NotTo(HaveOccurred())
 	k, err := strconv.ParseInt(strings.Fields(string(out))[0], 10, 64)
 	Expect(err).NotTo(HaveOccurred())
