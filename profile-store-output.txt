@@ -1,0 +1,18 @@
+$ ./profile-store.sh
+== store: 16G on disk, 15G apparent
+== filesystem: ext4
+== files by kind (count, total bytes, median, p90)
+  log.txt      n=31005 bytes=5.74GB median=55KB p90=470KB
+  *.json       n=86297 bytes=0.44GB median=2KB p90=7KB
+  artifact.zip n=3339 bytes=9.84GB median=7KB p90=4976KB
+  other        n=31646 bytes=0.01GB median=0KB p90=0KB
+== runs per day (last 14 days): 127 104 174 137 27 9 121 172 132 75 62 11 7 81
+== jobs per attempt (median): 32
+== compression of log.txt in 200 random attempts
+  per-file zstd -3: 6.2x
+  per-file zstd -19: 7.7x
+  per-file zstd -3 with dictionary: 7.2x
+  per-attempt bundle zstd -3: 7.4x
+== 50 artifact.zip: zip 58508500B, unzipped 143937124B, zstd -3 of contents 55158891B (1.1x smaller than zip)
+== cold read of the sampled logs, one at a time
+  1864 files, 343MB in 3.3s: 103.5 MB/s, 1.8 ms/file
