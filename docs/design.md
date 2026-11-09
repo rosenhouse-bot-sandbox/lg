@@ -1,7 +1,9 @@
 # Design
+The purpose of this tool is to maintain a local cache of recent GitHub Actions CI results, to enable fast searching.
 
-These decisions are ones that code and specs cannot show.
-`internal/testsupport/recordings/github_test.go` pins the GitHub API behavior that lg depends on.
+## Terms
+
+- A recording is a snapshot of GitHub API responses for one run, which `testdata/recordings/record.sh` captured from the `lg-fixture` workflow. `internal/testsupport/recordings/github_test.go` checks the GitHub behavior that lg depends on against the recordings.
 
 ## Scope
 

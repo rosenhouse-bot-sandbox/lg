@@ -1,8 +1,11 @@
 # lg
 
-lg mirrors one GitHub repository's Actions runs, attempts, job logs and artifacts into plain files.
-You and your coding agents then answer CI questions from disk with `rg`, `grep` and `jq`, such as when an error first appeared or which jobs are flaky.
-A daemon keeps the mirror up to date.
+lg mirrors one GitHub repository's Actions runs, attempts, job logs and artifacts into plain files on your local machine.
+
+It is intended to enable fast local searching of CI results.  For example, ask your coding agent
+> CI for this branch has failed.  Is this a flake we've seen before?  Use the `lg` tool.
+
+An optional daemon (`lg daemon install`) keeps the local cache fresh.
 lg runs on Linux and macOS against github.com or GitHub Enterprise Server.
 For GitHub Enterprise Server, run `gh auth login --hostname HOST` and `lg init --repo OWNER/NAME --host HOST`.
 
@@ -122,15 +125,12 @@ While `data/` exceeds `disk_cap`, 50GB by default, lg removes `extracted/` trees
 
 ## Design
 
-[docs/design.md](docs/design.md) holds lg's scope and open questions.
-Specs and package comments describe everything else.
 Open issues labeled `enhancement` hold deferred work.
 
 ## Develop
 
 `make lint test build` needs [golangci-lint](https://golangci-lint.run) v2.15.0.
 `go tool ginkgo -r --label-filter=<feature>` runs the specs of one feature, such as `extract`.
-`make test` runs specs in parallel, so each spec gets its own temp dirs, ports and fakes.
 Code takes GitHub, gh, processes, the clock and the store's filesystem through interfaces, so specs inject fakes.
 `e2e/` drives a built lg binary against `internal/testsupport/fakegithub`.
 Specs labeled `live` run against github.com/rosenhouse-bot-sandbox/lg.
