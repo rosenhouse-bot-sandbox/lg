@@ -32,6 +32,7 @@ jobs:
               - '!CLAUDE.md'
               - '!LICENSE'
               - '!README.md'
+              - '!docs/**'
               - '!.github/dependabot.yml'
               - '!.github/workflows/dependabot-auto-merge.yml'
               - '!.github/workflows/lg-fixture.yml'
