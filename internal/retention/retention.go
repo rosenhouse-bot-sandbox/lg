@@ -17,6 +17,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/layout"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 )
@@ -139,7 +140,7 @@ func raise(h Horizons, evicted []Run) Horizons {
 
 // Find gives what retention removes from data/ at now, past the stored horizons h.
 func Find(data string, h Horizons, now time.Time, retention time.Duration, diskCap int64) (Victims, error) {
-	runs, err := Scan(data)
+	runs, _, err := Scan(data)
 	if err != nil {
 		return Victims{}, err
 	}
@@ -162,11 +163,13 @@ func Retain(ctx context.Context, s *store.Store, now time.Time, retention time.D
 }
 
 // Scan finds the run dirs under every data/<host>/<owner>/<repo>/runs/<date>/,
-// with the apparent bytes of their regular files.
-func Scan(data string) ([]Run, error) { return scan(data, filepath.WalkDir) }
+// with the apparent bytes of their regular files. It also gives the disk usage
+// of all of data/.
+func Scan(data string) ([]Run, int64, error) { return scan(data, filepath.WalkDir) }
 
-func scan(data string, walk func(string, fs.WalkDirFunc) error) ([]Run, error) {
+func scan(data string, walk func(string, fs.WalkDirFunc) error) ([]Run, int64, error) {
 	var runs []Run
+	var usage du.Usage
 	err := walk(data, func(path string, d fs.DirEntry, err error) error {
 		// Only eviction removes what is under data/.
 		if errors.Is(err, fs.ErrNotExist) {
@@ -182,6 +185,16 @@ func scan(data string, walk func(string, fs.WalkDirFunc) error) ([]Run, error) {
 		parts := strings.Split(filepath.ToSlash(rel), "/")
 		if d.Type()&fs.ModeSymlink != 0 && len(parts) <= dateDepth {
 			return fmt.Errorf("%s is a symlink, which lg does not follow below %s", path, data)
+		}
+		info, err := d.Info()
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		if err := usage.Add(path, info); err != nil {
+			return err
 		}
 		// WalkDir visits all of a dir before its next sibling, so a path
 		// within any run is within the last run found.
@@ -207,13 +220,6 @@ func scan(data string, walk func(string, fs.WalkDirFunc) error) ([]Run, error) {
 		if run == nil || !within(path, run.Dir) || !d.Type().IsRegular() {
 			return nil
 		}
-		info, err := d.Info()
-		if errors.Is(err, fs.ErrNotExist) {
-			return nil
-		}
-		if err != nil {
-			return err
-		}
 		run.Bytes += info.Size()
 		if tree := last(run.Extracted); tree != nil && within(path, tree.Dir) {
 			tree.Bytes += info.Size()
@@ -223,7 +229,7 @@ func scan(data string, walk func(string, fs.WalkDirFunc) error) ([]Run, error) {
 	for i := range runs {
 		runs[i].CreatedAt = runCreatedAt(runs[i].Dir)
 	}
-	return runs, err
+	return runs, usage.Bytes, err
 }
 
 // dateDepth is the depth below data/ of <host>/<owner>/<repo>/runs/<date>,

@@ -9,7 +9,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/retention"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
@@ -40,7 +40,7 @@ var _ = Describe("Measure", Label("status"), func() {
 		writeFile(data, "github.com/rosenhouse-bot-sandbox/other/runs/2026-10-03/4_ci_main/attempt-1/fetch.json", fetchJSON(completed.Add(2*time.Hour)))
 		writeFile(state, "horizon.json", `{"github.com/rosenhouse-bot-sandbox/Lg":"2026-09-01T00:00:00Z","github.com/rosenhouse-bot-sandbox/lg":"2026-08-01T00:00:00Z","github.com/rosenhouse-bot-sandbox/other":"2026-09-30T00:00:00Z"}`)
 
-		usage, err := du.Bytes(data)
+		_, usage, err := retention.Scan(data)
 		Expect(err).NotTo(HaveOccurred())
 
 		disk, err := status.Measure(data, state, "github.com/rosenhouse-bot-sandbox/lg")

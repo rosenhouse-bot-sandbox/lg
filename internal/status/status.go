@@ -14,7 +14,6 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/failure"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/retention"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
@@ -430,7 +429,7 @@ func Write(fsys store.FS, path string, st Status) error {
 // data/, its eviction horizon in state/, and data/'s disk usage. A completed
 // run is one with an attempt on disk.
 func Measure(data, state, repo string) (Disk, error) {
-	runs, err := retention.Scan(data)
+	runs, usage, err := retention.Scan(data)
 	if err != nil {
 		return Disk{}, err
 	}
@@ -438,7 +437,7 @@ func Measure(data, state, repo string) (Disk, error) {
 	if err != nil {
 		return Disk{}, err
 	}
-	d := Disk{Published: map[Unit]bool{}}
+	d := Disk{Published: map[Unit]bool{}, DataDiskUsage: &usage}
 	for _, r := range runs {
 		if !strings.EqualFold(r.Repo, repo) {
 			continue
@@ -461,10 +460,5 @@ func Measure(data, state, repo string) (Disk, error) {
 			d.Horizon = horizon
 		}
 	}
-	usage, err := du.Bytes(data)
-	if err != nil {
-		return d, err
-	}
-	d.DataDiskUsage = &usage
 	return d, nil
 }

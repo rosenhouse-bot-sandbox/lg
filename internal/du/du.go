@@ -2,59 +2,40 @@
 package du
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
-	"path/filepath"
 	"syscall"
 )
 
-// Bytes gives the disk space that the tree at dir allocates, counting each
-// hard-linked file once. It gives 0 when dir does not exist, and skips
-// entries that vanish during the walk. Like du, it counts what it can read,
-// and returns that total with the errors of what it could not.
-func Bytes(dir string) (int64, error) {
-	root, err := filepath.EvalSymlinks(dir)
-	if errors.Is(err, fs.ErrNotExist) {
-		return 0, nil
+// Usage sums the disk space that files allocate, as du does.
+type Usage struct {
+	Bytes int64
+	seen  map[inode]bool
+}
+
+type inode struct {
+	dev int64
+	ino uint64
+}
+
+// Add counts info's blocks, unless u has counted another link to its file.
+func (u *Usage) Add(path string, info fs.FileInfo) error {
+	st, ok := info.Sys().(*syscall.Stat_t)
+	if !ok {
+		return fmt.Errorf("%s: no block count", path)
 	}
-	if err != nil {
-		return 0, err
-	}
-	type inode struct {
-		dev int64
-		ino uint64
-	}
-	seen := map[inode]bool{}
-	var total int64
-	var errs []error
-	err = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		var info fs.FileInfo
-		if err == nil {
-			info, err = d.Info()
-		}
-		if errors.Is(err, fs.ErrNotExist) {
+	if st.Nlink > 1 && !info.IsDir() {
+		id := inode{int64(st.Dev), st.Ino}
+		if u.seen[id] {
 			return nil
 		}
-		if err != nil {
-			errs = append(errs, err)
-			return nil
+		if u.seen == nil {
+			u.seen = map[inode]bool{}
 		}
-		st, ok := info.Sys().(*syscall.Stat_t)
-		if !ok {
-			return fmt.Errorf("%s: no block count", path)
-		}
-		if st.Nlink > 1 {
-			id := inode{int64(st.Dev), st.Ino}
-			if seen[id] {
-				return nil
-			}
-			seen[id] = true
-		}
-		total += st.Blocks * 512
-		return nil
-	})
-	return total, errors.Join(append(errs, err)...)
+		u.seen[id] = true
+	}
+	u.Bytes += st.Blocks * 512
+	return nil
 }
 
 // Human formats n as GNU du -h does: in powers of 1024, rounded up.
