@@ -12,8 +12,8 @@ import (
 	"github.com/onsi/gomega/gexec"
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
-	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/lock"
+	"github.com/rosenhouse-bot-sandbox/lg/internal/store"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
 )
@@ -164,11 +164,9 @@ var _ = Describe("lg status", Label("status"), func() {
 		held, err := lock.Wait(filepath.Join(env.State(), "daemon.lock"), time.Second, clock.Real{}, func(string) {})
 		Expect(err).NotTo(HaveOccurred())
 		DeferCleanup(held.Release)
-		usage, err := du.Bytes(env.Data())
-		Expect(err).NotTo(HaveOccurred())
 		session := env.Lg("status")
 		Eventually(session, harness.ExitTimeout).Should(gexec.Exit(0))
-		Expect(string(session.Out.Contents())).To(Equal("config file: " + env.ConfigFile() + "\ndata dir: " + env.Data() + "\ndisk usage: " + du.Human(usage) + `
+		Expect(string(session.Out.Contents())).To(Equal("config file: " + env.ConfigFile() + "\ndata dir: " + env.Data() + `
 last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 7)
 last ok sync: 2026-10-03T17:50:00Z
 next sync: 2026-10-03T18:01:00Z
@@ -313,3 +311,22 @@ func pendingSince(env *harness.Env) time.Time {
 func failStuckLog(fake *fakegithub.Server) {
 	fake.Fail("blob", "/logs/111221661475.txt", fakegithub.Fault{Status: http.StatusServiceUnavailable})
 }
+
+var _ = Describe("lg status with an unreadable dir in data/", Label("status"), func() {
+	// Walking data/ can take minutes on a slow disk.
+	It("does not walk data/", func() {
+		if os.Geteuid() == 0 {
+			Skip("root reads any dir")
+		}
+		env := harness.New(lgPath)
+		Expect(store.Init(filepath.Dir(env.Data()))).To(Succeed())
+		unreadable := filepath.Join(env.Data(), "unreadable")
+		Expect(os.MkdirAll(unreadable, 0o000)).To(Succeed())
+		DeferCleanup(os.Chmod, unreadable, os.FileMode(0o755))
+
+		session := env.Lg("status")
+
+		Eventually(session, harness.ExitTimeout).Should(gexec.Exit(0))
+		Expect(string(session.Err.Contents())).To(Equal("lg: warning: never synced; run `lg init --repo OWNER/NAME`\n"))
+	})
+})

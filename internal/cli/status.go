@@ -15,7 +15,6 @@ import (
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/config"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/daemon"
-	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/status"
 )
 
@@ -64,13 +63,7 @@ func (c statusCmd) Run(deps *Deps) error {
 	if unit := manager(deps).Installed("lg"); unit != "" {
 		lines = append(lines, "service file: "+unit)
 	}
-	usage, err := du.Bytes(roots.Data)
-	diskUsage := du.Human(usage)
-	if err != nil {
-		diskUsage = "at least " + diskUsage
-		_, _ = fmt.Fprintf(deps.Stderr, "lg: warning: disk usage: %s\n", status.OneLine(err.Error()))
-	}
-	lines = append(lines, "data dir: "+roots.Data, "disk usage: "+diskUsage)
+	lines = append(lines, "data dir: "+roots.Data)
 	lines = append(lines, statusLines(st, running)...)
 	_, err = io.WriteString(deps.Stdout, strings.Join(lines, "\n")+"\n")
 	return err

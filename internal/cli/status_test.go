@@ -2,7 +2,6 @@ package cli_test
 
 import (
 	"context"
-	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -17,7 +16,6 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/rosenhouse-bot-sandbox/lg/internal/clock"
-	"github.com/rosenhouse-bot-sandbox/lg/internal/du"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/lock"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/fakegithub"
 	"github.com/rosenhouse-bot-sandbox/lg/internal/testsupport/harness"
@@ -121,7 +119,7 @@ var _ = Describe("lg status before any sync", Label("status"), func() {
 		s := harness.NewCLI()
 
 		Expect(s.Main("status")).To(Equal(0))
-		Expect(s.Stdout.String()).To(Equal("config file: " + s.Config + "\ndata dir: " + filepath.Join(s.Home, "data") + "\ndisk usage: 0\nlast sync: never\ndaemon: not running\n"))
+		Expect(s.Stdout.String()).To(Equal("config file: " + s.Config + "\ndata dir: " + filepath.Join(s.Home, "data") + "\nlast sync: never\ndaemon: not running\n"))
 
 		Expect(s.Main("status", "--json")).To(Equal(1))
 		Expect(s.Stdout.String()).To(BeEmpty())
@@ -133,11 +131,9 @@ var _ = Describe("lg status after a good sync", Label("status"), func() {
 	It("prints every field of a status.json with nothing blocked, scheduled or running", func() {
 		s := harness.NewCLI()
 		s.WriteStatus(goodStatus)
-		usage, err := du.Bytes(filepath.Join(s.Home, "data"))
-		Expect(err).NotTo(HaveOccurred())
 
 		Expect(s.Main("status")).To(Equal(0))
-		Expect(s.Stdout.String()).To(Equal("config file: " + s.Config + "\ndata dir: " + filepath.Join(s.Home, "data") + "\ndisk usage: " + du.Human(usage) + `
+		Expect(s.Stdout.String()).To(Equal("config file: " + s.Config + "\ndata dir: " + filepath.Join(s.Home, "data") + `
 last sync: 2026-10-03T17:59:00Z, finished 2026-10-03T17:59:30Z (cycle 2)
 last ok sync: 2026-10-03T17:59:30Z
 next sync: none (daemon not running)
@@ -151,19 +147,6 @@ github.com/rosenhouse-bot-sandbox/lg:
   horizon: none
   retention: 30 days, disk_cap: 1MB
 `))
-	})
-})
-
-var _ = Describe("lg status with files in the data dir", Label("status"), func() {
-	It("prints the data dir's disk usage as du -h does", func() {
-		s := harness.NewCLI()
-		s.WriteStatus(goodStatus)
-		random := make([]byte, 20_000)
-		_, _ = rand.Read(random)
-		Expect(os.WriteFile(filepath.Join(s.Home, "data", "f"), random, 0o644)).To(Succeed())
-
-		Expect(s.Main("status")).To(Equal(0), s.Stderr.String())
-		Expect(s.Stdout.String()).To(MatchRegexp(`\ndisk usage: [1-9][0-9]K\n`))
 	})
 })
 
