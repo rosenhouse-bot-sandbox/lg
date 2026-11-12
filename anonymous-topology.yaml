@@ -1,0 +1,242 @@
+nodes:
+  - name: node-001
+    group: group-001
+  - name: node-002
+    group: group-001
+  - name: node-003
+    group: group-001
+  - name: node-004
+    group: group-001
+  - name: node-005
+    group: group-001
+  - name: node-006
+    group: group-001
+  - name: node-007
+    group: group-001
+  - name: node-008
+    group: group-001
+  - name: node-009
+    group: group-002
+  - name: node-010
+    group: group-002
+  - name: node-011
+    group: group-002
+  - name: node-012
+    group: group-002
+  - name: node-013
+    group: group-003
+  - name: node-014
+    group: group-003
+  - name: node-015
+    group: group-003
+  - name: node-016
+    group: group-004
+  - name: node-017
+    group: group-004
+  - name: node-018
+    group: group-004
+  - name: node-019
+    group: group-004
+  - name: node-020
+    group: group-004
+  - name: node-021
+    group: group-004
+  - name: node-022
+    group: group-004
+  - name: node-023
+    group: group-004
+  - name: node-024
+    group: group-004
+  - name: node-025
+    group: group-004
+  - name: node-026
+    group: group-004
+  - name: node-027
+    group: group-004
+  - name: node-028
+    group: group-004
+  - name: node-029
+    group: group-004
+  - name: node-030
+    group: group-005
+  - name: node-031
+    group: group-005
+  - name: node-032
+    group: group-006
+  - name: node-033
+    group: group-006
+  - name: node-034
+    group: group-006
+  - name: node-035
+    group: group-006
+  - name: node-036
+    group: group-006
+  - name: node-037
+    group: group-006
+  - name: node-038
+    group: group-006
+  - name: node-039
+    group: group-006
+  - name: node-040
+    group: group-007
+  - name: node-041
+    group: group-007
+  - name: node-042
+    group: group-008
+  - name: node-043
+    group: group-008
+  - name: node-044
+    group: group-008
+  - name: node-045
+    group: group-008
+  - name: node-046
+    group: group-008
+  - name: node-047
+    group: group-008
+  - name: node-048
+    group: group-008
+  - name: node-049
+    group: group-008
+  - name: node-050
+    group: group-009
+  - name: node-051
+    group: group-009
+  - name: node-052
+    group: group-009
+  - name: node-053
+    group: group-009
+  - name: node-054
+    group: group-009
+  - name: node-055
+    group: group-009
+edges:
+  - source: node-010
+    dest: node-010
+  - source: node-027
+    dest: node-016
+  - source: node-028
+    dest: node-020
+  - source: node-011
+    dest: node-009
+  - source: node-010
+    dest: node-011
+  - source: node-044
+    dest: node-011
+  - source: node-034
+    dest: node-011
+  - source: node-033
+    dest: node-011
+  - source: node-045
+    dest: node-011
+  - source: node-041
+    dest: node-040
+  - source: node-046
+    dest: node-028
+  - source: node-044
+    dest: node-046
+  - source: node-012
+    dest: node-010
+  - source: node-031
+    dest: node-012
+  - source: node-030
+    dest: node-012
+  - source: node-036
+    dest: node-032
+  - source: node-044
+    dest: node-036
+  - source: node-047
+    dest: node-043
+  - source: node-044
+    dest: node-047
+  - source: node-015
+    dest: node-022
+  - source: node-009
+    dest: node-015
+  - source: node-048
+    dest: node-044
+  - source: node-037
+    dest: node-033
+  - source: node-010
+    dest: node-037
+  - source: node-009
+    dest: node-037
+  - source: node-032
+    dest: node-037
+  - source: node-038
+    dest: node-034
+  - source: node-044
+    dest: node-038
+  - source: node-039
+    dest: node-035
+  - source: node-009
+    dest: node-039
+  - source: node-034
+    dest: node-039
+  - source: node-049
+    dest: node-029
+  - source: node-044
+    dest: node-049
+  - source: node-049
+    dest: node-023
+  - source: node-044
+    dest: node-049
+  - source: node-049
+    dest: node-024
+  - source: node-044
+    dest: node-049
+  - source: node-045
+    dest: node-001
+  - source: node-009
+    dest: node-002
+  - source: node-034
+    dest: node-002
+  - source: node-033
+    dest: node-002
+  - source: node-045
+    dest: node-002
+  - source: node-034
+    dest: node-003
+  - source: node-009
+    dest: node-003
+  - source: node-042
+    dest: node-003
+  - source: node-009
+    dest: node-004
+  - source: node-042
+    dest: node-004
+  - source: node-026
+    dest: node-050
+  - source: node-013
+    dest: node-051
+  - source: node-026
+    dest: node-051
+  - source: node-021
+    dest: node-052
+  - source: node-014
+    dest: node-053
+  - source: node-026
+    dest: node-053
+  - source: node-010
+    dest: node-005
+  - source: node-009
+    dest: node-006
+  - source: node-034
+    dest: node-006
+  - source: node-033
+    dest: node-006
+  - source: node-026
+    dest: node-054
+  - source: node-021
+    dest: node-055
+  - source: node-034
+    dest: node-007
+  - source: node-009
+    dest: node-007
+  - source: node-009
+    dest: node-008
+  - source: node-032
+    dest: node-008
+  - source: node-040
+    dest: node-029
+  - source: node-044
+    dest: node-029
